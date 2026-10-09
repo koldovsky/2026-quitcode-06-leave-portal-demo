@@ -251,7 +251,7 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
 | 1 | `openspec/changes/archive/*-impl-leave-request/design.md` (таблиця прав) і `tasks.md` («Done when: AC-…») | `skip_specs: true` у `.openspec.yaml` | файли на GitHub на тезі `demo-03-impl` |
-| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики | файл на екрані без змін; на питання «чи це працює» — на `main` це перевіряє `tests/db/leave-db.test.ts` (PGlite, розділ 3) | файл на GitHub; в основній теці на `main`: `npx vitest run tests/db` |
+| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики. Про порядок сказати: тут `update` іде до `drop constraint`, бо в цьому демо міграції застосовуються разом, до `users:demo`, і профілів ще немає; у проєкті, де користувачі з `member` уже є, старий constraint знімають першим — зразок у заголовку `20261012000000_profiles_and_roles.sql` на `main` і в `AGENTS.md` | файл на екрані без змін; на питання «чи це працює» — на `main` це перевіряє `tests/db/leave-db.test.ts` (PGlite, розділ 3) | файл на GitHub; в основній теці на `main`: `npx vitest run tests/db` |
 | 3 | `npx vitest run -t "AC-LEAVE-0"` | 15 тестів з AC ID у назвах, решта skipped — усі зелені | `npm test` |
 | 4 | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | `docs/conformance.md` на тезі `demo-03-impl` |
 | 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |

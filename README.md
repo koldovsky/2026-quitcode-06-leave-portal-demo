@@ -158,7 +158,9 @@ npm pkg set engines.node=24.x scripts.lint="eslint --max-warnings 0" \
   scripts.db:push="supabase db push" \
   scripts.db:types="supabase gen types typescript --linked > src/lib/supabase/database.types.ts" \
   scripts.users:demo="node --env-file=.env.local scripts/create-demo-users.mjs"
-sed -i 's/^\.env\*$/.env*\n!.env.example/' .gitignore   # .env.example комітимо (GNU sed; на macOS — допишіть рядок вручну)
+printf '\n!.env.example\n/product/denylist.local.txt\n' >> .gitignore
+# !.env.example — .env.example комітимо (правило після `.env*` скасовує його для цього файлу);
+# /product/denylist.local.txt — справжні назви клієнтів для spec:check лише локально
 printf '* text=auto eol=lf\n*.ico binary\n*.png binary\n' > .gitattributes
 
 # 3. Supabase: конфіг і міграція
@@ -179,7 +181,7 @@ npx openspec update
 # openspec/config.yaml: context + rules (кожен пункт у лапках); порожні openspec/specs і openspec/changes з .gitkeep
 
 # 5. Перенести з цього шаблону файли, написані вручну:
-#   src/proxy.ts, src/lib/supabase/*, src/app/{page.tsx,login/*}, scripts/**, tests/**, vitest.config.mts,
+#   src/proxy.ts, src/lib/supabase/*, src/app/{layout.tsx,page.tsx,login/*}, scripts/**, tests/**, vitest.config.mts,
 #   .claude/{settings.json,commands/conformance.md,skills/spec-*}, .cursor/commands/conformance.md, .mcp.json,
 #   .github/**, .coderabbit.yaml, AGENTS.md (наші розділи після блоку Next.js), CLAUDE.md,
 #   product/**, docs/**, .env.example, .spec-source
