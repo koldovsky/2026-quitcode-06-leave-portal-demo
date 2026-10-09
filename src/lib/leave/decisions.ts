@@ -1,4 +1,4 @@
-import { validateDates } from "./submission";
+import { normalizeSubstitute, validateDates } from "./submission";
 import { fail, ok, type IsoDate, type LeaveType, type RecordStatus, type RequestStatus, type Result } from "./types";
 
 export type Decision = "approve" | "return";
@@ -45,6 +45,7 @@ export interface Resubmission {
   leaveType: LeaveType;
   startDate: IsoDate;
   endDate: IsoDate;
+  substituteNote: string | null;
   /** Усі записи заявки знову на розгляді (власне припущення в docs/spec-reading.md). */
   recordStatus: "pending";
 }
@@ -55,10 +56,12 @@ export interface Resubmission {
  */
 export function resubmit(
   request: { recordStatuses: RecordStatus[] },
-  input: { leaveType: string; startDate: string; endDate: string },
+  input: { leaveType: string; startDate: string; endDate: string; substituteNote?: string | null },
 ): Result<Resubmission> {
   if (requestStatus(request.recordStatuses) !== "needs_revision") return fail("NOT_NEEDS_REVISION");
   const dates = validateDates(input.leaveType, input.startDate, input.endDate);
   if (!dates.ok) return dates;
-  return ok({ ...dates.value, recordStatus: "pending" });
+  const substitute = normalizeSubstitute(input.substituteNote);
+  if (!substitute.ok) return substitute;
+  return ok({ ...dates.value, substituteNote: substitute.value, recordStatus: "pending" });
 }

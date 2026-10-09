@@ -1,4 +1,4 @@
-// Доменні типи зрізу «Подання заявки на відсутність і рішення менеджера» (spec-v0.1).
+// Доменні типи зрізу «Подання заявки на відсутність і рішення менеджера» (spec-v0.2).
 // Модуль чистий: без Supabase, Next.js і поточного часу — тому його тестують юніт-тестами з AC ID.
 
 export const LEAVE_TYPES = ["sick", "vacation", "business_trip"] as const;
@@ -35,6 +35,9 @@ export interface RecordDraft {
 export type LeaveErrorCode =
   | "INVALID_RANGE" // AC-LEAVE-03
   | "COMMENT_REQUIRED" // AC-LEAVE-07
+  | "ONLY_BLOCKED_DAYS" // AC-LEAVE-10
+  | "OVERLAPPING_REQUEST" // AC-LEAVE-11
+  | "SUBSTITUTE_TOO_LONG"
   | "INVALID_DATE"
   | "INVALID_TYPE"
   | "NO_POSITIONS"

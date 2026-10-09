@@ -16,13 +16,25 @@ export interface SubmissionInput {
   startDate: string;
   endDate: string;
   positionIds: string[];
+  /** Заміна (хто веде уроки) — необов'язковий вільний текст (spec-v0.2, AC-LEAVE-01). */
+  substituteNote?: string | null;
 }
 
 export interface ValidSubmission {
   leaveType: LeaveType;
   startDate: IsoDate;
   endDate: IsoDate;
+  substituteNote: string | null;
   records: RecordDraft[];
+}
+
+export const SUBSTITUTE_MAX_LENGTH = 200;
+
+/** AC-LEAVE-01 (spec-v0.2): заміна необов'язкова; порожній текст — null; межа 200 символів — наше рішення. */
+export function normalizeSubstitute(value: string | null | undefined): Result<string | null> {
+  const text = value?.trim() ?? "";
+  if (text.length > SUBSTITUTE_MAX_LENGTH) return fail("SUBSTITUTE_TOO_LONG");
+  return ok(text === "" ? null : text);
 }
 
 export function isLeaveType(value: string): value is LeaveType {
@@ -50,5 +62,7 @@ export function validateSubmission(input: SubmissionInput, positions: Position[]
   if (!dates.ok) return dates;
   const records = splitIntoRecords(positions, input.positionIds);
   if (!records.ok) return records;
-  return ok({ ...dates.value, records: records.value });
+  const substitute = normalizeSubstitute(input.substituteNote);
+  if (!substitute.ok) return substitute;
+  return ok({ ...dates.value, substituteNote: substitute.value, records: records.value });
 }

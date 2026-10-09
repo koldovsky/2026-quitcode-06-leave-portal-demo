@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { isIsoDate } from "@/lib/leave/dates";
-import { validateSubmission } from "@/lib/leave/submission";
+import { normalizeSubstitute, validateSubmission } from "@/lib/leave/submission";
 import { singlePosition, twoPositions } from "./fixtures";
 
 describe("Подання заявки", () => {
-  it("AC-LEAVE-01: заявка на одну посаду — один запис main зі статусом pending", () => {
+  it("AC-LEAVE-01: заявка на одну посаду без заміни — один запис main зі статусом pending", () => {
     const result = validateSubmission(
       { leaveType: "sick", startDate: "2026-11-03", endDate: "2026-11-04", positionIds: ["pos-single-main"] },
       singlePosition,
@@ -15,12 +15,13 @@ describe("Подання заявки", () => {
         leaveType: "sick",
         startDate: "2026-11-03",
         endDate: "2026-11-04",
+        substituteNote: null,
         records: [{ positionId: "pos-single-main", kind: "main", divisionId: "div-primary", status: "pending" }],
       },
     });
   });
 
-  it("AC-LEAVE-02: працівник позначив обидві посади — одна заявка з двома записами main і additional", () => {
+  it("AC-LEAVE-02: працівник позначив обидві посади (розклад за обома) — одна заявка з двома записами main і additional", () => {
     const result = validateSubmission(
       {
         leaveType: "vacation",
@@ -44,6 +45,25 @@ describe("Подання заявки", () => {
       twoPositions,
     );
     expect(result.ok && result.value.records.map((r) => r.kind)).toEqual(["main"]);
+  });
+
+  it("AC-LEAVE-01: заміну можна вказати вільним текстом — вона зберігається без зайвих пробілів", () => {
+    const result = validateSubmission(
+      {
+        leaveType: "sick",
+        startDate: "2026-11-03",
+        endDate: "2026-11-04",
+        positionIds: ["pos-single-main"],
+        substituteNote: "  Колега з паралельного класу ",
+      },
+      singlePosition,
+    );
+    expect(result.ok && result.value.substituteNote).toBe("Колега з паралельного класу");
+  });
+
+  it("заміна довша за 200 символів — SUBSTITUTE_TOO_LONG; порожня — null", () => {
+    expect(normalizeSubstitute("x".repeat(201))).toEqual({ ok: false, error: "SUBSTITUTE_TOO_LONG" });
+    expect(normalizeSubstitute("   ")).toEqual({ ok: true, value: null });
   });
 
   it("AC-LEAVE-03: дата кінця раніша за дату початку — INVALID_RANGE", () => {

@@ -54,7 +54,13 @@ describe("Рішення менеджера", () => {
     );
     expect(result).toEqual({
       ok: true,
-      value: { leaveType: "sick", startDate: "2026-11-03", endDate: "2026-11-05", recordStatus: "pending" },
+      value: {
+        leaveType: "sick",
+        startDate: "2026-11-03",
+        endDate: "2026-11-05",
+        substituteNote: null,
+        recordStatus: "pending",
+      },
     });
   });
 

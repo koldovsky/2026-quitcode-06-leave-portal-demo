@@ -20,6 +20,9 @@ export const STATUS_LABELS: Record<RecordStatus, string> = {
 export const ERROR_MESSAGES: Record<LeaveErrorCode, string> = {
   INVALID_RANGE: "Дата кінця раніша за дату початку.",
   COMMENT_REQUIRED: "Щоб повернути заявку на доопрацювання, напишіть коментар.",
+  ONLY_BLOCKED_DAYS: "У вибраних датах лише заблоковані дні — оформлювати відсутність не потрібно.",
+  OVERLAPPING_REQUEST: "На ці дати у вас уже є заявка на розгляді або схвалена.",
+  SUBSTITUTE_TOO_LONG: "Заміна — не довше 200 символів.",
   INVALID_DATE: "Вкажіть дати початку й кінця.",
   INVALID_TYPE: "Оберіть тип відсутності.",
   NO_POSITIONS: "Позначте хоча б одну посаду.",
