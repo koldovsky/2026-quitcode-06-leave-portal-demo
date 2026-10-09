@@ -1,7 +1,8 @@
 # Журнал версій специфікації
 
 <!--
-Заповнює PM при кожному релізі, у гілці зміни до merge: `npx openspec archive <id> -y` + запис тут → merge → тег spec-vX.Y.
+Заповнює PM при кожному релізі, у гілці зміни до merge: `npx openspec archive <id> -y` + запис тут → merge (merge commit) →
+git switch main && git pull → git tag spec-vX.Y → git push origin spec-vX.Y.
 Розробники читають цей файл, щоб знати, що синхронізувати (гілка sync/spec-vX.Y у форку).
 Формат запису:
 
