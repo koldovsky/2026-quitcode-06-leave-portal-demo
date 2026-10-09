@@ -1,0 +1,13 @@
+$ npm run ac:coverage
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 ac:coverage
+> node scripts/check-ac-coverage.mjs
+
+ac:coverage — AC у специфікаціях: 11, рядків у матриці: 9, «реалізовано»: 9, AC у назвах тестів: 9
+
+NO-ROW: AC зі специфікації без рядка в docs/conformance.md (2):
+  - AC-LEAVE-10 (openspec/specs/leave-requests/spec.md:44)
+  - AC-LEAVE-11 (openspec/specs/leave-requests/spec.md:97)
+
+FAIL: проблем — 2. Оновіть docs/conformance.md і тести.
+(exit code: 1)
