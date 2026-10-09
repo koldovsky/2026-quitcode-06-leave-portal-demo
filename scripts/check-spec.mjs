@@ -7,7 +7,8 @@
 //   3b) кожна активна зміна (openspec/changes/<id>, крім archive/) після archive не дасть дубля AC ID:
 //      той самий ID двічі в зміні, ADDED-ID, який уже є в openspec/specs, MODIFIED-сценарій з ID чужої вимоги;
 //      і дві активні зміни не вводять той самий новий ID;
-//   4) жодне слово зі списку заборонених (product/denylist.txt + змінна середовища SPEC_DENYLIST)
+//   4) жодне слово зі списку заборонених (product/denylist.txt + локальний product/denylist.local.txt
+//      + змінна середовища SPEC_DENYLIST)
 //      не трапляється в product/ і openspec/ (без урахування регістру; збіг за ПОЧАТКОМ слова, тож
 //      «Контосо» ловить і «Контосо», і «Контосою», і «Контосо-офіс»).
 // Код виходу: 0 — усе гаразд, 1 — є помилки.
@@ -159,32 +160,45 @@ for (const [id, list] of introducedBy) {
   }
 }
 
-// 4. Denylist: файл product/denylist.txt (рядки, # — коментар) і секрет CI SPEC_DENYLIST
-//    (через кому або з нового рядка). Справжні назви клієнтів у публічному репо тримайте в секреті,
-//    а не у файлі: інакше сам файл стане витоком.
-const denylistFile = path.join(root(), "product", "denylist.txt");
-const words = []; // { word, fromEnv }
-if (existsSync(denylistFile)) {
-  for (const raw of readText(denylistFile).split("\n")) {
+// 4. Denylist — три джерела (рядки, # — коментар):
+//    product/denylist.txt        — публічний: внутрішні слова, які не мають потрапити в специфікації;
+//    product/denylist.local.txt  — ЛОКАЛЬНИЙ, у .gitignore: справжні назви клієнтів на машині PM;
+//    SPEC_DENYLIST               — секрет CI (через кому або з нового рядка): ті самі назви для GitHub Actions.
+//    Справжні назви клієнтів у публічному репо — лише в локальному файлі й секреті: інакше сам файл стане витоком.
+//    Значення з локального файлу й секрету не друкуємо (екран можуть бачити інші — демонстрація, запис).
+const DENYLIST_FILES = [
+  { file: "product/denylist.txt", secret: false },
+  { file: "product/denylist.local.txt", secret: true },
+];
+const words = []; // { word, source, secret }
+for (const { file, secret } of DENYLIST_FILES) {
+  const full = path.join(root(), ...file.split("/"));
+  if (!existsSync(full)) continue;
+  for (const raw of readText(full).split("\n")) {
     const word = raw.trim();
-    if (word && !word.startsWith("#")) words.push({ word, fromEnv: false });
+    if (word && !word.startsWith("#")) words.push({ word, source: file, secret });
   }
 }
 for (const raw of (process.env.SPEC_DENYLIST ?? "").split(/[\n,]/)) {
-  if (raw.trim()) words.push({ word: raw.trim(), fromEnv: true });
+  if (raw.trim()) words.push({ word: raw.trim(), source: "SPEC_DENYLIST", secret: true });
 }
 if (words.length) {
   const escape = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  let envIndex = 0;
-  const patterns = words.map(({ word, fromEnv }) => ({
-    // Збіг за початком слова (без межі в кінці): у тексті українською назви відмінюються,
-    // тож «Контосо» має ловити й «Контосою». Ціна — «Контосовіль» теж збіг (перефразуйте).
-    re: new RegExp(`(?<![\\p{L}\\p{N}])${escape(word)}`, "iu"),
-    // Значення із SPEC_DENYLIST (секрет) не друкуємо — лише номер серед слів SPEC_DENYLIST.
-    label: fromEnv ? `слово #${++envIndex} із SPEC_DENYLIST` : `"${word}"`,
-  }));
+  const secretIndex = new Map(); // джерело → лічильник
+  const patterns = words.map(({ word, source, secret }) => {
+    const n = (secretIndex.get(source) ?? 0) + 1;
+    if (secret) secretIndex.set(source, n);
+    return {
+      // Збіг за початком слова (без межі в кінці): у тексті українською назви відмінюються,
+      // тож «Контосо» має ловити й «Контосою». Ціна — «Контосовіль» теж збіг (перефразуйте).
+      re: new RegExp(`(?<![\\p{L}\\p{N}])${escape(word)}`, "iu"),
+      // Секретні значення не друкуємо — лише номер слова в його джерелі.
+      label: secret ? `слово #${n} із ${source}` : `"${word}"`,
+    };
+  });
+  const denylistPaths = new Set(DENYLIST_FILES.map((d) => d.file));
   const scanned = [
-    ...walk(path.join(root(), "product"), { skip: (r) => r === "product/denylist.txt" }),
+    ...walk(path.join(root(), "product"), { skip: (r) => denylistPaths.has(r) }),
     ...walk(path.join(root(), "openspec")),
   ];
   for (const file of scanned) {

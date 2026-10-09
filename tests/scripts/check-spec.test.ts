@@ -62,6 +62,18 @@ describe("scripts/check-spec.mjs", () => {
     expect(out).not.toContain("Fabrikam");
   });
 
+  it("reads words from the local product/denylist.local.txt without printing them", () => {
+    const { code, out } = run("denylist-local");
+    expect(code).toBe(1);
+    // «Тейлспін» з локального файлу ловить «Тейлспіну»; значення не друкуємо
+    expect(out).toContain("product/vision.md:3 — слово #2 із product/denylist.local.txt");
+    expect(out).toContain("product/roadmap.md:3 — слово #1 із product/denylist.local.txt");
+    expect(out).not.toMatch(/Woodgrove|Тейлспін/);
+    // сам локальний файл не сканується, публічний список працює як раніше
+    expect(out).not.toContain("product/denylist.local.txt:");
+    expect(out).toContain("слів у denylist: 3");
+  });
+
   it("passes in a directory without openspec/", () => {
     const { code } = runScript("check-spec.mjs", path.join(fixtures, "ac-coverage", "empty"));
     expect(code).toBe(0);

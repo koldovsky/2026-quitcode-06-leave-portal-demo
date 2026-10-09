@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# справжні назви клієнтів для npm run spec:check — лише локально (див. product/denylist.txt)
+/product/denylist.local.txt
+
 # vercel
 .vercel
 
