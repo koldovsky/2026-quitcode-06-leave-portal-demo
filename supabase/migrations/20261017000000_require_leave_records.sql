@@ -35,3 +35,17 @@ create constraint trigger leave_requests_require_records
   after insert on public.leave_requests
   deferrable initially deferred
   for each row execute function private.require_leave_records();
+
+-- Рішення ухвалює лише роль manager (як requireRole("manager") у застосунку) — і через Data API теж:
+-- divisions.manager_id роль не перевіряє, тож без цього працівник-«менеджер» схвалив би власний запис.
+alter policy leave_records_update_division_manager on public.leave_records
+  using (
+    (select private.current_app_role()) = 'manager'
+    and (select private.is_division_manager(division_id))
+    and status = 'pending'
+  )
+  with check (
+    (select private.current_app_role()) = 'manager'
+    and (select private.is_division_manager(division_id))
+    and status in ('approved', 'needs_revision')
+  );

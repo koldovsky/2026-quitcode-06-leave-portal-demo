@@ -55,7 +55,7 @@ reviews:
     - "README.md"
     - ".mcp.json"
     - ".coderabbit.yaml"
-    - ".env.example"
+    - ".env*"
     - ".spec-source"
     - ".gitignore"
     - "package.json"
@@ -98,14 +98,15 @@ reviews:
         Capabilities (New / Modified, по дельті specs/<capability>/spec.md на кожну), Users & roles, Non-goals,
         Assumptions, Open questions; Impact — необов'язковий. Познач розмиті слова («швидко», «зручно», «тощо»).
         У форку розробника openspec/specs змінюватись не повинні (лише через синхронізацію тегу upstream);
-        власні зміни розробника — `openspec/changes/impl-*` із `skip_specs: true`, design.md і tasks.md з AC ID.
+        власні зміни розробника — `openspec/changes/impl-*` із `skip_specs: true`, design.md і tasks.md з AC ID;
+        їхній proposal.md короткий (Why, What Changes) — розділів PM для нього не вимагай.
     - path: "product/**"
       instructions: |
         Продуктовий контекст PM: vision, глосарій, ролі й матриця прав, roadmap, рішення, CHANGELOG.
         Перевір анонімізацію: жодних справжніх назв клієнтів, імен людей, адрес, сум; лише синтетичні
         дані й email `*@example.test`. Терміни глосарію вживаються однаково в усіх файлах. Кожне рішення
         в decisions.md має формат питання → відповідь → що змінилось (і посилання на issue).
-        У форку розробника цей каталог змінюватись не повинен.
+        У форку розробника цей каталог змінюється лише через синхронізацію тегу upstream (PR sync/spec-vX.Y).
     - path: "scripts/**"
       instructions: |
         Node-скрипти без зайвих залежностей. Секрети читаються лише зі змінних середовища й ніколи не
@@ -124,11 +125,17 @@ reviews:
         name: "Тип PR і межі змін"
         instructions: >
           Static review of the diff and PR description only; do NOT run anything. Read the PR type
-          checkbox in the description. Spec change: the diff touches only product/**, openspec/**
-          and docs/** (no src/**, supabase/**). Implementation: the diff does NOT modify product/**
-          or openspec/specs/** (developer changes live in openspec/changes/impl-*). Sync: changes to
-          product/** and openspec/specs/** come only from merging an upstream spec tag, plus matching
-          docs/conformance.md updates. FAIL if the diff crosses these boundaries; answer in Ukrainian.
+          checkbox in the description (Бутстрап = Bootstrap, Зміна специфікації = Spec change,
+          Реалізація = Implementation, Синхронізація = Sync). Bootstrap (first PR in a developer fork):
+          the diff touches only docs/bootstrap.md and docs/img/**. Spec change: the diff touches only
+          product/**, openspec/** and docs/** (no src/**, supabase/**). Implementation: the diff does
+          NOT modify product/** or openspec/specs/** (developer changes live in openspec/changes/impl-*).
+          Sync (branch sync/spec-vX.Y): changes to product/**, openspec/specs/** and the PM's
+          openspec/changes/** (including archive/**) come only from merging an upstream spec tag;
+          besides the merge the branch may update .spec-source, docs/conformance.md and
+          docs/spec-reading.md, may implement new or changed AC (that part follows the Implementation
+          rules), and in a fork made after spec-v0.1 it also carries docs/bootstrap.md and docs/img/**.
+          FAIL if the diff crosses these boundaries; answer in Ukrainian.
 
       - mode: "warning"
         name: "AC ID у тестах і матриці відповідності"
@@ -145,10 +152,12 @@ reviews:
         instructions: >
           Static review of new files under supabase/migrations/** only. For every created table in
           public: enable row level security, revoke all from anon and authenticated, explicit grants,
-          one policy per granted operation with "to authenticated" and "(select auth.uid())", and no
-          way for a user to update their own role or status column. security definer functions live
-          in schema private with search_path set to ''. PASS if there are no new migrations. FAIL
-          otherwise with the exact missing statement. Answer in Ukrainian.
+          one policy per granted operation with "to authenticated" and "(select auth.uid())". In every
+          new migration, including one that creates no table (for example a role-set change): no grant
+          or policy lets a user update their own role or status column, and security definer functions
+          live in schema private with search_path set to ''. PASS if there are no new migrations or all
+          these rules hold; FAIL if any rule is broken, naming the exact missing statement. Answer in
+          Ukrainian.
 
       - mode: "warning"
         name: "Секрети й синтетичні дані"
@@ -168,7 +177,11 @@ reviews:
           declarative with concrete numbers, dates or error codes, without UI click steps or table
           and API names; proposal.md has Why, What Changes, Capabilities (New/Modified, one delta
           spec per listed capability), Users & roles, Non-goals, Assumptions and Open questions
-          (Impact is optional). List each violation with file and line. Answer in Ukrainian.
+          (Impact is optional). Developer changes whose .openspec.yaml has skip_specs: true
+          (openspec/changes/impl-* and their archive copies) are exempt from these proposal rules:
+          only check that design.md decisions and every tasks.md task cite AC IDs ("Done when: AC-…").
+          In a sync/spec-vX.Y PR, files that come from the merged upstream tag are the PM's: do not
+          list them. List each violation with file and line. Answer in Ukrainian.
 
       - mode: "warning"
         name: "Supabase у Next.js: proxy і getClaims"

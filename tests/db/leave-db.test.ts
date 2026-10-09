@@ -154,6 +154,19 @@ describe("База: доступ", () => {
     expect(
       await t.asUser(ADMIN, "update public.leave_records set status = 'approved' where status = 'pending' returning id"),
     ).toEqual([]);
+
+    // Навіть якщо admin запише себе в manager_id (divisions змінює лише він), рішення ухвалює лише роль manager.
+    const [math] = await t.asService<{ id: string; manager_id: string }>(
+      "select id, manager_id from public.divisions where code = 'MATH'",
+    );
+    await t.asUser(ADMIN, "update public.divisions set manager_id = $1 where id = $2", [ADMIN, math.id]);
+    try {
+      expect(
+        await t.asUser(ADMIN, "update public.leave_records set status = 'approved' where status = 'pending' returning id"),
+      ).toEqual([]);
+    } finally {
+      await t.asService("update public.divisions set manager_id = $1 where id = $2", [math.manager_id, math.id]);
+    }
   });
 
   it("анонімний відвідувач не читає заявки", async () => {

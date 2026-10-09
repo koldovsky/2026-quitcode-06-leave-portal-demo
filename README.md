@@ -45,7 +45,7 @@
 ## Модель репозиторіїв
 
 ```text
-шаблон (цей репозиторій)
+шаблон koldovsky/2026-quitcode-06-project-template
   └─ «Use this template» → upstream PM  <pm>/<team-repo>     ← product/, openspec/ (лише PM), теги spec-vX.Y
         ├─ fork → <dev1>/<team-repo>  ← код, міграції, тести; свій Supabase і Vercel
         └─ fork → <dev2>/<team-repo>  …

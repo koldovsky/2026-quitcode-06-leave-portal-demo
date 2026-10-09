@@ -221,6 +221,7 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 - [ ] Supabase-проєкт не на паузі (Dashboard відкривається), вхід на прод-URL як `teacher@` працює.
 - [ ] Термінали: основна тека на `main` (демо 3, крок 6 і План Б кроків 9–10) і теки `lp-*`.
 - [ ] Вкладки: PR `demo/first-pr`, issues #1–#5, Vercel → Environment Variables, три вікна браузера (крок 1.5).
+- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1); деку зібрано на Pages.
 
 ## 2. Сценарій на сцені
 
