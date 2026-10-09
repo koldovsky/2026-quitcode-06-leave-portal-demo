@@ -71,7 +71,9 @@
 2. **Продукт.** Заповніть `product/vision.md`, `glossary.md`, `roles.md` (матриця прав), `roadmap.md`.
    Справжні назви клієнта — не в файли репозиторію, а в локальний `product/denylist.local.txt` (у `.gitignore`;
    `npm run spec:check` читає його, але значень не друкує) і в секрет `SPEC_DENYLIST` (Settings → Secrets and
-   variables → Actions) для CI.
+   variables → Actions) для CI. Але CI у PR із форків (пропозиції розробників) секретів не отримує: там `spec:check`
+   бачить лише `product/denylist.txt`. Перед merge такого PR перевірте його локально: `gh pr checkout <номер>` →
+   `npm run spec:check`.
    Створіть мітку для питань розробників (форма issue ставить лише наявну мітку):
    `gh label create spec-question --repo <pm>/<team-repo> --description "Питання до специфікації"`.
 3. **Перший зріз.** `npm ci`, `openspec --version` = `1.14.1` (див. «Перед початком»), потім у Claude Code

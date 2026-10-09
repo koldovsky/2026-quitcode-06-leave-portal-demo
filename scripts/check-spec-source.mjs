@@ -98,7 +98,8 @@ try {
       merged === false
         ? `Тег ${version} ще не злитий у цю гілку — форк не синхронізовано з upstream. ${sync}`
         : merged === true
-          ? `Тег ${version} уже злитий, тож ці файли змінено у форку. product/ і openspec/specs змінює лише PM ` +
+          ? `Тег ${version} уже злитий. Щойно злили новіший тег (гілка sync/spec-vX.Y)? Оновіть version у .spec-source. ` +
+            `Інакше ці файли змінено у форку. product/ і openspec/specs змінює лише PM ` +
             `в upstream: поверніть їх (git checkout ${version} -- ${PATHS.join(" ")}), а пропозицію — PR-ом в upstream.`
           : `Або форк ще не злив тег ${version} (${sync}), або ці файли змінено у форку ` +
             `(product/ і openspec/specs змінює лише PM в upstream).`;
