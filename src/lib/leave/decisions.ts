@@ -6,19 +6,19 @@ export type Decision = "approve" | "return";
 export interface DecisionOutcome {
   status: Exclude<RecordStatus, "pending">;
   comment: string | null;
-  decidedBy: string;
-  decidedAt: Date;
 }
 
 /**
- * AC-LEAVE-06, AC-LEAVE-07: рішення менеджера щодо запису на розгляді.
- * - approve → approved; фіксуємо, хто і коли (у базі їх ставить тригер private.set_decision_fields);
+ * AC-LEAVE-07: рішення менеджера щодо запису на розгляді — лише новий статус і коментар.
+ * - approve → approved;
  * - return → needs_revision лише з непорожнім коментарем, інакше COMMENT_REQUIRED (статус не змінюється).
+ * Хто і коли (AC-LEAVE-06) сюди не передаємо: їх ставить тригер private.set_decision_fields у базі
+ * (перевірка — tests/db/leave-db.test.ts).
  */
 export function decide(
   record: { status: RecordStatus },
   decision: Decision,
-  options: { comment?: string | null; actorId: string; now: Date },
+  options: { comment?: string | null } = {},
 ): Result<DecisionOutcome> {
   if (record.status !== "pending") return fail("NOT_PENDING");
   const comment = options.comment?.trim() ?? "";
@@ -26,8 +26,6 @@ export function decide(
   return ok({
     status: decision === "approve" ? "approved" : "needs_revision",
     comment: comment === "" ? null : comment,
-    decidedBy: options.actorId,
-    decidedAt: options.now,
   });
 }
 

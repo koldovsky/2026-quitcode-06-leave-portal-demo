@@ -18,11 +18,6 @@ export interface Position {
   divisionId: string;
 }
 
-export interface Division {
-  id: string;
-  managerId: string | null;
-}
-
 /** Запис, який буде створено під час подання (статус завжди pending). */
 export interface RecordDraft {
   positionId: string;

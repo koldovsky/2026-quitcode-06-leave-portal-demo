@@ -25,8 +25,6 @@ export async function decideRecord(formData: FormData) {
 
   const result = decide({ status: record.status as RecordStatus }, decision, {
     comment: String(formData.get("comment") ?? ""),
-    actorId: viewer.id,
-    now: new Date(),
   });
   if (!result.ok) redirect(`/manage?error=${result.error}&record=${recordId}`);
 
