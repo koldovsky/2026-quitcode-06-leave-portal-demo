@@ -1,0 +1,36 @@
+import type { LeaveErrorCode, LeaveType, PositionKind, RecordStatus } from "./types";
+
+export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
+  sick: "хвороба",
+  vacation: "відпустка",
+  business_trip: "відрядження",
+};
+
+export const POSITION_KIND_LABELS: Record<PositionKind, string> = {
+  main: "основна",
+  additional: "додаткова",
+};
+
+export const STATUS_LABELS: Record<RecordStatus, string> = {
+  pending: "на розгляді",
+  approved: "схвалено",
+  needs_revision: "на доопрацюванні",
+};
+
+export const ERROR_MESSAGES: Record<LeaveErrorCode, string> = {
+  INVALID_RANGE: "Дата кінця раніша за дату початку.",
+  COMMENT_REQUIRED: "Щоб повернути заявку на доопрацювання, напишіть коментар.",
+  INVALID_DATE: "Вкажіть дати початку й кінця.",
+  INVALID_TYPE: "Оберіть тип відсутності.",
+  NO_POSITIONS: "Позначте хоча б одну посаду.",
+  UNKNOWN_POSITION: "Посаду не знайдено серед ваших посад.",
+  NOT_PENDING: "Рішення щодо цього запису вже ухвалено.",
+  NOT_NEEDS_REVISION: "Виправити можна лише заявку на доопрацюванні.",
+  NOT_IN_QUEUE: "Цього запису немає у вашій черзі.",
+};
+
+/** Повідомлення для ?error=… з адреси сторінки; невідомий код — загальна помилка. */
+export function errorMessage(code: string | string[] | undefined): string | undefined {
+  if (typeof code !== "string" || code === "") return undefined;
+  return code in ERROR_MESSAGES ? ERROR_MESSAGES[code as LeaveErrorCode] : "Не вдалося зберегти. Спробуйте ще раз.";
+}
