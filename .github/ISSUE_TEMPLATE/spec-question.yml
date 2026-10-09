@@ -1,0 +1,78 @@
+name: Питання до специфікації
+description: Розробник питає PM про неоднозначну вимогу або AC. Відповідь PM потрапляє в product/decisions.md і, якщо змінює поведінку, у нову версію специфікації.
+title: "[spec-question] AC-…: "
+labels: ["spec-question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Одне issue — одне питання. Текст можна згенерувати скілом `spec-clarify` у своєму форку й вставити сюди.
+        Варіанти описують **поведінку** («система відхиляє заявку»), а не реалізацію («додати колонку»).
+  - type: input
+    id: spec_version
+    attributes:
+      label: Версія специфікації
+      description: Тег upstream (як у .spec-source) або id активної зміни OpenSpec.
+      placeholder: spec-v0.1
+    validations:
+      required: true
+  - type: input
+    id: requirement
+    attributes:
+      label: Вимога / AC
+      description: AC ID і назва вимоги (### Requirement).
+      placeholder: "AC-AREA-01 — Requirement: …"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Категорія
+      description: Категорія з таксономії неоднозначностей (.claude/skills/spec-clarify/references/ambiguity-taxonomy.md).
+      options:
+        - Функціональний обсяг
+        - Ролі й доступ
+        - Домен і модель даних
+        - Потік взаємодії (UX)
+        - Нефункціональні вимоги
+        - Інтеграції й обмеження платформи
+        - Граничні випадки й збої
+        - Обмеження й компроміси
+        - Термінологія
+        - Сигнали завершеності
+        - Заглушки й розмиті слова
+    validations:
+      required: false
+  - type: textarea
+    id: question
+    attributes:
+      label: Питання
+      description: Що саме неоднозначно і де (цитата з вимоги чи сценарію).
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Варіанти відповіді
+      description: 2–5 взаємовиключних варіантів поведінки або «коротка відповідь (≤ 5 слів)».
+      placeholder: |
+        A) …
+        B) …
+        C) …
+    validations:
+      required: true
+  - type: input
+    id: recommended
+    attributes:
+      label: Рекомендований варіант
+      description: Який варіант радите і чому — одним реченням.
+      placeholder: "B — …"
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Вплив
+      description: Які AC, тести, дані чи екрани зміняться залежно від відповіді; що ви робите, поки відповіді немає.
+    validations:
+      required: true

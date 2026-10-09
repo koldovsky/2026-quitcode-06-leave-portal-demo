@@ -1,0 +1,105 @@
+# CI командного проєкту. Один workflow — чотири jobs:
+#   spec        — завжди: структура специфікацій (openspec validate --strict) + AC ID, унікальність, denylist;
+#   app         — завжди: lint (0 warnings), typecheck (typegen + tsc), unit-тести, build;
+#   conformance — лише у ФОРКУ розробника: спека збігається з тегом upstream (.spec-source) + покриття AC;
+#   db          — лише push у main ФОРКУ і лише якщо задано секрети Supabase: supabase db push.
+# В upstream PM (репозиторій із «Use this template», не форк) jobs conformance і db пропускаються.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Новий push у PR скасовує застарілий прогін; push у main — ні: черга, щоб не обірвати job db посеред db push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  OPENSPEC_TELEMETRY: "0"
+
+jobs:
+  spec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: OpenSpec validate --all --strict
+        run: npm run spec:validate
+      - name: AC IDs, uniqueness, denylist
+        run: npm run spec:check
+        env:
+          # Необов'язковий секрет: справжні назви клієнтів через кому (у публічному репо — не у файлі).
+          SPEC_DENYLIST: ${{ secrets.SPEC_DENYLIST }}
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  conformance:
+    if: ${{ github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: product/ and openspec/specs match the upstream tag from .spec-source
+        # До першого тегу spec-v0.1 .spec-source закоментований: крок пропускається з попередженням.
+        # Заповнюють його в гілці sync/spec-vX.Y разом із git merge тегу (README, кроки 6 і 8 розробника).
+        # Щоб зробити його обов'язковим, додайте env SPEC_SOURCE_REQUIRED: "1".
+        run: npm run spec:source
+      - name: Every AC has a matrix row; every «реалізовано» has a test
+        run: npm run ac:coverage
+
+  db:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.repository.fork }}
+    needs: [spec, app, conformance]
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      # secrets.* не можна використати в if на рівні job, тому перевіряємо їх кроком.
+      - name: Check Supabase secrets
+        id: secrets
+        run: |
+          if [ -n "$SUPABASE_ACCESS_TOKEN" ] && [ -n "$SUPABASE_DB_PASSWORD" ] && [ -n "$SUPABASE_PROJECT_ID" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Секрети SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, SUPABASE_PROJECT_ID не задано — db push пропущено."
+          fi
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: actions/checkout@v7
+      # Без `version:` setup-cli@v3 бере версію supabase з package-lock.json (2.120.0).
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: supabase/setup-cli@v3
+      - if: steps.secrets.outputs.ok == 'true'
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+      - if: steps.secrets.outputs.ok == 'true'
+        run: supabase db push
