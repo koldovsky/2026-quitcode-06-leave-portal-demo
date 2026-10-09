@@ -2,6 +2,10 @@
 // npm run users:demo — створює синтетичних користувачів із supabase/demo-users.json через Admin API
 // і ставить їм роль у public.profiles. Ідемпотентно: наявних користувачів не дублює, а оновлює
 // їм пароль, ім'я та роль.
+// Портал відсутностей (міграція 20261013000000_leave_requests.sql) додає два необов'язкові поля:
+//   "manages": "MATH"                                         — менеджер підрозділу з цим кодом;
+//   "positions": [{ "kind": "main", "division": "MATH", "title": "…" }] — посади працівника.
+// Підрозділи створює сид (npx supabase db push --include-seed) — запускайте його ДО цього скрипта.
 //
 // Потрібні змінні (npm run users:demo читає .env.local через `node --env-file`):
 //   NEXT_PUBLIC_SUPABASE_URL  — адреса проєкту;
@@ -45,11 +49,28 @@ for (const u of users) {
     console.error(`Для ${u.email} не вказано role.`);
     process.exit(1);
   }
+  for (const p of u.positions ?? []) {
+    if (!["main", "additional"].includes(p.kind) || !p.division || !p.title) {
+      console.error(`Посада ${JSON.stringify(p)} для ${u.email}: потрібні kind (main|additional), division і title.`);
+      process.exit(1);
+    }
+  }
 }
 
 const supabase = createClient(url, secretKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
+
+const divisionIds = new Map(); // код підрозділу → id
+async function divisionId(code) {
+  if (!divisionIds.has(code)) {
+    const { data, error } = await supabase.from("divisions").select("id").eq("code", code).maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error(`підрозділу ${code} немає — застосуйте сид: npx supabase db push --include-seed`);
+    divisionIds.set(code, data.id);
+  }
+  return divisionIds.get(code);
+}
 
 async function findUserId(email) {
   for (let page = 1; ; page++) {
@@ -96,7 +117,29 @@ for (const u of users) {
       .upsert({ id, email: u.email, full_name: u.full_name ?? null, role: u.role }, { onConflict: "id" });
     if (profileError) throw profileError;
 
-    console.log(`✔ ${u.email} — ${action}, роль ${u.role}`);
+    // Менеджер підрозділу (одна людина на підрозділ — попереднього менеджера буде замінено).
+    if (u.manages) {
+      const { error: divisionError } = await supabase
+        .from("divisions")
+        .update({ manager_id: id })
+        .eq("id", await divisionId(u.manages));
+      if (divisionError) throw divisionError;
+    }
+    // Посади працівника: одна основна, не більше однієї додаткової (unique employee_id + kind).
+    for (const p of u.positions ?? []) {
+      const { error: positionError } = await supabase
+        .from("positions")
+        .upsert(
+          { employee_id: id, kind: p.kind, division_id: await divisionId(p.division), title: p.title },
+          { onConflict: "employee_id,kind" },
+        );
+      if (positionError) throw positionError;
+    }
+
+    const extra = [u.manages ? `менеджер ${u.manages}` : "", ...(u.positions ?? []).map((p) => `${p.kind} ${p.division}`)]
+      .filter(Boolean)
+      .join(", ");
+    console.log(`✔ ${u.email} — ${action}, роль ${u.role}${extra ? ` (${extra})` : ""}`);
   } catch (e) {
     failed++;
     console.error(`✖ ${u.email}: ${e.message ?? e}`);
@@ -105,7 +148,7 @@ for (const u of users) {
 
 if (failed) {
   console.error(
-    `\nПомилок: ${failed}. Перевірте, що міграції застосовано (npm run db:push) і ключ — секретний (sb_secret_…).`,
+    `\nПомилок: ${failed}. Перевірте, що міграції й сид застосовано (npx supabase db push --include-seed) і ключ — секретний (sb_secret_…).`,
   );
   process.exit(1);
 }

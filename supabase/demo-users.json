@@ -5,13 +5,32 @@
     "role": "admin"
   },
   {
-    "email": "member1@example.test",
-    "full_name": "Андрій Демо-Перший",
-    "role": "member"
+    "email": "manager.math@example.test",
+    "full_name": "Ірина Демо-Математика",
+    "role": "manager",
+    "manages": "MATH"
   },
   {
-    "email": "member2@example.test",
-    "full_name": "Марія Демо-Друга",
-    "role": "member"
+    "email": "manager.primary@example.test",
+    "full_name": "Богдан Демо-Початкова",
+    "role": "manager",
+    "manages": "PRIMARY"
+  },
+  {
+    "email": "teacher@example.test",
+    "full_name": "Андрій Демо-Учитель",
+    "role": "employee",
+    "positions": [
+      { "kind": "main", "division": "MATH", "title": "Учитель математики" },
+      { "kind": "additional", "division": "PRIMARY", "title": "Асистент учителя" }
+    ]
+  },
+  {
+    "email": "teacher2@example.test",
+    "full_name": "Марія Демо-Асистентка",
+    "role": "employee",
+    "positions": [
+      { "kind": "main", "division": "PRIMARY", "title": "Асистент учителя" }
+    ]
   }
 ]

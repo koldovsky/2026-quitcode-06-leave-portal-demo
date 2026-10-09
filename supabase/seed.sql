@@ -14,3 +14,18 @@
 --   insert into public.departments (code, name)
 --   values ('MATH', 'Кафедра математики'), ('LANG', 'Кафедра мов')
 --   on conflict (code) do update set name = excluded.name;
+
+-- ── Портал відсутностей: довідники (синтетичні) ──────────────────────────────────────────
+-- Застосувати в хмарі: npx supabase db push --include-seed (перед npm run users:demo —
+-- скрипт прив'язує менеджерів і посади до підрозділів за кодом).
+insert into public.divisions (code, name)
+values
+  ('MATH', 'Математика'),
+  ('PRIMARY', 'Початкова школа')
+on conflict (code) do update set name = excluded.name;
+
+-- Заблоковані дні календаря школи (AC-LEAVE-04).
+insert into public.blocked_days (day, reason)
+values
+  ('2026-11-05', 'Осінні канікули (синтетичний приклад)')
+on conflict (day) do update set reason = excluded.reason;
