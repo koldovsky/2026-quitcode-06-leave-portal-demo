@@ -93,7 +93,8 @@
 2. **Залежності:** Node 24 (`node -v`), `openspec --version` = `1.14.1` (див. «Перед початком»), `npm ci`,
    `npm run typecheck`, `npm test`.
 3. **Supabase** (власна організація, не через Vercel Marketplace): створіть проєкт; Authentication →
-   Sign In / Providers → Email → вимкніть Confirm email; `npx supabase login` → `npx supabase link --project-ref <ref>` →
+   Sign In / Providers → вимкніть «Allow new users to sign up» (інакше будь-хто з публічним ключем із бандла
+   зареєструється сам) і в Email — Confirm email; `npx supabase login` → `npx supabase link --project-ref <ref>` →
    `npx supabase db push --dry-run` → `npm run db:push` → `npm run db:types`.
    `.env.local` за зразком `.env.example` → `npm run users:demo` → `npm run dev` → вхід як `admin@example.test`.
 4. **Vercel** (Hobby): Add New → Project → імпорт форку; змінні `NEXT_PUBLIC_SUPABASE_URL`,

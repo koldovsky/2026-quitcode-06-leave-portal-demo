@@ -20,6 +20,7 @@ Upstream PM: <!-- owner/team-repo --> · Мій форк: <!-- me/team-repo --> 
 
 - [ ] Проєкт створено у власній організації Supabase (не через Vercel Marketplace) — <!-- регіон -->
 - [ ] «Confirm email» вимкнено (Authentication → Sign In / Providers → Email; https://supabase.com/dashboard/project/_/auth/providers)
+- [ ] «Allow new users to sign up» вимкнено (там само): публічний ключ є в бандлі, тож інакше будь-хто зареєструється через Auth API; `npm run users:demo` працює через Admin API
 - [ ] `npx supabase login` · `npx supabase link --project-ref <ref>` — <!-- вивід без секретів -->
 - [ ] `npx supabase db push --dry-run` → `npm run db:push` — <!-- список застосованих міграцій -->
 - [ ] `npm run db:types` — `src/lib/supabase/database.types.ts` перегенеровано

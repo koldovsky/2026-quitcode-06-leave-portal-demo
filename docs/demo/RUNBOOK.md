@@ -42,7 +42,11 @@
    ```
 
    Для проміжних станів — у потрібній теці `git switch --detach spec-v0.1~1` (і назад `git switch --detach spec-v0.1`).
-   Без worktree: `git switch --detach <тег>` в основній теці (`node_modules` той самий — `package.json` між тегами не змінюється).
+   Без worktree: `git switch --detach <тег>` в основній теці (`node_modules` той самий — `package.json` між тегами
+   не змінюється; на `main` лише додано devDependency `@electric-sql/pglite` для тестів бази — тегам він не заважає).
+   Усе, що звертається до хмари (`supabase db push`, `npm run users:demo`, локальний `npm run dev`), — **лише в
+   основній теці на `main`**: прив'язка `supabase link` живе в `supabase/.temp`, а ключі — в `.env.local`; обидва
+   в `.gitignore`, тож у теках `lp-*` їх немає (розділ 1.2).
 4. У кожній теці прогнати ворота й звірити з таблицею «Очікувані результати» (розділ 3):
    `npm run lint && npm run typecheck && npm test && npm run build && npm run spec:validate && npm run spec:check && npm run ac:coverage`.
 5. Локальний denylist справжніх назв (для показу в блоці 2): створіть `product/denylist.local.txt`
@@ -86,19 +90,30 @@
 ### 1.2 Supabase (власна організація, не через Vercel Marketplace)
 
 1. Створити проєкт (вільний слот: на Free — 2 активні проєкти на акаунт). Зберегти пароль БД у менеджері паролів.
-2. Authentication → Sign In / Providers → Email → вимкнути **Confirm email**
-   (вбудований SMTP — 2 листи/год і лише членам команди; користувачів створює скрипт).
-3. Прив'язати й застосувати міграції та сид:
+2. Authentication → Sign In / Providers:
+   - Email → вимкнути **Confirm email** (вбудований SMTP — 2 листи/год і лише членам команди; користувачів створює скрипт);
+   - вимкнути **Allow new users to sign up**. Публічний ключ (publishable) є в JS-бандлі прод-URL: з увімкненою
+     реєстрацією будь-хто зареєструється через Auth API, одразу увійде (підтвердження вимкнено) з роллю
+     `employee` і зможе подавати заявки. `npm run users:demo` працює й так — це Admin API (`auth.admin.createUser`
+     не перевіряє цей перемикач). Точне місце перемикача в Dashboard звіряємо на репетиції.
+3. Прив'язати й застосувати міграції та сид — **в основній теці на `main`** (усі 4 міграції; прив'язка
+   зберігається в `supabase/.temp`, який у `.gitignore`, тож діє лише в цій теці):
 
    ```bash
+   cd D:/projects/clients/quitcode/2026-quitcode-06-leave-portal-demo && git switch main
    npx supabase login
    npx supabase link --project-ref <ref>          # спитає пароль БД
-   npx supabase db push --dry-run --include-seed  # має показати 3 міграції і seed.sql
-   npx supabase db push --include-seed            # 20261012…, 20261013…, 20261016… + підрозділи й 05.11.2026
+   npx supabase db push --dry-run --include-seed  # має показати 4 міграції і seed.sql
+   npx supabase db push --include-seed            # 20261012…, 20261013…, 20261016…, 20261017… + підрозділи й 05.11.2026
    ```
 
    Точний текст виводу CLI 2.120 перевіряємо на репетиції. Повторний `db push --dry-run` має сказати,
    що віддалена база актуальна.
+
+   **Ніколи** не запускайте `supabase migration repair` на цій базі, навіть якщо CLI сам його пропонує
+   (так буває, коли `db push` запущено з теки старого тегу, де міграцій менше, ніж уже застосовано):
+   він переписує історію міграцій у базі. У `.claude/settings.json` і `AGENTS.md` ця команда заборонена.
+   Побачили таку підказку — ви не в тій теці: перейдіть в основну теку на `main` і повторіть.
 4. `.env.local` за зразком `.env.example` (Project Settings → API Keys): `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `DEMO_USER_PASSWORD` (≥ 8 символів, свій). Потім:
 
@@ -167,6 +182,20 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
   `main` посад «Математики»; `admin@` бачить усе на `/manage`, але без кнопок рішення.
 - Якщо форк для «CI червоний» потрібен наживо (демо 4): форк у другий акаунт або організацію (свій репозиторій
   у той самий акаунт GitHub не форкнеться) — перевіряємо на репетиції; інакше — локальний `ac:coverage` (розділ 2, демо 4).
+- **Реєстрація вимкнена (крок 1.2.2):** повторний `npm run users:demo` проходить без помилок (Admin API), а
+  самостійна реєстрація з публічним ключем — ні. Точний текст помилки фіксуємо на репетиції.
+- **Останній крок — скинути заявки.** Репетиція лишає заявки `teacher@` (10.11–12.11) і `teacher2@` (03.11–06.11);
+  на сцені вони дали б «На ці дати у вас уже є заявка на розгляді або схвалена.» замість «Заявку подано»
+  (демо 3, крок 9; демо 4, крок 8). Dashboard → SQL Editor: `delete from public.leave_requests;`
+  (записи видаляються каскадом; підрозділи, посади й користувачі лишаються), потім
+  `select count(*) from public.leave_records;` → 0.
+
+### 1.6 Чекліст за годину до заняття
+
+- [ ] Таблиця `leave_requests` порожня (після репетиції — `delete from public.leave_requests;`, крок 1.5).
+- [ ] Supabase-проєкт не на паузі (Dashboard відкривається), вхід на прод-URL як `teacher@` працює.
+- [ ] Термінали: основна тека на `main` (демо 3, крок 6 і План Б кроків 9–10) і теки `lp-*`.
+- [ ] Вкладки: PR `demo/first-pr`, issues #1–#5, Vercel → Environment Variables, три вікна браузера (крок 1.5).
 
 ## 2. Сценарій на сцені
 
@@ -208,20 +237,22 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
 | 1 | `openspec/changes/archive/*-impl-leave-request/design.md` (таблиця прав) і `tasks.md` («Done when: AC-…») | `skip_specs: true` у `.openspec.yaml` | файли на GitHub на тезі `demo-03-impl` |
-| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики | файл на екрані без змін; на питання «чи це працює» — розділ 3 (перевірка на PGlite) | файл на GitHub |
+| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики | файл на екрані без змін; на питання «чи це працює» — на `main` це перевіряє `tests/db/leave-db.test.ts` (PGlite, розділ 3) | файл на GitHub; в основній теці на `main`: `npx vitest run tests/db` |
 | 3 | `npx vitest run -t "AC-LEAVE-0"` | 15 тестів з AC ID у назвах, решта skipped — усі зелені | `npm test` |
 | 4 | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | `docs/conformance.md` на тезі `demo-03-impl` |
 | 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
-| 6 | `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції) | скрін Dashboard → Database → Migrations |
+| 6 | **Основна тека на `main`** (не `lp-demo-03-impl`: там немає прив'язки `supabase/.temp` і лише 2 з 4 міграцій): `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції). Підказку CLI `migration repair` **не виконувати** (крок 1.2.3) | скрін Dashboard → Database → Migrations |
 | 7 | Vercel → Project → Environment Variables (лише назви), Deployment Protection вимкнено | — | скрін |
 | 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel | `conformance` skipped: не форк | скрін PR |
-| 9 | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | локально `npm run dev` з `.env.local` |
-| 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше локально `npm run dev` |
+| 9 | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | в основній теці на `main` (лише там є `.env.local`): `npm run dev` → http://localhost:3000 |
+| 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше `npm run dev` в основній теці на `main` |
 | 11 | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу «Щоб повернути заявку на доопрацювання, напишіть коментар.» (код `COMMENT_REQUIRED` у `?error=` адреси), потім «на доопрацюванні» | `npx vitest run -t "AC-LEAVE-07"` |
 | 12 | `teacher@` → «Виправити й подати знову» (кінець 12.11) | обидва записи знову «на розгляді» | `npx vitest run -t "AC-LEAVE-08"` |
 
 На прод-URL уже стан `main` (spec-v0.2): у формі є поле «Заміна». Це нормально — скажіть, що воно з'явиться в демо 4.
-Якщо треба почати з чистої бази: Dashboard → Table Editor — видаліть рядки `leave_requests` (записи видаляться каскадом).
+Заявки з репетиції мають бути видалені заздалегідь (крок 1.5, останній пункт; чекліст 1.6) — інакше крок 9 покаже
+«На ці дати у вас уже є заявка на розгляді або схвалена.». Почати з чистої бази посеред заняття:
+Dashboard → SQL Editor → `delete from public.leave_requests;` (записи видаляться каскадом).
 
 ### Демо 4 — Спека живе далі (блок 5) — `spec-v0.2~1` → `spec-v0.2` → `demo-04-sync`
 
@@ -250,11 +281,15 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | `demo-03-impl` | 48 | ✓ | OK | OK: 9/9 «реалізовано» |
 | `spec-v0.2` | 48 | ✓ | 11 AC → OK | **FAIL: NO-ROW AC-LEAVE-10, AC-LEAVE-11 — очікувано** (дрейф) |
 | `demo-04-sync` | 55 | ✓ | OK | OK: 11/11 «реалізовано» |
+| `main` (після тегів: зміна `harden-leave-db`) | 59, з них 8 — тести бази `tests/db/leave-db.test.ts` | ✓ | OK | OK: 11/11 «реалізовано»; AC-LEAVE-05, 09 — лише через тести бази |
 
-Схему й політики (обидві міграції + сид двічі) перевірено на PGlite з емульованими ролями Supabase
-(`anon`, `authenticated`, `service_role`, `auth.uid()`): видимість за ролями, черги за підрозділом,
-заборона самосхвалення й самопідвищення ролі, обов'язковий коментар, повторне подання. На справжньому
-проєкті Supabase — перевіряємо на репетиції (крок 1.5).
+Схему й політики перевірено на PGlite з емульованими ролями Supabase (`anon`, `authenticated`,
+`service_role`, `auth.uid()`): видимість за ролями, черги за підрозділом, заборона самосхвалення й
+самопідвищення ролі, обов'язковий коментар, повторне подання. На `main` це автоматичний тест у `npm test` і CI —
+`tests/db/leave-db.test.ts` (усі 4 міграції + сид; зміна `harden-leave-db`); він же перевіряє, що заявку без
+записів база відхиляє (`REQUEST_WITHOUT_RECORDS`). На тегах `demo-*` тестів бази ще немає, а заявку без записів
+там можна вставити напряму через Data API — саме це й закриває `harden-leave-db`. На справжньому проєкті
+Supabase — перевіряємо на репетиції (крок 1.5).
 
 ## 4. Після заняття
 
