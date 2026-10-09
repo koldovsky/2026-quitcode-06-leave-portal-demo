@@ -50,10 +50,21 @@
    в `.gitignore`, тож у теках `lp-*` їх немає (розділ 1.2).
 4. У кожній теці прогнати ворота й звірити з таблицею «Очікувані результати» (розділ 3):
    `npm run lint && npm run typecheck && npm test && npm run build && npm run spec:validate && npm run spec:check && npm run ac:coverage`.
-5. Локальний denylist справжніх назв (для показу в блоці 2): створіть `product/denylist.local.txt`
-   (він у `.gitignore`) і впишіть туди назви клієнта, школи й людей — по одній у рядку.
+5. Локальний denylist справжніх назв (для показу в блоці 2): `npm run spec:check` читає `product/denylist.local.txt`
+   (він у `.gitignore`) з робочої копії своєї теки, тож файл потрібен у **кожній теці, де на сцені запускаєте
+   `spec:check`**: спершу `lp-demo-01-template` (демо 1, крок 2), потім `lp-spec-v0.1` (демо 1, кроки 4–8;
+   `spec:check` — крок 6). Створіть його в `lp-demo-01-template`, впишіть назви клієнта, школи й людей —
+   по одній у рядку, — і скопіюйте в другу теку:
+
+   ```bash
+   cd D:/projects/clients/quitcode/lp-demo-01-template
+   cp product/denylist.local.txt ../lp-spec-v0.1/product/
+   ```
+
    `npm run spec:check` має лишитись **OK**, а знайдені збіги друкуються як «слово #N із product/denylist.local.txt»,
-   без значень. Цей файл не комітимо й не показуємо на екрані.
+   без значень. Файл переживає `git switch --detach` і скидання `git clean -fd openspec docs`, але не
+   перестворення теки (`git worktree remove --force`: План Б у демо 1, крок 3а, і демо 2, крок 2а) — після нього
+   скопіюйте знову. Цей файл не комітимо й не показуємо на екрані.
 
 ## 1. Акаунти — зробити до заняття (автор, своїми руками)
 
@@ -95,9 +106,10 @@
    - Email → вимкнути **Confirm email** (вбудований SMTP — 2 листи/год і лише членам команди; користувачів створює скрипт);
    - вимкнути **Allow new users to sign up**. Публічний ключ (publishable) є в JS-бандлі прод-URL: з увімкненою
      реєстрацією будь-хто зареєструється через Auth API, одразу увійде (підтвердження вимкнено) з роллю
-     `employee` і зможе подавати заявки. `npm run users:demo` працює й так — це Admin API (`auth.admin.createUser`
-     не перевіряє цей перемикач). Точне місце перемикача в Dashboard звіряємо на репетиції. Локально те саме
-     задає `[auth] enable_signup = false` у `supabase/config.toml`; користувачі — лише через `npm run users:demo`.
+     `employee` і зможе подавати заявки. `npm run users:demo` — це Admin API: з вимкненою реєстрацією він працює
+     й у хмарі (за кодом GoTrue — так; звіряємо на репетиції, крок 1.5). Точне місце перемикача в Dashboard
+     звіряємо на репетиції. Локально те саме задає `[auth] enable_signup = false` у `supabase/config.toml`;
+     користувачі — лише через `npm run users:demo`.
 3. Прив'язати й застосувати міграції та сид — **в основній теці на `main`** (усі 4 міграції; прив'язка
    зберігається в `supabase/.temp`, який у `.gitignore`, тож діє лише в цій теці):
 
@@ -173,12 +185,15 @@ npm test && git commit -am "Cover past start dates for AC-LEAVE-01" && git push 
 gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --fill
 ```
 
-Очікувано: у PR зелені `spec` і `app`, коментар Vercel з preview-URL; `conformance` — skipped (не форк).
+Очікувано: у PR зелені `spec` і `app`, коментар Vercel з preview-URL; `conformance` — skipped (у цьому
+репозиторії, бо це не форк; у форку учасника зелені всі три — `spec`, `app`, `conformance`).
 Після заняття PR можна злити (рядок AC-LEAVE-01 у матриці вже є) або закрити.
 
 Чому тут перший PR — тест з AC ID: у цьому репозиторії spec-v0.1 уже в `openspec/specs/`. **У форку учасника
 перший PR — `docs/bootstrap.md`** (докази бутстрапу, день 0–1); тести з AC ID у назвах — лише після PR, що злив
-`sync/spec-v0.1`, бо до нього `ac:coverage` падає з ORPHAN (AC ще немає у специфікації форку). Скажіть це на сцені
+`sync/spec-v0.1`, бо до нього `ac:coverage` падає з ORPHAN (AC ще немає у специфікації форку). Якщо форк зроблено
+вже після тегу `spec-v0.1`, окремий PR бутстрапу впаде на `conformance` з `NO-ROW`, тож спершу гілка `sync/spec-v0.1`,
+а `docs/bootstrap.md` комітять у той самий sync-PR (README, «Шлях розробника», крок 6). Скажіть це на сцені
 (демо 3, крок 8).
 
 ### 1.5 Репетиція (обов'язково)
@@ -189,8 +204,9 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
   `main` посад «Математики»; `admin@` бачить усе на `/manage`, але без кнопок рішення.
 - Якщо форк для «CI червоний» потрібен наживо (демо 4): форк у другий акаунт або організацію (свій репозиторій
   у той самий акаунт GitHub не форкнеться) — перевіряємо на репетиції; інакше — локальний `ac:coverage` (розділ 2, демо 4).
-- **Реєстрація вимкнена (крок 1.2.2):** повторний `npm run users:demo` проходить без помилок (Admin API), а
-  самостійна реєстрація з публічним ключем — ні. Точний текст помилки фіксуємо на репетиції.
+- **Реєстрація вимкнена (крок 1.2.2):** очікуємо, що повторний `npm run users:demo` проходить без помилок
+  (Admin API; за кодом GoTrue — так, саме тут це й звіряємо), а самостійна реєстрація з публічним ключем — ні.
+  Точний текст помилки фіксуємо на репетиції.
 - **Останній крок — скинути заявки.** Репетиція лишає заявки `teacher@` (10.11–12.11) і `teacher2@` (03.11–06.11);
   на сцені вони дали б «На ці дати у вас уже є заявка на розгляді або схвалена.» замість «Заявку подано»
   (демо 3, крок 9; демо 4, крок 8). Dashboard → SQL Editor: `delete from public.leave_requests;`
@@ -234,13 +250,22 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
-| 1 | Тека `lp-spec-v0.1`, Claude Code: «Уточни спеку spec-v0.1 скілом spec-clarify» | таблиця 11 категорій, потім по одному питанню з варіантами й рекомендацією | агент не відповідає за 2 хв — перервати й перейти до кроку 2 через План Б (`demo-02-clarify~2`) |
+| 1 | Тека `lp-spec-v0.1`, Claude Code: «Уточни спеку spec-v0.1 скілом spec-clarify» | таблиця 11 категорій (лише в чаті — див. примітку під таблицею), потім по одному питанню з варіантами й рекомендацією | агент не відповідає за 2 хв — перервати й перейти до кроку 2 через План Б (`demo-02-clarify~2`) |
 | 2 | Пройти 2–3 питання наживо (Q1, Q2, Q3) | Q1: «покриває обидві посади»; Q2: заблокований день — прийняти чи відхилити; Q3: дві черги | `git switch --detach demo-02-clarify~2` → `docs/spec-reading.md` (стан «очікуємо») |
 | 2а | Після живого прогону скіла скинути теку: `git restore . && git clean -fd openspec docs` (скіл пише в `docs/spec-reading.md`) | `git status` порожній | перестворити теку: `git worktree remove --force ../lp-<тег>` і `git worktree add --detach ../lp-<тег> <тег>` |
 | 3 | `docs/demo/issues/Q2.md` → на GitHub відкрити issue #2 (створене заздалегідь, крок 1.1.2) | поля форми `spec-question` | файл `Q2.md` на екрані |
 | 4 | `product/decisions.md` на `demo-02-clarify` | Q1–Q5 з відповідями й «spec-v0.2 (готується)» | закриті issues #1–#5 з коментарями PM на GitHub |
 | 5 | `docs/spec-reading.md` на `demo-02-clarify`: «Відповідь PM», «Власні припущення»; варіанти A–D кожного питання — у `docs/demo/issues/Q*.md` | колонки «Відповідь PM» і «Рішення» заповнені | `git diff demo-02-clarify~2 demo-02-clarify -- docs/spec-reading.md` |
 | 6 | `npm run ac:coverage` на `spec-v0.1`, потім на `demo-02-clarify` | спершу `FAIL … NO-ROW (9)`, потім `OK`: 9 рядків «відкладено (…)» | вивід у таблиці розділу 3 |
+
+Скіл `spec-clarify` на тезі `spec-v0.1` — старіша версія: кроку, що записує скан у розділ `## Скан за таксономією`
+файлу `docs/spec-reading.md`, у ньому ще немає (його додано на `main`): наживо агент покаже таблицю 11 категорій
+у чаті, але записати її у файл скіл цієї версії не просить. Збережений скан показуйте з `demo-02-clarify~2`
+(команда лише читає з git, працює з будь-якої теки й не змінює робочу копію):
+
+```bash
+git show demo-02-clarify~2:docs/spec-reading.md | sed -n '/^## Скан за таксономією/,/^## Питання до PM/p'
+```
 
 Скіл недетермінований: формулювання будуть інші, але п'ять неоднозначностей мають знайтись. AC-LEAVE-04 у скані
 позначають дві категорії: «Граничні випадки й збої» (її вказано в issue Q2) і «Сигнали завершеності» (THEN без
@@ -257,7 +282,7 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
 | 6 | **Основна тека на `main`** (не `lp-demo-03-impl`: там немає прив'язки `supabase/.temp` і лише 2 з 4 міграцій): `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції). Підказку CLI `migration repair` **не виконувати** (крок 1.2.3) | скрін Dashboard → Database → Migrations |
 | 7 | Vercel → Project → Environment Variables (лише назви), Deployment Protection вимкнено | — | скрін |
-| 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel. Сказати: у форку учасника перший PR — `docs/bootstrap.md`, тести з AC ID — після PR `sync/spec-v0.1` (інакше ORPHAN) | `conformance` skipped: не форк | скрін PR |
+| 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel. Сказати: у форку учасника перший PR — `docs/bootstrap.md`, тести з AC ID — після PR `sync/spec-v0.1` (інакше ORPHAN) | `conformance` skipped: у цьому репозиторії (не форк) job вимкнено умовою `if: github.event.repository.fork` у `ci.yml`; у форку учасника зелені всі три — `spec`, `app`, `conformance` | скрін PR |
 | 9 | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | в основній теці на `main` (лише там є `.env.local`): `npm run dev` → http://localhost:3000 |
 | 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше `npm run dev` в основній теці на `main` |
 | 11 | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу «Щоб повернути заявку на доопрацювання, напишіть коментар.» (код `COMMENT_REQUIRED` у `?error=` адреси), потім «на доопрацюванні» | `npx vitest run -t "AC-LEAVE-07"` |
