@@ -29,8 +29,9 @@
 
 1. Node 24 (`node -v`), у корені репозиторію `npm ci`.
 2. OpenSpec: усі команди тут — через `npx openspec …` (версія з `package.json`, 1.14.1). Команди `/opsx:*`
-   у Claude Code викликають **глобальний** `openspec`; на цій машині він був 1.13.0 — оновіть:
-   `npm i -g @fission-ai/openspec@1.14.1` → `openspec --version` = `1.14.1`. Телеметрія: `OPENSPEC_TELEMETRY=0`.
+   у Claude Code викликають **глобальний** `openspec`; на машині автора зараз глобально **1.13.0** — до демо 1
+   оновіть: `npm i -g @fission-ai/openspec@1.14.1` → `openspec --version` = `1.14.1` (пункт є й у чеклисті 1.6).
+   Телеметрія: `OPENSPEC_TELEMETRY=0`.
 3. Окрема тека на кожен тег, щоб не перемикати гілки на сцені й не загубити цей файл (він є лише на `main`):
 
    ```bash
@@ -90,12 +91,13 @@
 ### 1.2 Supabase (власна організація, не через Vercel Marketplace)
 
 1. Створити проєкт (вільний слот: на Free — 2 активні проєкти на акаунт). Зберегти пароль БД у менеджері паролів.
-2. Authentication → Sign In / Providers:
+2. Налаштування Authentication (точний шлях у Dashboard звіряємо на репетиції):
    - Email → вимкнути **Confirm email** (вбудований SMTP — 2 листи/год і лише членам команди; користувачів створює скрипт);
    - вимкнути **Allow new users to sign up**. Публічний ключ (publishable) є в JS-бандлі прод-URL: з увімкненою
      реєстрацією будь-хто зареєструється через Auth API, одразу увійде (підтвердження вимкнено) з роллю
      `employee` і зможе подавати заявки. `npm run users:demo` працює й так — це Admin API (`auth.admin.createUser`
-     не перевіряє цей перемикач). Точне місце перемикача в Dashboard звіряємо на репетиції.
+     не перевіряє цей перемикач). Точне місце перемикача в Dashboard звіряємо на репетиції. Локально те саме
+     задає `[auth] enable_signup = false` у `supabase/config.toml`; користувачі — лише через `npm run users:demo`.
 3. Прив'язати й застосувати міграції та сид — **в основній теці на `main`** (усі 4 міграції; прив'язка
    зберігається в `supabase/.temp`, який у `.gitignore`, тож діє лише в цій теці):
 
@@ -121,7 +123,7 @@
    npm run users:demo
    ```
 
-   Очікувано (п'ять рядків, пароль не друкується):
+   Очікувано (п'ять рядків і підсумок «Готово, користувачів: 5…»; пароль не друкується):
 
    ```text
    ✔ admin@example.test — створено, роль admin
@@ -174,6 +176,11 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 Очікувано: у PR зелені `spec` і `app`, коментар Vercel з preview-URL; `conformance` — skipped (не форк).
 Після заняття PR можна злити (рядок AC-LEAVE-01 у матриці вже є) або закрити.
 
+Чому тут перший PR — тест з AC ID: у цьому репозиторії spec-v0.1 уже в `openspec/specs/`. **У форку учасника
+перший PR — `docs/bootstrap.md`** (докази бутстрапу, день 0–1); тести з AC ID у назвах — лише після PR, що злив
+`sync/spec-v0.1`, бо до нього `ac:coverage` падає з ORPHAN (AC ще немає у специфікації форку). Скажіть це на сцені
+(демо 3, крок 8).
+
 ### 1.5 Репетиція (обов'язково)
 
 - Пройти розділ 2 повністю на прод-URL, з трьома вікнами браузера (звичайне, інкогніто, інший браузер)
@@ -192,6 +199,8 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 
 ### 1.6 Чекліст за годину до заняття
 
+- [ ] Глобальний OpenSpec: `openspec --version` = `1.14.1` (інакше `/opsx:*` у демо 1 працюють зі старою версією;
+      оновити: `npm i -g @fission-ai/openspec@1.14.1`, крок 0.2).
 - [ ] Таблиця `leave_requests` порожня (після репетиції — `delete from public.leave_requests;`, крок 1.5).
 - [ ] Supabase-проєкт не на паузі (Dashboard відкривається), вхід на прод-URL як `teacher@` працює.
 - [ ] Термінали: основна тека на `main` (демо 3, крок 6 і План Б кроків 9–10) і теки `lp-*`.
@@ -217,6 +226,10 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 
 Наголос: `validate --strict` перевіряє структуру, а не зміст — AC-LEAVE-02 і AC-LEAVE-04 проходять, хоча неоднозначні.
 
+Кроки 7–8 (і демо 4, крок 3) показують archive на відокремленому HEAD лише для наочності. У команді порядок
+релізу такий: гілка зміни → PR → у гілці archive + запис у `product/CHANGELOG.md` → merge (merge commit) →
+`git switch main && git pull` → `git tag spec-vX.Y` → `git push origin spec-vX.Y`.
+
 ### Демо 2 — Dev: прочитати, уточнити, розбити (блок 3) — `spec-v0.1` → `demo-02-clarify`
 
 | Крок | Показати / команда | Очікувано | План Б |
@@ -229,8 +242,9 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | 5 | `docs/spec-reading.md` на `demo-02-clarify`: «Відповідь PM», «Власні припущення»; варіанти A–D кожного питання — у `docs/demo/issues/Q*.md` | колонки «Відповідь PM» і «Рішення» заповнені | `git diff demo-02-clarify~2 demo-02-clarify -- docs/spec-reading.md` |
 | 6 | `npm run ac:coverage` на `spec-v0.1`, потім на `demo-02-clarify` | спершу `FAIL … NO-ROW (9)`, потім `OK`: 9 рядків «відкладено (…)» | вивід у таблиці розділу 3 |
 
-Скіл не детермінований: формулювання будуть інші, але п'ять неоднозначностей мають знайтись; якщо агент
-пропустив Q2 — показати, як категорія «Сигнали завершеності» її ловить (THEN без результату).
+Скіл недетермінований: формулювання будуть інші, але п'ять неоднозначностей мають знайтись. AC-LEAVE-04 у скані
+позначають дві категорії: «Граничні випадки й збої» (її вказано в issue Q2) і «Сигнали завершеності» (THEN без
+результату). Якщо агент пропустив Q2 — показати, як друга з них її ловить.
 
 ### Демо 3 — Старт з нуля (блок 4) — `demo-03-impl`
 
@@ -243,7 +257,7 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
 | 6 | **Основна тека на `main`** (не `lp-demo-03-impl`: там немає прив'язки `supabase/.temp` і лише 2 з 4 міграцій): `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції). Підказку CLI `migration repair` **не виконувати** (крок 1.2.3) | скрін Dashboard → Database → Migrations |
 | 7 | Vercel → Project → Environment Variables (лише назви), Deployment Protection вимкнено | — | скрін |
-| 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel | `conformance` skipped: не форк | скрін PR |
+| 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel. Сказати: у форку учасника перший PR — `docs/bootstrap.md`, тести з AC ID — після PR `sync/spec-v0.1` (інакше ORPHAN) | `conformance` skipped: не форк | скрін PR |
 | 9 | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | в основній теці на `main` (лише там є `.env.local`): `npm run dev` → http://localhost:3000 |
 | 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше `npm run dev` в основній теці на `main` |
 | 11 | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу «Щоб повернути заявку на доопрацювання, напишіть коментар.» (код `COMMENT_REQUIRED` у `?error=` адреси), потім «на доопрацюванні» | `npx vitest run -t "AC-LEAVE-07"` |
