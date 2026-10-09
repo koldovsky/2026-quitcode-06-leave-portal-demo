@@ -66,10 +66,10 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   явні `grant` (автогрантів немає); політика на кожну операцію з `to authenticated` і `(select auth.uid())`;
   колонкові `grant update (…)`, щоб користувач не змінив собі `role`/`status`.
 - Хелпери ролей — у схемі `private`, `security definer`, `set search_path = ''`; роль — з `profiles.role`,
-  ніколи з `user_metadata`. Набір ролей змінюй новою міграцією в такому порядку: оновити наявні дані
-  (`update … set role = …`) → нове значення за замовчуванням колонки `role` → drop і знову add
-  `profiles_role_check`. Інакше тригер `on_auth_user_created` вставить роль за замовчуванням, якої вже немає
-  в constraint, і кожен `createUser` (`npm run users:demo`) впаде.
+  ніколи з `user_metadata`. Набір ролей змінюй новою міграцією в такому порядку: зняти старий
+  `profiles_role_check` → оновити наявні дані (`update … set role`) → новий `default` колонки `role` →
+  додати новий `profiles_role_check` (зразок — у заголовку `20261012000000_profiles_and_roles.sql`). Без нового
+  `default` тригер `on_auth_user_created` вставить стару роль, і кожен `createUser` у `users:demo` впаде.
 - Авторизація на сервері — `supabase.auth.getClaims()`, ніколи `getSession()`.
 
 ## Секрети

@@ -8,15 +8,17 @@
 --   4) auth.uid() у політиках — лише як `(select auth.uid())`;
 --   5) security definer функції — лише у схемі private, з `set search_path = ''`.
 --
--- Ролі шаблону: member, admin. Проєкт замінює набір ролей новою міграцією — саме в такому порядку:
---   1) наявні дані:       update public.profiles set role = 'employee' where role = 'member';
---   2) нове значення за замовчуванням:
---                         alter table public.profiles alter column role set default 'employee';
---   3) новий constraint:  alter table public.profiles drop constraint profiles_role_check;
---                         alter table public.profiles add constraint profiles_role_check
---                           check (role in ('employee', 'manager', 'admin'));
--- Без кроку 2 тригер on_auth_user_created вставляє role = 'member', якої вже немає в constraint,
--- і кожен createUser (npm run users:demo) падає.
+-- Ролі шаблону: member, admin. Проєкт замінює набір ролей новою міграцією, і порядок важливий:
+-- спершу наявні дані, потім значення за замовчуванням колонки role, і лише тоді новий constraint.
+-- Тригер on_auth_user_created вставляє профіль із role за замовчуванням: якщо лишити default 'member',
+-- кожен createUser (npm run users:demo) впаде на новому constraint. Старий constraint знімаємо першим,
+-- бо він не пропустить UPDATE на нову роль (23514), а користувачі з 'member' після users:demo вже є:
+--   alter table public.profiles drop constraint profiles_role_check;
+--   update public.profiles set role = 'employee' where role = 'member';   -- 1) дані
+--   alter table public.profiles alter column role set default 'employee'; -- 2) default
+--   alter table public.profiles add constraint profiles_role_check        -- 3) новий набір ролей
+--     check (role in ('employee', 'manager', 'admin'));
+-- Міграція виконується однією транзакцією: якщо щось упаде, старий constraint лишиться на місці.
 
 -- Схема для службових функцій: її НЕ додаємо в [api] schemas, тож Data API її не бачить.
 create schema if not exists private;
@@ -79,7 +81,7 @@ create policy profiles_update_own
   using (id = (select auth.uid()))
   with check (id = (select auth.uid()));
 
--- ── Профіль під час реєстрації ──────────────────────────────────────────────
+-- ── Профіль для кожного нового користувача Auth (npm run users:demo, Admin API) ──
 create or replace function private.handle_new_user()
 returns trigger
 language plpgsql
