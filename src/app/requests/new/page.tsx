@@ -1,10 +1,12 @@
 import { LEAVE_TYPE_LABELS, POSITION_KIND_LABELS, errorMessage } from "@/lib/leave/messages";
+import { SUBSTITUTE_MAX_LENGTH } from "@/lib/leave/submission";
 import { LEAVE_TYPES } from "@/lib/leave/types";
 import { requireRole } from "@/lib/supabase/viewer";
 import { Notice, PageShell, buttonClass, inputClass } from "../../_components/ui";
 import { createLeaveRequest } from "../actions";
 
-// AC-LEAVE-01, AC-LEAVE-02: працівник обирає тип, дати й посади, на які припадає відсутність.
+// AC-LEAVE-01, AC-LEAVE-02: працівник обирає тип, дати й посади, на які припадає відсутність;
+// заміну вказує за бажанням (spec-v0.2).
 export default async function NewRequestPage({ searchParams }: PageProps<"/requests/new">) {
   const { supabase, viewer } = await requireRole("employee");
   const { error } = await searchParams;
@@ -52,6 +54,10 @@ export default async function NewRequestPage({ searchParams }: PageProps<"/reque
               </label>
             ))}
           </fieldset>
+          <label className="flex flex-col gap-1 text-sm">
+            Заміна (необов’язково): хто веде уроки
+            <input name="substitute_note" maxLength={SUBSTITUTE_MAX_LENGTH} className={inputClass} />
+          </label>
           <button type="submit" className={`${buttonClass} self-start`}>
             Подати заявку
           </button>

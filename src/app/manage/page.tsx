@@ -22,7 +22,7 @@ export default async function ManagePage({ searchParams }: PageProps<"/manage">)
 
   const requestIds = [...new Set((records ?? []).map((r) => r.request_id))];
   const { data: requests } = requestIds.length
-    ? await supabase.from("leave_requests").select("id, employee_id, leave_type, start_date, end_date").in("id", requestIds)
+    ? await supabase.from("leave_requests").select("id, employee_id, leave_type, start_date, end_date, substitute_note").in("id", requestIds)
     : { data: [] as never[] };
   const employeeIds = [...new Set((requests ?? []).map((r) => r.employee_id))];
   const [{ data: people }, { data: divisions }, { data: blocked }] = await Promise.all([
@@ -56,6 +56,7 @@ export default async function ManagePage({ searchParams }: PageProps<"/manage">)
         <span className="text-sm text-zinc-500">
           {POSITION_KIND_LABELS[rec.kind as PositionKind]} посада, {divisionName.get(rec.division_id) ?? "—"}
         </span>
+        {req?.substitute_note ? <span className="text-sm text-zinc-500">Заміна: {req.substitute_note}</span> : null}
       </div>
     );
   };
