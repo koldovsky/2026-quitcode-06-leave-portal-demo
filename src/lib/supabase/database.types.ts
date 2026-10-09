@@ -1,7 +1,7 @@
 // Типи схеми бази. Після `npm run db:push` перегенеруйте файл:
 //   npm run db:types
 // (supabase gen types typescript --linked). Ця версія написана вручну й описує таблиці з міграцій
-// 20261012000000_profiles_and_roles.sql і 20261013000000_leave_requests.sql.
+// 20261012000000_profiles_and_roles.sql, 20261013000000_leave_requests.sql і 20261016000000_leave_rules_v0_2.sql.
 
 export type Json =
   | string
@@ -114,6 +114,7 @@ export type Database = {
           leave_type: string;
           start_date: string;
           end_date: string;
+          substitute_note: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -123,6 +124,7 @@ export type Database = {
           leave_type: string;
           start_date: string;
           end_date: string;
+          substitute_note?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -132,6 +134,7 @@ export type Database = {
           leave_type?: string;
           start_date?: string;
           end_date?: string;
+          substitute_note?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -187,6 +190,7 @@ export type Database = {
           p_start_date: string;
           p_end_date: string;
           p_position_ids: string[];
+          p_substitute_note?: string;
         };
         Returns: string;
       };
