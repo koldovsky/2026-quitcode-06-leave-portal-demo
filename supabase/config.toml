@@ -179,7 +179,8 @@ refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
 # ШАБЛОН: вимкнено. Публічний ключ (publishable) є в JS-бандлі прод-URL, тож з увімкненою реєстрацією будь-хто
 # зареєструється через Auth API і одразу отримає роль за замовчуванням. У хмарному проєкті вимкніть вручну:
-# Authentication → Sign In / Providers → «Allow new users to sign up». Admin API (scripts/create-demo-users.mjs) працює й так.
+# перемикач «Allow new users to sign up» у налаштуваннях Authentication (точне місце в Dashboard звіряємо на репетиції).
+# Користувачів створює лише npm run users:demo через Admin API (scripts/create-demo-users.mjs) — він працює й так.
 enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
