@@ -134,6 +134,7 @@ describe("База: доступ", () => {
   });
 
   it("AC-LEAVE-09: менеджер «Математики» бачить лише записи своєї черги; адміністратор бачить усе, але не вирішує", async () => {
+    await submitAllPositions(TEACHER, "2026-12-14", "2026-12-15"); // MATH (main) + PRIMARY (additional)
     const own = await submitAllPositions(TEACHER2, "2026-12-07", "2026-12-08"); // лише «Початкова школа»
     const [{ n: seenByMath }] = await t.asUser<{ n: number }>(
       MANAGER_MATH,
