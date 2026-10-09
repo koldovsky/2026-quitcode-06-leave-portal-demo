@@ -21,3 +21,15 @@
 - MODIFIED: —
 - REMOVED: —
 - Відкриті питання: Q4 (заміна), Q5 (перетин заявок) — див. proposal.md зміни
+
+## spec-v0.2 — 2026-10-09
+
+- Зміна: `clarify-leave-rules` (архів: `openspec/changes/archive/2026-10-09-clarify-leave-rules/`;
+  diff до archive — `docs/demo/spec-v0.2-diff.txt`)
+- MODIFIED: AC-LEAVE-01 (заміна — необов'язкове текстове поле), AC-LEAVE-02 (записи — для посад, які працівник
+  позначив; «покриває обидві» = розклад за обома посадами в ці дати), AC-LEAVE-04 (заявку прийнято, заблоковані
+  дні виключено з кількості днів), AC-LEAVE-05 (кожен запис — у черзі менеджера підрозділу своєї посади)
+- ADDED: AC-LEAVE-10 (лише заблоковані дні → `ONLY_BLOCKED_DAYS`), AC-LEAVE-11 (перетин із заявкою на розгляді
+  чи схваленою → `OVERLAPPING_REQUEST`)
+- REMOVED: —
+- Відповіді на питання: Q1 (#1), Q2 (#2), Q3 (#3), Q4 (#4), Q5 (#5) — `product/decisions.md`
