@@ -78,9 +78,10 @@
    `/opsx:propose <опис зрізу>` (у Cursor `/opsx-propose`) або вручну: `npx openspec new change add-<зріз>` → `proposal.md` + `specs/<capability>/spec.md`.
    Формат (вимоги EARS з SHALL, `#### Scenario: AC-<AREA>-<NN> …`) агент бере з `openspec/config.yaml`.
 4. **Перевірка.** `npm run spec:validate`, `npm run spec:check`, скіл `spec-review`.
-5. **Реліз.** PR зі зміною → рев'ю команди → у тій самій гілці, **до merge**, `npx openspec archive add-<зріз> -y`
-   і запис у `product/CHANGELOG.md` (ruleset не пускає прямі коміти в `main`) → merge →
-   `git switch main && git pull && git tag spec-v0.1 && git push origin spec-v0.1`.
+5. **Реліз.** Гілка зміни (`spec/add-<зріз>`) → PR → рев'ю команди → у тій самій гілці, **до merge**,
+   `npx openspec archive add-<зріз> -y` і запис у `product/CHANGELOG.md` (ruleset не пускає прямі коміти в `main`) →
+   merge кнопкою **Create a merge commit** → `git switch main && git pull` → `git tag spec-v0.1` →
+   `git push origin spec-v0.1`.
 6. **Питання розробників.** Відповідайте в issues `spec-question`; рішення — у `product/decisions.md`;
    якщо змінюється поведінка — нова зміна (MODIFIED/ADDED) і тег `spec-v0.2`.
 
@@ -92,16 +93,22 @@
    Ruleset на `main` (PR + статуси `spec`, `app`, `conformance`).
 2. **Залежності:** Node 24 (`node -v`), `openspec --version` = `1.14.1` (див. «Перед початком»), `npm ci`,
    `npm run typecheck`, `npm test`.
-3. **Supabase** (власна організація, не через Vercel Marketplace): створіть проєкт; Authentication →
-   Sign In / Providers → вимкніть «Allow new users to sign up» (інакше будь-хто з публічним ключем із бандла
-   зареєструється сам) і в Email — Confirm email; `npx supabase login` → `npx supabase link --project-ref <ref>` →
+3. **Supabase** (власна організація, не через Vercel Marketplace): створіть проєкт; в налаштуваннях
+   Authentication вимкніть «Allow new users to sign up» (інакше будь-хто з публічним ключем із бандла
+   зареєструється сам; локально те саме робить `[auth] enable_signup = false` у `supabase/config.toml`) і
+   Confirm email для Email (точне місце перемикачів у Dashboard звіряємо на репетиції). Користувачів створює
+   лише `npm run users:demo` (Admin API). `npx supabase login` → `npx supabase link --project-ref <ref>` →
    `npx supabase db push --dry-run` → `npm run db:push` → `npm run db:types`.
    `.env.local` за зразком `.env.example` → `npm run users:demo` → `npm run dev` → вхід як `admin@example.test`.
-4. **Vercel** (Hobby): Add New → Project → імпорт форку; змінні `NEXT_PUBLIC_SUPABASE_URL`,
-   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` для Production і Preview → редеплой.
+4. **Vercel** (Hobby): Add New → Project → імпорт форку; для Production і Preview — лише дві змінні
+   `NEXT_PUBLIC_SUPABASE_URL` і `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` → редеплой. `SUPABASE_SECRET_KEY` у Vercel
+   не додаємо: коду застосунку першого зрізу він не потрібен (найменші права), він живе лише в `.env.local`
+   для `npm run users:demo`. Змінну типу Secret додайте тоді, коли її справді читає ваш серверний код.
    Supabase → Authentication → URL Configuration: Site URL = прод-URL, Redirect URLs `http://localhost:3000/**`
    і `https://*-<slug>.vercel.app/**`. Для навчальних проєктів вимкніть Vercel Authentication на preview.
 5. **Секрети CI** (для job `db`): `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_ID`.
+   **Перший PR у форку — `docs/bootstrap.md`** (докази бутстрапу, день 0–1, без значень секретів): CI зелений
+   (`spec`, `app`, `conformance`), preview відкривається. Тестів з AC ID у назвах у ньому ще немає.
 6. **Перша версія спеки.** Форк зроблено до тегу `spec-v0.1`, тож забирайте її тим самим потоком, що й кожну
    наступну (крок 8): `git fetch upstream --tags` → `git switch -c sync/spec-v0.1` → `git merge spec-v0.1` →
    розкоментуйте `.spec-source` (`upstream: <pm>/<team-repo>`, `version: spec-v0.1`) → `npm run spec:source` (OK) →
@@ -110,7 +117,8 @@
    інакше наступна синхронізація дасть конфлікти в `product/`). Потім скіл `spec-clarify` → питання як issues в upstream → журнал у `docs/spec-reading.md`.
 7. **Реалізація:** `npx openspec new change impl-<зріз>` з `skip_specs: true` у `.openspec.yaml`, `design.md`,
    `tasks.md` («Done when: AC-…») → гілка → код + тести `it("AC-…: …")` → `/conformance` → PR у форку
-   (CI зелений, `@coderabbitai review`). В останньому PR зрізу, **до merge**, `npx openspec archive impl-<зріз> -y`
+   (CI зелений, `@coderabbitai review`). Тести з AC ID у назвах — лише після PR, що злив `sync/spec-v0.1`:
+   до нього `npm run ac:coverage` падає з ORPHAN, бо таких AC в `openspec/specs/` форку ще немає. В останньому PR зрізу, **до merge**, `npx openspec archive impl-<зріз> -y`
    у тій самій гілці (ruleset не пускає прямі коміти в `main`) → merge.
 8. **Нова версія спеки:** `git fetch upstream --tags` → `git switch -c sync/spec-v0.2` → `git merge spec-v0.2` →
    оновити `.spec-source` → нові AC у `docs/conformance.md` → PR → **Create a merge commit**. Якщо попередній
@@ -156,7 +164,8 @@ printf '* text=auto eol=lf\n*.ico binary\n*.png binary\n' > .gitattributes
 # 3. Supabase: конфіг і міграція
 npx supabase init
 # supabase/config.toml: [api] auto_expose_new_tables = false; [auth] site_url = "http://localhost:3000",
-#   additional_redirect_urls = ["http://localhost:3000/**"]; [auth.email] enable_confirmations = false
+#   additional_redirect_urls = ["http://localhost:3000/**"], enable_signup = false (користувачі — лише
+#   npm run users:demo через Admin API); [auth.email] enable_confirmations = false
 # supabase/migrations/20261012000000_profiles_and_roles.sql, supabase/seed.sql, supabase/demo-users.json
 
 # 4. OpenSpec: глобальний CLI тієї ж версії (його викликають /opsx:* і скіли), профіль custom з verify

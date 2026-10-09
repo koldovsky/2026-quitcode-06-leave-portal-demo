@@ -47,8 +47,9 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 
 - `product/` і `openspec/specs/` належать PM і змінюються лише в upstream. У форку їх не редагуй:
   розробник пропонує зміну спеки тільки PR-ом в upstream або питанням (issue `spec-question`, скіл `spec-clarify`).
-- Одна OpenSpec-зміна — один намір. PM: `proposal.md` + дельта-спека → `spec-review` → PR → archive у гілці
-  зміни (до merge: прямі коміти в `main` заборонені) → merge → тег `spec-vX.Y`.
+- Одна OpenSpec-зміна — один намір. PM: гілка зміни, `proposal.md` + дельта-спека → `spec-review` → PR →
+  у гілці зміни, до merge, archive + запис у `product/CHANGELOG.md` (прямі коміти в `main` заборонені) →
+  merge (merge commit) → `git switch main && git pull` → `git tag spec-vX.Y` → `git push origin spec-vX.Y`.
   Розробник: своя зміна `impl-<зріз>` з `skip_specs: true`, `design.md` і `tasks.md` («Done when: AC-…»);
   archive — в останньому PR зрізу до merge.
 - AC ID (`AC-<AREA>-<NN>`) — на початку назви сценарію і в назві тесту: `it("AC-LEAVE-02: …")`.
@@ -65,12 +66,17 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   явні `grant` (автогрантів немає); політика на кожну операцію з `to authenticated` і `(select auth.uid())`;
   колонкові `grant update (…)`, щоб користувач не змінив собі `role`/`status`.
 - Хелпери ролей — у схемі `private`, `security definer`, `set search_path = ''`; роль — з `profiles.role`,
-  ніколи з `user_metadata`. Набір ролей змінюй новою міграцією з constraint `profiles_role_check`.
+  ніколи з `user_metadata`. Набір ролей змінюй новою міграцією в такому порядку: оновити наявні дані
+  (`update … set role = …`) → нове значення за замовчуванням колонки `role` → drop і знову add
+  `profiles_role_check`. Інакше тригер `on_auth_user_created` вставить роль за замовчуванням, якої вже немає
+  в constraint, і кожен `createUser` (`npm run users:demo`) впаде.
 - Авторизація на сервері — `supabase.auth.getClaims()`, ніколи `getSession()`.
 
 ## Секрети
 
 - Значення лише в `.env.local`, Vercel (Production + Preview) і GitHub Secrets; ніколи в git, логах чи чаті.
+  У Vercel — лише `NEXT_PUBLIC_SUPABASE_URL` і `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `SUPABASE_SECRET_KEY` —
+  лише в `.env.local` для скриптів, у Vercel (тип Secret) — тільки коли його читає серверний код застосунку.
 - Імена: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, серверний `SUPABASE_SECRET_KEY`
   (не `NEXT_PUBLIC_`, не `*_ANON_KEY`/`SERVICE_ROLE_KEY`). Шаблон — `.env.example`.
 - `.claude/settings.json` забороняє читати `.env*` (крім `.env.example`). Скрипти з секретами запускай

@@ -12,15 +12,15 @@ Upstream PM: <!-- owner/team-repo --> · Мій форк: <!-- me/team-repo --> 
 
 - [ ] Форк створено, Actions увімкнено (Actions → «I understand my workflows, go ahead and enable them») — <!-- посилання на перший run -->
 - [ ] `gh repo set-default <я>/<форк>` виконано (PR іде у форк, а не в upstream) — <!-- вивід `gh repo set-default --view` -->
-- [ ] Ruleset на `main`: PR обов'язковий, статуси `spec` і `app` обов'язкові — <!-- знімок налаштувань -->
-- [ ] Тег спеки злито гілкою `sync/spec-v0.1`, `.spec-source` заповнено (`upstream:`, `version:`), `npm run spec:source` → OK
+- [ ] Ruleset на `main`: PR обов'язковий, статуси `spec`, `app` і `conformance` обов'язкові — <!-- знімок налаштувань -->
+- [ ] Окремим PR, коли PM поставив тег: `spec-v0.1` злито гілкою `sync/spec-v0.1` (merge commit), `.spec-source` заповнено (`upstream:`, `version:`), `npm run spec:source` → OK
 - [ ] CodeRabbit встановлено на свій акаунт; у PR працює `@coderabbitai review`
 
 ## Supabase
 
 - [ ] Проєкт створено у власній організації Supabase (не через Vercel Marketplace) — <!-- регіон -->
-- [ ] «Confirm email» вимкнено (Authentication → Sign In / Providers → Email; https://supabase.com/dashboard/project/_/auth/providers)
-- [ ] «Allow new users to sign up» вимкнено (там само): публічний ключ є в бандлі, тож інакше будь-хто зареєструється через Auth API; `npm run users:demo` працює через Admin API
+- [ ] «Confirm email» вимкнено (налаштування Authentication → провайдер Email; точне місце в Dashboard звіряємо на репетиції)
+- [ ] «Allow new users to sign up» вимкнено (налаштування Authentication; точне місце звіряємо на репетиції): публічний ключ є в бандлі, тож інакше будь-хто зареєструється через Auth API; локально — `[auth] enable_signup = false` у `supabase/config.toml`; користувачів створює лише `npm run users:demo` (Admin API)
 - [ ] `npx supabase login` · `npx supabase link --project-ref <ref>` — <!-- вивід без секретів -->
 - [ ] `npx supabase db push --dry-run` → `npm run db:push` — <!-- список застосованих міграцій -->
 - [ ] `npm run db:types` — `src/lib/supabase/database.types.ts` перегенеровано
@@ -31,11 +31,17 @@ Upstream PM: <!-- owner/team-repo --> · Мій форк: <!-- me/team-repo --> 
 ## Vercel
 
 - [ ] Проєкт імпортовано з форку (Hobby), Node 24.x — <!-- прод-URL -->
-- [ ] Змінні в Production і Preview: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (тип Secret) — лише назви
+- [ ] Змінні в Production і Preview — лише дві: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (лише назви)
+- [ ] `SUPABASE_SECRET_KEY` у Vercel не додано: коду застосунку першого зрізу він не потрібен, живе лише в `.env.local` для `npm run users:demo` (додати як тип Secret — коли його читає ваш серверний код)
 - [ ] Після зміни змінних — редеплой
 - [ ] Vercel Authentication для preview вимкнено (PM відкриває preview без входу)
 
 ## Перший PR
 
-- [ ] PR у форку: CI зелений (`spec`, `app`, `conformance`), preview відкривається — <!-- посилання -->
+<!--
+Перший PR у форку — цей файл (докази бутстрапу, день 0–1). Тестів з AC ID у назвах у ньому немає:
+вони з'являються лише після PR, що злив sync/spec-v0.1, — до нього npm run ac:coverage падає з ORPHAN.
+-->
+
+- [ ] PR із цим файлом у форку: CI зелений (`spec`, `app`, `conformance`), preview відкривається — <!-- посилання -->
 - [ ] Після merge у `main` job `db` виконав `supabase db push` — <!-- посилання на run -->
