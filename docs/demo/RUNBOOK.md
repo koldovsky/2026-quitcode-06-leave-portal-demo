@@ -177,13 +177,14 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
 | 1 | Тека `lp-demo-01-template`: `product/vision.md`, `glossary.md`, `roles.md` (матриця роль × сутність × дія), `roadmap.md` | зріз на кожне заняття WS6–WS11 | файли на GitHub на тезі `demo-01-template` |
-| 2 | `product/denylist.txt` + пояснити `denylist.local.txt` і секрет `SPEC_DENYLIST`; `npm run spec:check` | `слів у denylist: 3` (+ локальні) → `OK` | — |
+| 2 | `product/denylist.txt` + пояснити `denylist.local.txt` і секрет `SPEC_DENYLIST`; `npm run spec:check` | `слів у denylist: 3` (+ локальні) → `OK` | показати рядок `## 4. Denylist` у `scripts/check-spec.mjs` і тест `reads words from the local product/denylist.local.txt` (`npx vitest run tests/scripts/check-spec.test.ts`) |
 | 3 | (наживо, необов'язково) Claude Code: `/opsx:propose Працівник подає заявку на відсутність на одну або дві посади, менеджер підрозділу схвалює або повертає з коментарем` — агент ставить PM питання, пише `proposal.md` і дельту | зміна з `### Requirement:` і `#### Scenario: AC-LEAVE-…` | не чекати агента: `git switch --detach spec-v0.1~1` і показати готову зміну |
+| 3а | Після живого `/opsx:propose` скинути теку: `git restore . && git clean -fd openspec docs` | `git status` порожній | перестворити теку: `git worktree remove --force ../lp-<тег>` і `git worktree add --detach ../lp-<тег> <тег>` |
 | 4 | `git switch --detach spec-v0.1~1` → `openspec/changes/add-leave-request/proposal.md` (Users & roles, Non-goals, Assumptions, Open questions Q4–Q5) і `specs/leave-requests/spec.md` | 5 вимог, AC-LEAVE-01…09 | GitHub, коміт `Propose add-leave-request…` |
 | 5 | `npx openspec validate add-leave-request --strict` | `Change 'add-leave-request' is valid` | скрін з репетиції |
-| 6 | `npm run spec:check` | `сценаріїв: 9 … OK` | — |
+| 6 | `npm run spec:check` | `сценаріїв: 9 … OK` | вивід з таблиці розділу 3 (рядок `spec-v0.1`) |
 | 7 | `npx openspec archive add-leave-request -y` | `+ 5 added`, `archived as '<дата>-add-leave-request'` | показати тег `spec-v0.1` |
-| 8 | Скинути: `git restore . && git clean -fd openspec && git switch --detach spec-v0.1`; показати `openspec/specs/leave-requests/spec.md` і `product/CHANGELOG.md` | канонічна спека з `## Purpose` українською | — |
+| 8 | Скинути: `git restore . && git clean -fd openspec && git switch --detach spec-v0.1`; показати `openspec/specs/leave-requests/spec.md` і `product/CHANGELOG.md` | канонічна спека з `## Purpose` українською | відкрити ці файли на GitHub на тезі `spec-v0.1` |
 
 Наголос: `validate --strict` перевіряє структуру, а не зміст — AC-LEAVE-02 і AC-LEAVE-04 проходять, хоча неоднозначні.
 
@@ -191,11 +192,12 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
-| 1 | Тека `lp-spec-v0.1`, Claude Code: «Уточни спеку spec-v0.1 скілом spec-clarify» | таблиця 11 категорій, потім по одному питанню з варіантами й рекомендацією | — |
+| 1 | Тека `lp-spec-v0.1`, Claude Code: «Уточни спеку spec-v0.1 скілом spec-clarify» | таблиця 11 категорій, потім по одному питанню з варіантами й рекомендацією | агент не відповідає за 2 хв — перервати й перейти до кроку 2 через План Б (`demo-02-clarify~2`) |
 | 2 | Пройти 2–3 питання наживо (Q1, Q2, Q3) | Q1: «покриває обидві посади»; Q2: заблокований день — прийняти чи відхилити; Q3: дві черги | `git switch --detach demo-02-clarify~2` → `docs/spec-reading.md` (стан «очікуємо») |
+| 2а | Після живого прогону скіла скинути теку: `git restore . && git clean -fd openspec docs` (скіл пише в `docs/spec-reading.md`) | `git status` порожній | перестворити теку: `git worktree remove --force ../lp-<тег>` і `git worktree add --detach ../lp-<тег> <тег>` |
 | 3 | `docs/demo/issues/Q2.md` → на GitHub відкрити issue #2 (створене заздалегідь, крок 1.1.2) | поля форми `spec-question` | файл `Q2.md` на екрані |
-| 4 | `product/decisions.md` на `demo-02-clarify` | Q1–Q5 з відповідями й «spec-v0.2 (готується)» | — |
-| 5 | `docs/spec-reading.md` на `demo-02-clarify`: «Відповідь PM», «Власні припущення» | — | — |
+| 4 | `product/decisions.md` на `demo-02-clarify` | Q1–Q5 з відповідями й «spec-v0.2 (готується)» | закриті issues #1–#5 з коментарями PM на GitHub |
+| 5 | `docs/spec-reading.md` на `demo-02-clarify`: «Відповідь PM», «Власні припущення»; варіанти A–D кожного питання — у `docs/demo/issues/Q*.md` | колонки «Відповідь PM» і «Рішення» заповнені | `git diff demo-02-clarify~2 demo-02-clarify -- docs/spec-reading.md` |
 | 6 | `npm run ac:coverage` на `spec-v0.1`, потім на `demo-02-clarify` | спершу `FAIL … NO-ROW (9)`, потім `OK`: 9 рядків «відкладено (…)» | вивід у таблиці розділу 3 |
 
 Скіл не детермінований: формулювання будуть інші, але п'ять неоднозначностей мають знайтись; якщо агент
@@ -205,18 +207,18 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
-| 1 | `openspec/changes/archive/*-impl-leave-request/design.md` (таблиця прав) і `tasks.md` («Done when: AC-…») | `skip_specs: true` у `.openspec.yaml` | — |
-| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики | — | — |
+| 1 | `openspec/changes/archive/*-impl-leave-request/design.md` (таблиця прав) і `tasks.md` («Done when: AC-…») | `skip_specs: true` у `.openspec.yaml` | файли на GitHub на тезі `demo-03-impl` |
+| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики | файл на екрані без змін; на питання «чи це працює» — розділ 3 (перевірка на PGlite) | файл на GitHub |
 | 3 | `npx vitest run -t "AC-LEAVE-0"` | 15 тестів з AC ID у назвах, решта skipped — усі зелені | `npm test` |
-| 4 | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | — |
-| 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | — |
+| 4 | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | `docs/conformance.md` на тезі `demo-03-impl` |
+| 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
 | 6 | `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції) | скрін Dashboard → Database → Migrations |
 | 7 | Vercel → Project → Environment Variables (лише назви), Deployment Protection вимкнено | — | скрін |
 | 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel | `conformance` skipped: не форк | скрін PR |
 | 9 | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | локально `npm run dev` з `.env.local` |
-| 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | — |
-| 11 | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу текст помилки `COMMENT_REQUIRED`, потім «на доопрацюванні» | — |
-| 12 | `teacher@` → «Виправити й подати знову» (кінець 12.11) | обидва записи знову «на розгляді» | — |
+| 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше локально `npm run dev` |
+| 11 | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу «Щоб повернути заявку на доопрацювання, напишіть коментар.» (код `COMMENT_REQUIRED` у `?error=` адреси), потім «на доопрацюванні» | `npx vitest run -t "AC-LEAVE-07"` |
+| 12 | `teacher@` → «Виправити й подати знову» (кінець 12.11) | обидва записи знову «на розгляді» | `npx vitest run -t "AC-LEAVE-08"` |
 
 На прод-URL уже стан `main` (spec-v0.2): у формі є поле «Заміна». Це нормально — скажіть, що воно з'явиться в демо 4.
 Якщо треба почати з чистої бази: Dashboard → Table Editor — видаліть рядки `leave_requests` (записи видаляться каскадом).
@@ -225,15 +227,15 @@ gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --f
 
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
-| 1 | `git switch --detach spec-v0.2~1` (тека `lp-spec-v0.2`) → `openspec/changes/clarify-leave-rules/` | MODIFIED 3 вимоги, ADDED «Перетин заявок» | — |
+| 1 | `git switch --detach spec-v0.2~1` (тека `lp-spec-v0.2`) → `openspec/changes/clarify-leave-rules/` | MODIFIED 3 вимоги, ADDED «Перетин заявок» | GitHub, коміт `Propose clarify-leave-rules…` |
 | 2 | `npx openspec show clarify-leave-rules --diff` | `ADDED: Перетин заявок`, `MODIFIED: Подання заявки / Заблоковані дні / Маршрутизація` з `-`/`+` рядками | `docs/demo/spec-v0.2-diff.txt` |
 | 3 | `npx openspec archive clarify-leave-rules -y`, потім скинути: `git restore . && git clean -fd openspec && git switch --detach spec-v0.2` | `+ 1 added, ~ 3 modified` | тег `spec-v0.2`, `product/CHANGELOG.md` |
 | 4 | `npm run ac:coverage` на `spec-v0.2` | `FAIL`: `NO-ROW … AC-LEAVE-10`, `AC-LEAVE-11`, exit 1 — те саме, що в `docs/demo/drift-ci.txt` | показати `drift-ci.txt` |
 | 5 | Пояснити: у форку це job `conformance` у PR `sync/spec-v0.2` → CI червоний; MODIFIED (01/02/04/05) перевірка не бачить — їх звіряє людина за diff | — | таблиця «Синхронізація на spec-v0.2» у `docs/spec-reading.md` |
-| 6 | `demo-04-sync`: `tests/leave/calendar.test.ts`, `docs/conformance.md` (spec-v0.2, 11 рядків) | — | — |
+| 6 | `demo-04-sync`: `tests/leave/calendar.test.ts`, `docs/conformance.md` (spec-v0.2, 11 рядків) | рядки AC-LEAVE-10, 11 «реалізовано» | `git diff spec-v0.2 demo-04-sync -- docs/conformance.md` |
 | 7 | `npm run ac:coverage` | `AC у специфікаціях: 11 … «реалізовано»: 11 … OK` | вивід із розділу 3 |
 | 8 | Прод-URL, `teacher2@`: заявка 05.11–05.11.2026 → помилка (AC-LEAVE-10); дві заявки, що перетинаються → помилка (AC-LEAVE-11) | тексти «лише заблоковані дні», «уже є заявка» | `npx vitest run -t "AC-LEAVE-1"` (3 тести) |
-| 9 | Наголос: `/opsx:verify` і `/conformance` — порадники; ворота — детерміновані перевірки CI | — | — |
+| 9 | Наголос: `/opsx:verify` і `/conformance` — порадники; ворота — детерміновані перевірки CI | — | слайд деки замість живого запуску `/opsx:verify` |
 
 ## 3. Очікувані результати воріт на кожному тезі
 
