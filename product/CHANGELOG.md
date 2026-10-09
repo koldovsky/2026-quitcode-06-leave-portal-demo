@@ -12,3 +12,12 @@
 - REMOVED: —
 - Відповіді на питання: Q1 (#3), Q2 (#5)
 -->
+
+## spec-v0.1 — 2026-10-09
+
+- Зміна: `add-leave-request` (архів: `openspec/changes/archive/2026-10-09-add-leave-request/`)
+- Нова можливість: `leave-requests` — подання заявки, заблоковані дні, маршрутизація, рішення менеджера, доступ
+- ADDED: AC-LEAVE-01 … AC-LEAVE-09
+- MODIFIED: —
+- REMOVED: —
+- Відкриті питання: Q4 (заміна), Q5 (перетин заявок) — див. proposal.md зміни
