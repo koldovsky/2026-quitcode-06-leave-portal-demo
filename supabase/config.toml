@@ -179,9 +179,11 @@ refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
 # ШАБЛОН: вимкнено. Публічний ключ (publishable) є в JS-бандлі прод-URL, тож з увімкненою реєстрацією будь-хто
 # зареєструється через Auth API і одразу отримає роль за замовчуванням. Користувачів створює лише
-# npm run users:demo (scripts/create-demo-users.mjs, Admin API), йому реєстрація не потрібна.
-# Цей файл діє лише на локальний стек; у хмарному проєкті вимкніть вручну перемикач «Allow new users to sign up»
-# у налаштуваннях Authentication (точний шлях у Dashboard звіряємо на репетиції).
+# npm run users:demo (scripts/create-demo-users.mjs, Admin API); з вимкненою реєстрацією він працює й у хмарі
+# (за кодом GoTrue — так; звіряємо на репетиції).
+# npm run db:push (supabase db push) переносить у хмару схему (міграції), а не ці налаштування Auth, тож у хмарному проєкті
+# вимкніть вручну перемикач «Allow new users to sign up» у налаштуваннях Authentication
+# (точний шлях у Dashboard звіряємо на репетиції).
 enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
@@ -227,12 +229,14 @@ web3 = 30
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
+# ШАБЛОН: true — провайдер Email лишається увімкненим (вхід email + пароль); реєстрацію закриває [auth] enable_signup = false.
 enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-# ШАБЛОН: вимкнено. У хмарному проєкті вимкніть «Confirm email» вручну (Authentication → Sign In / Providers → Email):
+# ШАБЛОН: вимкнено. У хмарному проєкті вимкніть «Confirm email» вручну (налаштування Authentication → провайдер Email;
+# точний шлях у Dashboard звіряємо на репетиції):
 # вбудований SMTP надсилає 2 листи/год і лише членам команди проєкту. Користувачів створює scripts/create-demo-users.mjs.
 enable_confirmations = false
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.

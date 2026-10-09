@@ -18,7 +18,6 @@
 --   alter table public.profiles alter column role set default 'employee'; -- 2) default
 --   alter table public.profiles add constraint profiles_role_check        -- 3) новий набір ролей
 --     check (role in ('employee', 'manager', 'admin'));
--- Міграція виконується однією транзакцією: якщо щось упаде, старий constraint лишиться на місці.
 
 -- Схема для службових функцій: її НЕ додаємо в [api] schemas, тож Data API її не бачить.
 create schema if not exists private;
