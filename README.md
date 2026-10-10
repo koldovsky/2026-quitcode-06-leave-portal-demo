@@ -154,6 +154,10 @@
    Термінове виправлення шаблону, а нового тегу ще немає: той самий `git cherry-pick <sha>` у форку PR-ом
    «Оновлення шаблону» (лише якщо коміт не чіпає `product/` і `openspec/`); пізніший merge тегу з тим самим
    комітом конфліктів не дає.
+9. **Пропозиція змінити спеку** (знайшли помилку чи прогалину): `git fetch upstream` →
+   `git switch -c spec/<коротко> upstream/main` → зміна лише в `openspec/changes/<id>/` (`proposal.md` + дельта) →
+   `git push -u origin spec/<коротко>` → PR в upstream (base `<pm>/<team-slug>:main`), тип «Зміна специфікації».
+   Гілка від `upstream/main`, а не від `main` форку: інакше PR потягне ваш `src/` і `supabase/`. Рішення — за PM.
 
 ## Перевірки
 

@@ -235,7 +235,7 @@ git switch main   # основна тека лишається на main (дем
 - [ ] Акаунти на екрані (GitHub, Vercel, Supabase): перевірити, що в перемикачах немає клієнтських організацій; якщо є — окремий профіль браузера з демо-акаунтами. У SQL Editor перед Run — звірити назву проєкту.
 - [ ] Основна тека — на гілці main (`git branch --show-current`).
 - [ ] Знімки для Планів Б (крок 1.5) відкрито у вкладках.
-- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1; «Старт зараз» після слайда 45). Перевірка: `gh repo view koldovsky/2026-quitcode-06-project-template --json isTemplate --jq .isTemplate` → `true`. Деку зібрано на Pages.
+- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1; «Старт зараз» після слайда 44). Перевірка: `gh repo view koldovsky/2026-quitcode-06-project-template --json isTemplate --jq .isTemplate` → `true`. Деку зібрано на Pages.
 
 ## 2. Сценарій на сцені
 
@@ -296,8 +296,8 @@ git show demo-02-clarify~2:docs/spec-reading.md | sed -n '/^## Скан за т�
 
 ### Демо 3 — Старт з нуля (блок 4) — `demo-03-impl`
 
-Бюджет на сцені — 6,5 хв (слайди 34–35): обов'язкові кроки 6–8. Кроки 1–5 (їх зміст уже на слайдах 24, 32 і 33) і 9–12 — «якщо є час».
-З них першим — один прод-флоу з нотаток слайда 35: `teacher@` подає заявку (крок 9) → `manager.math@` схвалює (крок 10), ≈1,5 хв.
+Бюджет на сцені — 6,5 хв (слайди 33–34): обов'язкові кроки 6–8. Кроки 1–5 (їх зміст уже на слайдах 24, 32 (CI) і 46 (додаток)) і 9–12 — «якщо є час».
+З них першим — один прод-флоу з нотаток слайда 34: `teacher@` подає заявку (крок 9) → `manager.math@` схвалює (крок 10), ≈1,5 хв.
 Кроки 11–12 без часу — лише команди з колонки «План Б» (`npx vitest run -t "AC-LEAVE-07"`, `-t "AC-LEAVE-08"`).
 
 | Крок | Показати / команда | Очікувано | План Б |
@@ -334,7 +334,7 @@ Dashboard → SQL Editor → `delete from public.leave_requests;` (записи 
 | 8 (якщо є час) | Прод-URL, `teacher2@`: заявка 05.11–05.11.2026 → помилка (AC-LEAVE-10); дві заявки, що перетинаються → помилка (AC-LEAVE-11) | тексти «лише заблоковані дні», «уже є заявка» | `npx vitest run -t "AC-LEAVE-1"` (3 тести) |
 | 9 | Наголос: `/opsx:verify` і `/conformance` — порадники; ворота — детерміновані перевірки CI | — | слайд деки замість живого запуску `/opsx:verify` |
 
-### Після слайда 45 — «Старт зараз» (5–7 хв, у часі Q&A)
+### Після слайда 44 — «Старт зараз» (5–7 хв, у часі Q&A)
 
 PM кожної команди створює upstream просто на занятті (walkthrough-pm домашки, крок 1): у браузері
 <https://github.com/koldovsky/2026-quitcode-06-project-template> → **Use this template** → свій акаунт, **Public**,
