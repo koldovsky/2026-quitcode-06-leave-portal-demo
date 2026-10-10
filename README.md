@@ -71,7 +71,8 @@
 
 1. **Upstream.** На сторінці шаблону — **Use this template → Create a new repository**, власник — ваш акаунт,
    назва — слаг команди, **Public**. Settings → Rules → Rulesets: для `main` — Require a pull request (Allowed merge methods — лише Merge),
-   Require status checks (`spec`, `app`).
+   Require status checks (`spec`, `app`). Settings → Collaborators → Add people: викладач і заступник із розробників
+   (на особистому репозиторії вони отримують доступ на запис).
 2. **Продукт.** У гілці `product/context` (прямі коміти в `main` ruleset відхиляє) заповніть `product/vision.md`, `glossary.md`, `roles.md` (матриця прав), `roadmap.md` → `npm run spec:check` → PR → merge.
    Справжні назви клієнта — не в файли репозиторію, а в локальний `product/denylist.local.txt` (у `.gitignore`;
    `npm run spec:check` читає його, але значень не друкує) і в секрет `SPEC_DENYLIST` (Settings → Secrets and
@@ -79,7 +80,8 @@
    бачить лише `product/denylist.txt`. Перед merge такого PR перевірте його локально: `gh pr checkout <номер>` →
    `npm run spec:check`. Якщо в такому PR замість перевірок `spec` і `app` GitHub показує кнопку **Approve and run workflows** (перший внесок розробника в ваш репозиторій), натисніть її — інакше обов'язкові перевірки чекатимуть безкінечно (точний текст кнопки й налаштування за замовчуванням звіряємо на репетиції).
    Створіть мітку для питань розробників (форма issue ставить лише наявну мітку):
-   `gh label create spec-question --repo <pm>/<team-repo> --description "Питання до специфікації"`.
+   `gh label create spec-question --repo <pm>/<team-repo> --description "Питання до специфікації"`
+   або в браузері: Issues → Labels → **New label** → `spec-question`.
 3. **Перший зріз.** `npm ci`, `openspec --version` = `1.14.1` (див. «Перед початком»), потім у Claude Code
    `/opsx:propose <опис зрізу>` (у Cursor `/opsx-propose`) або вручну: `npx openspec new change add-<зріз>` → `proposal.md` + `specs/<capability>/spec.md`.
    Формат (вимоги EARS з SHALL, `#### Scenario: AC-<AREA>-<NN> …`) агент бере з `openspec/config.yaml`.
@@ -88,9 +90,20 @@
 5. **Реліз.** Гілка зміни (`spec/add-<зріз>`) → PR → рев'ю команди → у тій самій гілці, **до merge**,
    `npx openspec archive add-<зріз> -y` і запис у `product/CHANGELOG.md` (ruleset не пускає прямі коміти в `main`) →
    merge кнопкою **Create a merge commit** → `git switch main && git pull` → `git tag spec-v0.1` →
-   `git push origin spec-v0.1`.
+   `git push origin spec-v0.1`. Або тег через браузер: Code → Releases → **Draft a new release** → Choose a tag →
+   `spec-v0.1` → **Create new tag on publish** → Target — `main` → **Publish release** (точні назви кнопок звіряємо
+   на репетиції).
 6. **Питання розробників.** Відповідайте в issues `spec-question`; рішення — у `product/decisions.md`;
    якщо змінюється поведінка — нова зміна (MODIFIED/ADDED) і тег `spec-v0.2`.
+7. **Оновлення шаблону.** Виправлення шаблону викладач оголошує в чаті курсу з SHA звичайного (не merge) коміту:
+   виправлення шаблону комітимо напряму в main шаблону або зливаємо Squash, бо `git cherry-pick` merge-коміту
+   без `-m 1` не працює. Не `git merge` шаблону: «Use this template» починає нову
+   історію, і merge дає конфлікт у кожному файлі, що відрізняється. Натомість (один раз)
+   `git remote add template https://github.com/koldovsky/2026-quitcode-06-project-template.git` → `git fetch template` →
+   `git switch -c template/<коротко>` → `git cherry-pick <sha>` →
+   `npm ci && npm run lint && npm run typecheck && npm test && npm run spec:check` →
+   `git push -u origin template/<коротко>` → PR типу «Оновлення шаблону» →
+   **Create a merge commit**. Розробники отримують виправлення з наступним тегом спеки (гілка `sync/spec-vX.Y`).
 
 ## Шлях розробника
 
@@ -116,6 +129,8 @@
    Supabase → Authentication → URL Configuration: Site URL = прод-URL, Redirect URLs `http://localhost:3000/**`
    і `https://*-<slug>.vercel.app/**`. Для навчальних проєктів вимкніть Vercel Authentication на preview.
 5. **Секрети CI** (для job `db`): `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_ID`.
+   За бажанням додайте у форку секрет `SPEC_DENYLIST` (значення — від PM в особистому повідомленні) або локальний
+   `product/denylist.local.txt`: тоді `spec:check` ловить справжні назви й у ваших `docs/` і `supabase/`.
    **Перший PR у форку — `docs/bootstrap.md`** (докази бутстрапу, день 0–1, без значень секретів): CI зелений
    (`spec`, `app`, `conformance`), preview відкривається. Тестів з AC ID у назвах у ньому ще немає.
 6. **Перша версія спеки.** Форк зроблено до тегу `spec-v0.1` (якщо вже після нього — цей крок робіть до PR
@@ -136,6 +151,9 @@
    оновити `.spec-source` → нові AC у `docs/conformance.md` → PR → **Create a merge commit**. Якщо попередній
    sync-PR злили squash-ем і merge дав конфлікти в `product/` чи `openspec/specs/`, беріть версію тегу й завершіть merge:
    `git checkout --theirs -- product openspec/specs` → `git add product openspec/specs` → `git commit --no-edit`.
+   Термінове виправлення шаблону, а нового тегу ще немає: той самий `git cherry-pick <sha>` у форку PR-ом
+   «Оновлення шаблону» (лише якщо коміт не чіпає `product/` і `openspec/`); пізніший merge тегу з тим самим
+   комітом конфліктів не дає.
 
 ## Перевірки
 
@@ -216,3 +234,12 @@ npm run spec:validate && npm run spec:check && npm run ac:coverage && npm run sp
 - `setAll(cookies, headers)` у `src/lib/supabase/proxy.ts` копіює заголовки кешування у відповідь (`@supabase/ssr` ≥ 0.10).
 - `auto_expose_new_tables = false`: як у хмарі — нові проєкти без автогрантів приблизно з 30.05.2026, усі — з 30.10.2026.
 - Профіль OpenSpec зберігається на машині, а не в репозиторії, тому згенеровані `.claude/` і `.cursor/` закомічені.
+
+## Журнал виправлень шаблону
+
+Виправлення після дня 0. Викладач оголошує кожне в чаті курсу з SHA; PM переносить його в upstream
+(«Шлях PM», крок 7), розробники отримують із наступним тегом спеки.
+
+| Дата | SHA | Що виправлено | Чіпає `product/`? |
+|---|---|---|---|
+| — | — | поки немає | — |

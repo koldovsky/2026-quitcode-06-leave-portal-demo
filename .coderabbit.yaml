@@ -126,7 +126,8 @@ reviews:
         instructions: >
           Static review of the diff and PR description only; do NOT run anything. Read the PR type
           checkbox in the description (Бутстрап = Bootstrap, Зміна специфікації = Spec change,
-          Реалізація = Implementation, Синхронізація = Sync). Bootstrap (first PR in a developer fork):
+          Реалізація = Implementation, Синхронізація = Sync, Оновлення шаблону = Template update).
+          Bootstrap (first PR in a developer fork):
           the diff touches only docs/bootstrap.md and docs/img/**. Spec change: the diff touches only
           product/**, openspec/** and docs/** (no src/**, supabase/**). Implementation: the diff does
           NOT modify product/** or openspec/specs/** (developer changes live in openspec/changes/impl-*).
@@ -135,6 +136,10 @@ reviews:
           besides the merge the branch may update .spec-source, docs/conformance.md and
           docs/spec-reading.md, may implement new or changed AC (that part follows the Implementation
           rules), and in a fork made after spec-v0.1 it also carries docs/bootstrap.md and docs/img/**.
+          Files outside product/** and openspec/** that arrive with the merged tag (template updates
+          the PM already merged upstream) are allowed. Template update (branch template/*):
+          cherry-picked course-template commits; in the PM upstream any path may change; in a
+          developer fork product/** and openspec/** must not change.
           FAIL if the diff crosses these boundaries; answer in Ukrainian.
 
       - mode: "warning"

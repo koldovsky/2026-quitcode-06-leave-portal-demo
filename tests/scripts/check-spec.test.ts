@@ -83,9 +83,16 @@ describe("scripts/check-spec.mjs", () => {
     expect(out).toContain('product/roadmap.md:4 — "Wide World Importers"');
     expect(out).toContain('docs/spec-reading.md:3 — "Нортвінд"');
     expect(out).toContain('supabase/seed.sql:2 — "Wide World Importers"');
-    // тести самих скриптів і lock-файли не скануються
+    expect(out).toContain('supabase/demo-users.json:2 — "Нортвінд"');
+    expect(out).toContain('supabase/config.toml:2 — "Wide World Importers"');
+    expect(out).toContain('src/lib/names.ts:1 — "Нортвінд"');
+    expect(out).toContain('README.md:3 — "Wide World Importers"');
+    expect(out).toContain('AGENTS.md:3 — "Нортвінд"');
+    expect(out).toContain("помилок — 11");
+    // тести самих скриптів, lock-файли й службова тека Supabase CLI (supabase/.temp) не скануються
     expect(out).not.toContain("tests/scripts/");
     expect(out).not.toContain("package-lock.json");
+    expect(out).not.toContain("supabase/.temp");
   });
 
   it("reports a stray local denylist such as denylist.local.txt.txt", () => {

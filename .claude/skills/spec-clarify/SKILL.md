@@ -26,7 +26,7 @@ description: Розробник читає специфікацію PM (OpenSpec
    якщо зміна ще в PR upstream — попроси людину дати гілку або шлях (`git fetch upstream` + `git show`).
 2. Або реліз: `openspec/specs/**` і `.spec-source` (версія `spec-vX.Y`).
 3. Контекст: `product/glossary.md`, `product/roles.md`, `product/decisions.md`.
-4. Вже поставлені питання: `docs/spec-reading.md` — не дублюй їх.
+4. Вже поставлені питання: `docs/spec-reading.md` — не дублюй їх; і відкриті/закриті issues `spec-question` в upstream (`gh issue list --repo <upstream> --label spec-question --state all`): якщо питання вже є — запропонуй коментар із новим випадком у тому issue, а не нове issue.
 
 ## Процес
 

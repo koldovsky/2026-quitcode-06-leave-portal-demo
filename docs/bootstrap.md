@@ -19,8 +19,8 @@ Upstream PM: <!-- owner/team-repo --> · Мій форк: <!-- me/team-repo --> 
 ## Supabase
 
 - [ ] Проєкт створено у власній організації Supabase (не через Vercel Marketplace) — <!-- регіон -->
-- [ ] «Confirm email» вимкнено (налаштування Authentication → провайдер Email; точне місце в Dashboard звіряємо на репетиції)
-- [ ] «Allow new users to sign up» вимкнено (налаштування Authentication; точне місце звіряємо на репетиції): публічний ключ є в бандлі, тож інакше будь-хто зареєструється через Auth API; локально — `[auth] enable_signup = false` у `supabase/config.toml`; користувачів створює лише `npm run users:demo` (Admin API): з вимкненою реєстрацією він працює й у хмарі (за кодом GoTrue — так; звіряємо на репетиції)
+- [ ] «Confirm email» вимкнено (налаштування Authentication → провайдер Email; точне місце в Dashboard звіряємо на репетиції) — <!-- знімок docs/img/auth-email.png -->
+- [ ] «Allow new users to sign up» вимкнено (налаштування Authentication; точне місце звіряємо на репетиції): публічний ключ є в бандлі, тож інакше будь-хто зареєструється через Auth API; локально — `[auth] enable_signup = false` у `supabase/config.toml`; користувачів створює лише `npm run users:demo` (Admin API): з вимкненою реєстрацією він працює й у хмарі (за кодом GoTrue — так; звіряємо на репетиції) — <!-- знімок docs/img/auth-signups.png -->
 - [ ] `npx supabase login` · `npx supabase link --project-ref <ref>` — <!-- вивід без секретів -->
 - [ ] `npx supabase db push --dry-run` → `npm run db:push` — <!-- список застосованих міграцій -->
 - [ ] `npm run db:types` — `src/lib/supabase/database.types.ts` перегенеровано
@@ -31,10 +31,10 @@ Upstream PM: <!-- owner/team-repo --> · Мій форк: <!-- me/team-repo --> 
 ## Vercel
 
 - [ ] Проєкт імпортовано з форку (Hobby), Node 24.x — <!-- прод-URL -->
-- [ ] Змінні в Production і Preview — лише дві: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (лише назви)
+- [ ] Змінні в Production і Preview — лише дві: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (лише назви) — <!-- знімок Settings → Environment Variables (лише назви) -->
 - [ ] `SUPABASE_SECRET_KEY` у Vercel не додано: коду застосунку першого зрізу він не потрібен, живе лише в `.env.local` для `npm run users:demo` (додати як тип Secret — коли його читає ваш серверний код)
 - [ ] Після зміни змінних — редеплой
-- [ ] Vercel Authentication для preview вимкнено (PM відкриває preview без входу)
+- [ ] Vercel Authentication для preview вимкнено (PM відкриває preview без входу) — <!-- посилання на preview, що відкривається без входу -->
 
 ## Перший PR
 
