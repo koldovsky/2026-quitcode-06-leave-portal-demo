@@ -34,7 +34,8 @@ yarn-error.log*
 .env*
 !.env.example
 
-# справжні назви клієнтів для npm run spec:check — лише локально (див. product/denylist.txt)
+# справжні назви клієнтів для npm run spec:check — лише локально (див. product/denylist.txt);
+# зірочка ловить і denylist.local.txt.txt, якщо Провідник Windows приховав розширення
 /product/denylist.local*
 
 # vercel

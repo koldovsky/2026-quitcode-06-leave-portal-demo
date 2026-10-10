@@ -12,7 +12,8 @@ allowed-tools: Read, Grep, Glob, Edit, Bash(npm run ac:coverage), Bash(npm test 
 1. Збери всі AC ID з назв `#### Scenario:` в `openspec/specs/**/spec.md` (без секцій `## REMOVED Requirements`).
    Версію специфікації візьми з `.spec-source` (`version:`).
 2. Для кожного AC знайди:
-   - **тест** — непропущений `test()`/`it()` у файлі `*.test.ts` / `*.test.tsx` у `src/**` або `tests/**` (лише їх запускає `npm test`), назва якого ПОЧИНАЄТЬСЯ з цього ID; у колонках «Код» і «Тест» — шляхи від кореня репозиторію в бектиках
+   - **тест** — непропущений `test()`/`it()` у файлі `*.test.ts` / `*.test.tsx` у `src/**` або `tests/**` (лише їх запускає
+     `npm test`), назва якого ПОЧИНАЄТЬСЯ з цього ID; у колонках «Код» і «Тест» — шляхи від кореня репозиторію в бектиках
      (закоментовані, `.skip`/`.todo`/`.fixme`/`.fails`/`.skipIf` і тести в `describe.skip` не рахуються;
      `it.each`/`test.for`/`.concurrent`/`.runIf` — рахуються);
    - **код** — файл і функцію, що реалізують поведінку (server action, сторінка, міграція з політикою RLS);

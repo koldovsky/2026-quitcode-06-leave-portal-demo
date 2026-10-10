@@ -74,35 +74,44 @@ describe("scripts/check-spec.mjs", () => {
     expect(out).toContain("слів у denylist: 3");
   });
 
-  it("catches wrapped phrases, look-alike letters, &nbsp; and soft hyphens, also in docs/ and src/", () => {
-    const { code, out } = run("denylist-forms");
+  it("catches a phrase wrapped across lines, look-alike letters, soft hyphens, &nbsp; and names outside product/openspec", () => {
+    const { code, out } = run("denylist-wide");
     expect(code).toBe(1);
-    for (const where of [
-      'product/vision.md:3 — "Зразкова Школа"',
-      'product/vision.md:5 — "Contoso"',
-      'product/vision.md:6 — "Зразкова Школа"',
-      'product/vision.md:7 — "Зразкова Школа"',
-      'docs/notes.md:3 — "Contoso"',
-      'src/lib/x.ts:1 — "Contoso"',
-    ]) {
-      expect(out).toContain(where);
-    }
-    expect(out).not.toContain("product/vision.md:8");
-    expect(out).not.toContain("tests/scripts/self.test.ts");
+    expect(out).toContain('product/vision.md:3 — "Wide World Importers"');
+    expect(out).toContain('product/vision.md:5 — "Нортвінд"');
+    expect(out).toContain('product/roadmap.md:3 — "Нортвінд"');
+    expect(out).toContain('product/roadmap.md:4 — "Wide World Importers"');
+    expect(out).toContain('docs/spec-reading.md:3 — "Нортвінд"');
+    expect(out).toContain('supabase/seed.sql:2 — "Wide World Importers"');
+    // тести самих скриптів і lock-файли не скануються
+    expect(out).not.toContain("tests/scripts/");
+    expect(out).not.toContain("package-lock.json");
   });
 
-  it("reports a stray copy of the local denylist (denylist.local.txt.txt)", () => {
-    const { code, out } = run("denylist-forms");
+  it("reports a stray local denylist such as denylist.local.txt.txt", () => {
+    const { code, out } = run("stray");
     expect(code).toBe(1);
     expect(out).toContain("STRAY-DENYLIST");
-    expect(out).toContain("product/denylist.local.txt.txt — перейменуйте на denylist.local.txt");
+    expect(out).toContain("product/denylist.local.txt.txt");
+    expect(out).not.toContain("SecretName");
   });
 
-  it("hints at Cyrillic look-alikes and the two-digit rule for near-miss AC IDs", () => {
-    const { code, out } = run("near-miss-title");
+  it("requires proposal.md with all sections in order in PM changes; skip_specs changes are exempt", () => {
+    const { code, out } = run("proposal");
     expect(code).toBe(1);
-    expect(out).toContain("BAD-TITLE");
-    expect(out.match(/схоже на AC ID/g)?.length).toBe(2);
+    expect(out).toContain("openspec/changes/no-proposal — бракує proposal.md");
+    expect(out).toContain("openspec/changes/wrong-order — бракує розділу «Assumptions»");
+    expect(out).not.toContain("impl-demo");
+    expect(out).not.toContain("impl-commented");
+    expect(out).not.toContain("archive/2026-10-09-add-demo");
+    expect(out).toContain("помилок — 2");
+  });
+
+  it("explains near-miss AC IDs (Cyrillic look-alike letters, three digits)", () => {
+    const { out } = run("bad-title");
+    expect(out).toMatch(/AC-LЕAVE-02 cyrillic letter inside.*схоже на AC ID/);
+    expect(out).toMatch(/AC-LEAVE-100 three digits.*схоже на AC ID/);
+    expect(out).not.toMatch(/Працівник подає заявку.*схоже на AC ID/);
   });
 
   it("passes in a directory without openspec/", () => {

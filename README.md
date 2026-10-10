@@ -30,8 +30,11 @@
 - **Специфікація:** OpenSpec (`openspec/`) з правилами формату в `openspec/config.yaml`; продуктовий
   контекст PM — `product/`; AC ID наскрізно: спека → назва тесту → `docs/conformance.md`.
 - **Агенти:** `AGENTS.md` (+ `CLAUDE.md` = `@AGENTS.md`), команди `/opsx:*` і `/conformance`, скіли
-  `spec-clarify` (розробник) і `spec-review` (PM) — однаково в Claude Code і Cursor; `.mcp.json` (Supabase MCP лише на читання) і `.claude/settings.json` (заборона читати `.env*` і запускати деструктивні команди Supabase CLI) діють лише в Claude Code — Cursor цих файлів не читає (див. AGENTS.md, «Секрети»).
-- **Ворота:** GitHub Actions (`spec`, `app`, `conformance` у форках, `db` у форках із секретами),
+  `spec-clarify` (розробник) і `spec-review` (PM) — однаково в Claude Code і Cursor; `.mcp.json` (Supabase MCP
+  лише на читання) і `.claude/settings.json` (заборона читати `.env*` і запускати деструктивні команди Supabase CLI)
+  діють лише в Claude Code — Cursor цих файлів не читає (див. AGENTS.md, «Секрети»).
+- **Ворота:** GitHub Actions (`spec`, `app`; `conformance` і `db` — у форках або зі змінною `APP_REPO=true`,
+  `db` — лише із секретами),
   шаблон PR, форма issue «Питання до специфікації», `.coderabbit.yaml`.
 
 | Шар курсу | Де в шаблоні |
@@ -67,14 +70,14 @@
 ## Шлях PM
 
 1. **Upstream.** На сторінці шаблону — **Use this template → Create a new repository**, власник — ваш акаунт,
-   назва — слаг команди, **Public**. Settings → Rules → Rulesets: для `main` — Require a pull request,
+   назва — слаг команди, **Public**. Settings → Rules → Rulesets: для `main` — Require a pull request (Allowed merge methods — лише Merge),
    Require status checks (`spec`, `app`).
 2. **Продукт.** У гілці `product/context` (прямі коміти в `main` ruleset відхиляє) заповніть `product/vision.md`, `glossary.md`, `roles.md` (матриця прав), `roadmap.md` → `npm run spec:check` → PR → merge.
    Справжні назви клієнта — не в файли репозиторію, а в локальний `product/denylist.local.txt` (у `.gitignore`;
    `npm run spec:check` читає його, але значень не друкує) і в секрет `SPEC_DENYLIST` (Settings → Secrets and
    variables → Actions) для CI. Але CI у PR із форків (пропозиції розробників) секретів не отримує: там `spec:check`
    бачить лише `product/denylist.txt`. Перед merge такого PR перевірте його локально: `gh pr checkout <номер>` →
-   `npm run spec:check`.
+   `npm run spec:check`. Якщо в такому PR замість перевірок `spec` і `app` GitHub показує кнопку **Approve and run workflows** (перший внесок розробника в ваш репозиторій), натисніть її — інакше обов'язкові перевірки чекатимуть безкінечно (точний текст кнопки й налаштування за замовчуванням звіряємо на репетиції).
    Створіть мітку для питань розробників (форма issue ставить лише наявну мітку):
    `gh label create spec-question --repo <pm>/<team-repo> --description "Питання до специфікації"`.
 3. **Перший зріз.** `npm ci`, `openspec --version` = `1.14.1` (див. «Перед початком»), потім у Claude Code
@@ -94,8 +97,8 @@
 1. **Форк** upstream PM у свій акаунт; Actions → увімкнути workflows; локально:
    `git clone https://github.com/<я>/<team-repo>.git` → `gh repo set-default <я>/<team-repo>`
    (інакше `gh pr create` цілить в upstream) → `git remote add upstream https://github.com/<pm>/<team-repo>.git`.
-   Ruleset на `main` (PR + статуси `spec`, `app`, `conformance`).
    Форк зроблено вже після тегу `spec-v0.1`? До ruleset вирівняйте `main` форку з останнім тегом PM: `git fetch upstream --tags` → `git reset --hard <останній тег>` → `git push --force-with-lease origin main`; крок 6 робіть одразу з цим тегом.
+   Ruleset на `main` (PR + статуси `spec`, `app`, `conformance`; Allowed merge methods — лише Merge).
 2. **Залежності:** Node 24 (`node -v`), `openspec --version` = `1.14.1` (див. «Перед початком»), `npm ci`,
    `npm run typecheck`, `npm test`.
 3. **Supabase** (власна організація, не через Vercel Marketplace): створіть проєкт; в налаштуваннях
@@ -119,9 +122,9 @@
    бутстрапу, а `docs/bootstrap.md` закомітьте в ту саму гілку `sync/<останній тег>`: окремий PR бутстрапу впаде на
    `conformance` з `NO-ROW`), тож забирайте її тим самим потоком, що й кожну наступну (крок 8): `git fetch upstream --tags` →
    `git switch -c sync/spec-v0.1` → `git merge --no-edit spec-v0.1` →
-   розкоментуйте `.spec-source` (`upstream: <pm>/<team-repo>`, `version: spec-v0.1`) → `npm run spec:source` (OK, не SKIP) → коміт `.spec-source` і `docs/` →
+   розкоментуйте `.spec-source` (`upstream: <pm>/<team-repo>`, `version: spec-v0.1`) → `npm run spec:source` (OK, не SKIP) →
    рядок у `docs/conformance.md` для кожного AC (ще не зроблене — `відкладено (причина)`) → `npm run ac:coverage` →
-   PR у форку, злитий кнопкою **Create a merge commit** (не Squash і не Rebase: тег має бути в історії `main`,
+   коміт `.spec-source` і `docs/` → PR у форку, злитий кнопкою **Create a merge commit** (не Squash і не Rebase: тег має бути в історії `main`,
    інакше наступна синхронізація дасть конфлікти в `product/`). Потім скіл `spec-clarify` → питання як issues в upstream → журнал у `docs/spec-reading.md`.
 7. **Реалізація:** `npx openspec new change impl-<зріз>` з `skip_specs: true` у `.openspec.yaml`, `design.md`,
    `tasks.md` («Done when: AC-…») → гілка → код + тести `it("AC-…: …")` → `/conformance` → PR у форку
@@ -131,7 +134,8 @@
    у тій самій гілці (ruleset не пускає прямі коміти в `main`) → merge.
 8. **Нова версія спеки:** `git fetch upstream --tags` → `git switch -c sync/spec-v0.2` → `git merge --no-edit spec-v0.2` →
    оновити `.spec-source` → нові AC у `docs/conformance.md` → PR → **Create a merge commit**. Якщо попередній
-   sync-PR злили squash-ем і merge дав конфлікти в `product/` чи `openspec/specs/`, беріть версію тегу й завершіть merge: `git checkout --theirs -- product openspec/specs` → `git add product openspec/specs` → `git commit --no-edit`.
+   sync-PR злили squash-ем і merge дав конфлікти в `product/` чи `openspec/specs/`, беріть версію тегу й завершіть merge:
+   `git checkout --theirs -- product openspec/specs` → `git add product openspec/specs` → `git commit --no-edit`.
 
 ## Перевірки
 
@@ -139,9 +143,9 @@
 |---|---|
 | `npm run lint` / `typecheck` / `test` / `build` | ESLint без попереджень, типи (`next typegen` + `tsc`), Vitest, збірка з `ƒ Proxy (Middleware)` |
 | `npm run spec:validate` | `openspec validate --all --strict` — структура специфікацій |
-| `npm run spec:check` | AC ID на початку кожного `#### Scenario:`; унікальність у `openspec/specs` і після archive кожної активної зміни; denylist у `product/`, `openspec/`, `docs/`, `src/`, `supabase/`, `tests/`, README і AGENTS (за початком слова, тож ловить відмінки; фразу — і через перенос рядка; латинські літери-двійники кириличних — теж; транслітерацію пишіть окремим рядком); загублена копія `denylist.local.txt.txt` |
-| `npm run ac:coverage` | кожен AC має рядок у `docs/conformance.md`; статус дослівно «реалізовано» або «відкладено (причина)»; «реалізовано» має непропущений тест у `*.test.ts(x)` у `src/` чи `tests/` (їх запускає `npm test`), назва якого починається з ID; шляхи з колонок «Код»/«Тест» існують; тести не посилаються на неіснуючі AC |
-| `npm run spec:source` | у форку `product/` і `openspec/specs/` збігаються з тегом upstream із `.spec-source`; у CI форку закоментований `.spec-source` (коли спека вже є) або `upstream:` = сам форк — FAIL; новіший тег в upstream — попередження |
+| `npm run spec:check` | AC ID на початку кожного `#### Scenario:` (схожий на ID, але з кириличною літерою чи трьома цифрами — з підказкою); унікальність у `openspec/specs` і після archive кожної активної зміни; denylist (за початком слова, тож ловить відмінки; фраза — і через перенесення рядка) у `product/`, `openspec/`, `docs/`, `src/`, `supabase/`, `tests/`, `README.md`, `AGENTS.md`; немає «бродячого» `product/denylist.local*` під іншим іменем; у кожній зміні без `skip_specs` — `proposal.md` з усіма сімома розділами в порядку правил |
+| `npm run ac:coverage` | кожен AC має рядок у `docs/conformance.md`; статус дослівно «реалізовано» або «відкладено (причина)»; «реалізовано» має непропущений тест у `*.test.ts(x)` у `src/` чи `tests/` (їх запускає `npm test`), назва якого починається з ID; шляхи з колонок «Код»/«Тест» існують; тести не посилаються на неіснуючі AC. E2e-тести (`tests/e2e/*.spec.ts`) не рахуються, доки їх не запускає крок CI |
+| `npm run spec:source` | у форку `product/` і `openspec/specs/` збігаються з тегом upstream із `.spec-source`; у CI форку FAIL, якщо спека вже у форку, а `.spec-source` закоментований, або `upstream:` — сам форк; попередження (не помилка), якщо в upstream уже є новіший тег `spec-v*` |
 
 ## Як цей шаблон зібрано з нуля
 
@@ -190,7 +194,7 @@ npx openspec update
 
 # 5. Перенести з цього шаблону файли, написані вручну:
 #   src/proxy.ts, src/lib/supabase/*, src/app/{layout.tsx,page.tsx,login/*}, scripts/**, tests/**, vitest.config.mts,
-#   .claude/{settings.json,commands/conformance.md,skills/spec-*}, .cursor/commands/conformance.md, .mcp.json,
+#   .claude/{settings.json,commands/conformance.md,skills/spec-*}, .cursor/commands/conformance.md, .cursorignore, .mcp.json,
 #   .github/**, .coderabbit.yaml, AGENTS.md (наші розділи після блоку Next.js), CLAUDE.md,
 #   product/**, docs/**, .env.example, .spec-source
 rm -r public   # демо-SVG скелета шаблон не використовує

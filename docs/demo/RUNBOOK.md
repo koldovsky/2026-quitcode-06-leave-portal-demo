@@ -344,7 +344,7 @@ Dashboard → SQL Editor → `delete from public.leave_requests;` (записи 
 | `demo-03-impl` | 48 | ✓ | OK | OK: 9/9 «реалізовано» |
 | `spec-v0.2` | 48 | ✓ | 11 AC → OK | **FAIL: NO-ROW AC-LEAVE-10, AC-LEAVE-11 — очікувано** (дрейф) |
 | `demo-04-sync` | 55 | ✓ | OK | OK: 11/11 «реалізовано» |
-| `main` (після тегів: зміни `harden-leave-db`, `harden-manager-reads`) | 71, з них 9 — тести бази `tests/db/leave-db.test.ts` (решта понад 59 — тести скриптів перевірок) | ✓ | OK | OK: 11/11 «реалізовано»; AC-LEAVE-05, 09 — лише через тести бази |
+| `main` (після тегів: зміни `harden-leave-db`, `harden-manager-reads`) | 73, з них 9 — тести бази `tests/db/leave-db.test.ts` (решта понад 59 — тести скриптів перевірок) | ✓ | OK | OK: 11/11 «реалізовано»; AC-LEAVE-05, 09 — лише через тести бази |
 
 Схему й політики перевірено на PGlite з емульованими ролями Supabase (`anon`, `authenticated`,
 `service_role`, `auth.uid()`): видимість за ролями, черги за підрозділом, заборона самосхвалення й

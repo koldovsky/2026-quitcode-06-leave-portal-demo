@@ -59,6 +59,21 @@ describe("scripts/check-spec-source.mjs", () => {
     expect(out).toContain("SKIP");
   });
 
+  it("fails when .spec-source is commented out but the fork already has specs (SPEC_SOURCE_IN_FORK=1)", () => {
+    const { code, out } = run(fork, { SPEC_SOURCE_IN_FORK: "1" });
+    expect(code).toBe(1);
+    expect(out).toContain("FAIL");
+    expect(out).toContain("openspec/specs/");
+  });
+
+  it("still skips a commented .spec-source in a fork without specs (before the first tag)", () => {
+    const empty = path.join(tmp, "empty-fork");
+    write(empty, ".spec-source", "# upstream: owner/team-repo\n# version: spec-v0.1\n");
+    const { code, out } = run(empty, { SPEC_SOURCE_IN_FORK: "1" });
+    expect(code).toBe(0);
+    expect(out).toContain("SKIP");
+  });
+
   it("fails without .spec-source when SPEC_SOURCE_REQUIRED=1 (fork CI)", () => {
     const { code, out } = run(fork, { SPEC_SOURCE_REQUIRED: "1" });
     expect(code).toBe(1);
@@ -72,33 +87,18 @@ describe("scripts/check-spec-source.mjs", () => {
     expect(out).toContain("SKIP");
   });
 
-  it("fails when upstream names the fork itself and SPEC_SOURCE_REQUIRED=1 (fork CI)", () => {
-    write(fork, ".spec-source", "upstream: dev-owner/team-repo\nversion: spec-v0.1\n");
-    const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo", SPEC_SOURCE_REQUIRED: "1" });
+  it("fails when upstream names the fork itself in fork CI (SPEC_SOURCE_IN_FORK=1)", () => {
+    write(fork, ".spec-source", "upstream: Dev-Owner/Team-Repo\nversion: spec-v0.1\n");
+    const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo", SPEC_SOURCE_IN_FORK: "1" });
     expect(code).toBe(1);
     expect(out).toContain("FAIL");
   });
 
-  it("fails when upstream names the fork itself in the fork's conformance job (SPEC_SOURCE_IN_FORK=1)", () => {
-    write(fork, ".spec-source", "upstream: Dev-Owner/Team-Repo\nversion: spec-v0.1\n");
-    const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo", SPEC_SOURCE_IN_FORK: "1" });
+  it("fails when upstream names the fork itself and SPEC_SOURCE_REQUIRED=1", () => {
+    write(fork, ".spec-source", "upstream: dev-owner/team-repo\nversion: spec-v0.1\n");
+    const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo", SPEC_SOURCE_REQUIRED: "1" });
     expect(code).toBe(1);
-    expect(out).toContain("це сам форк");
-  });
-
-  it("fails when .spec-source is commented out but the fork already has specs (SPEC_SOURCE_IN_FORK=1)", () => {
-    write(fork, ".spec-source", "# upstream: pm-owner/team-repo\n# version: spec-v0.1\n");
-    const { code, out } = run(fork, { SPEC_SOURCE_IN_FORK: "1" });
-    expect(code).toBe(1);
-    expect(out).toContain("Розкоментуйте");
-  });
-
-  it("still skips a commented .spec-source in a fork without specs yet (before the first tag)", () => {
-    const empty = path.join(tmp, "empty-fork");
-    write(empty, ".spec-source", "# upstream: pm-owner/team-repo\n# version: spec-v0.1\n");
-    const { code, out } = run(empty, { SPEC_SOURCE_IN_FORK: "1" });
-    expect(code).toBe(0);
-    expect(out).toContain("SKIP");
+    expect(out).toContain("FAIL");
   });
 
   it("passes when product and canonical specs match the tag", () => {
@@ -131,7 +131,7 @@ describe("scripts/check-spec-source.mjs", () => {
     expect(out).not.toContain("уже злитий");
   });
 
-  it("passes on the older tag but warns that upstream already has a newer one", () => {
+  it("passes but warns when upstream already has a newer spec tag", () => {
     write(fork, ".spec-source", "upstream: pm-owner/team-repo\nversion: spec-v0.1\n");
     const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo" });
     expect(code).toBe(0);

@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 // npm run ac:coverage — наскрізне покриття критеріїв приймання (AC):
-//   спека (openspec/specs/**) → рядок матриці (docs/conformance.md) → тест (назва test()/it() у файлах *.test.ts(x) з src/** або tests/** — інші файли Vitest не запускає).
+//   спека (openspec/specs/**) → рядок матриці (docs/conformance.md) → тест (назва test()/it() у файлах *.test.ts(x)
+//   з src/** або tests/** — інші файли Vitest не запускає; AC ID — на початку назви).
 // FAIL, якщо:
 //   NO-ROW     — AC є в специфікаціях, але в docs/conformance.md немає рядка (дрейф після синхронізації спеки);
-//   MISSING    — рядок має статус «реалізовано», але немає непропущеного тесту, назва якого ПОЧИНАЄТЬСЯ з цього ID
-//                (закоментовані тести, .skip/.todo/.fails/.skipIf, it("AC-…") без функції тесту і тести всередині
+//   MISSING    — рядок має статус «реалізовано», але немає непропущеного тесту, назва якого починається з цього ID
+//                (закоментовані тести, .skip/.todo/.fails/.skipIf, тести без функції тесту і тести всередині
 //                describe.skip не рахуються; it.each / test.for / .concurrent / .runIf — рахуються);
 //   ORPHAN     — тест посилається на AC, якого немає в специфікаціях;
 //   BAD-STATUS — статус рядка не рівно «реалізовано» і не «відкладено (причина)»
 //                («реалізовано частково» — теж BAD-STATUS: або реалізовано повністю, або відкладено з причиною);
-//   WRONG-REF  — у рядку «реалізовано» шлях із колонок «Код»/«Тест» (`src/…`, `tests/…`, `supabase/…`; `:12` у кінці можна) не існує або тест із цим AC лежить в іншому файлі;
+//   WRONG-REF  — у рядку «реалізовано» шлях із колонок «Код»/«Тест» (`src/…`, `tests/…`, `supabase/…`; `:12` у кінці
+//                можна) не існує або тест із цим AC лежить в іншому файлі.
 // Попередження (не валить): рядок матриці для AC, якого вже немає в специфікаціях; дублікати рядків.
 // Секції «## REMOVED Requirements» ігноруються. Скрипт перевіряє НАЯВНІСТЬ тесту, а не те, що він зелений:
-// це робить `npm test`.
+// це робить `npm test` (vitest.config.mts вимагає хоча б одну перевірку expect у кожному тесті).
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { collectSpecAcs, isDeferred, isImplemented, parseConformance, printList, root } from "./lib/spec-lib.mjs";
@@ -32,16 +34,15 @@ const noRow = [];
 const missing = [];
 const orphan = [];
 const badStatus = [];
-const staleRows = [];
-const duplicateRows = [];
 const wrongRef = [];
-
-// Шляхи з клітинки матриці: лише в бектиках і лише від кореня репозиторію (src/, tests/, supabase/);
-// номер рядка в кінці (`:12`, `:12-20`, `#L12`) відкидаємо, назви колонок і функцій (`public.x`) — не шляхи.
+// Шляхи в бектиках із колонок «Код»/«Тест»: лише `src/…`, `tests/…`, `supabase/…`; номер рядка (`:12`, `#L12`)
+// відкидаємо, а `public.profiles` чи назви функцій — не шляхи.
 const paths = (cell) =>
   [...(cell ?? "").matchAll(/`([^`]+)`/g)]
     .map((m) => m[1].trim().replace(/(?::\d+(?:-\d+)?|#L\d+(?:-L?\d+)?)$/, ""))
     .filter((x) => /^(?:src|tests|supabase)\//.test(x));
+const staleRows = [];
+const duplicateRows = [];
 
 for (const [id, places] of specAcs) {
   if (!rowsById.has(id)) noRow.push(`${id} (${places[0].file}:${places[0].line})`);
@@ -53,13 +54,6 @@ for (const [id, list] of rowsById) {
   for (const row of list) {
     if (isImplemented(row.status)) {
       const covered = (testRefs.get(id) ?? []).some((t) => t.counted);
-      if (!covered) {
-        const skipped = (testRefs.get(id) ?? []).filter((t) => !t.counted);
-        const hint = skipped.length
-          ? ` (є лише пропущені: ${skipped.map((t) => `${t.file}:${t.line}`).join(", ")})`
-          : " (перевірте, чи AC ID у назві тесту набрано латиницею)";
-        missing.push(`${id} — статус «реалізовано», але тесту, назва якого починається з «${id}», немає${hint}`);
-      }
       const [, , code, test] = row.cells;
       for (const f of [...paths(code), ...paths(test)]) {
         if (!existsSync(path.join(root(), f))) wrongRef.push(`${id} — docs/conformance.md:${row.line}: файлу \`${f}\` немає`);
@@ -67,6 +61,13 @@ for (const [id, list] of rowsById) {
       const listed = paths(test);
       if (covered && listed.length && !(testRefs.get(id) ?? []).some((t) => t.counted && listed.includes(t.file))) {
         wrongRef.push(`${id} — docs/conformance.md:${row.line}: у файлах колонки «Тест» немає тесту з «${id}» на початку назви`);
+      }
+      if (!covered) {
+        const skipped = (testRefs.get(id) ?? []).filter((t) => !t.counted);
+        const hint = skipped.length
+          ? ` (є лише пропущені: ${skipped.map((t) => `${t.file}:${t.line}`).join(", ")})`
+          : " (перевірте, чи AC ID у назві тесту набрано латиницею)";
+        missing.push(`${id} — статус «реалізовано», але тесту з «${id}» на початку назви немає${hint}`);
       }
     } else if (!isDeferred(row.status)) {
       badStatus.push(`${id} — docs/conformance.md:${row.line}: «${row.status}» (дозволено: реалізовано / відкладено (причина))`);

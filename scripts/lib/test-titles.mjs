@@ -6,7 +6,9 @@
 //     test.for(...)("…"), it.runIf(cond)("…"), test.only(...).
 // Пропущений тест (counted = false): у ланцюжку є skip / todo / fixme / fails / fail (Playwright) / skipIf,
 // тест лежить усередині describe.skip / describe.todo / describe.skipIf (Vitest і Playwright)
-// або в нього немає функції тесту: it("AC-…") без другого аргументу Vitest вважає todo.
+// або в нього немає функції тесту: it("AC-…") без тіла Vitest вважає todo.
+// AC ID рахується лише НА ПОЧАТКУ назви test()/it() (не в describe і не в середині назви) і лише у файлах,
+// які запускає `npm test` (див. isRunByNpmTest).
 // Не тест (ігнорується): describe(…), test.step(…), test.extend(…), test.use(…), хуки beforeEach тощо.
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -98,13 +100,13 @@ export function parseTestTitles(file) {
 }
 
 // Рахуємо лише файли, які запускає `npm test` (Vitest, include у vitest.config.mts):
-// src/**/*.test.{ts,tsx} і tests/**/*.test.{ts,tsx}. Тест у *.spec.ts, *.test.js чи будь-якому іншому файлі
-// CI не виконує, тож AC він не покриває. Додаєте e2e (Playwright) — розширюйте цей список РАЗОМ із кроком CI.
+// src/**/*.test.{ts,tsx} і tests/**/*.test.{ts,tsx}. Тест у *.spec.ts, *.test.js, helpers.ts чи будь-якому іншому
+// файлі CI не виконує, тож AC він не покриває. Додаєте e2e (Playwright) — розширюйте цей фільтр РАЗОМ із кроком CI.
 export const isRunByNpmTest = (r) => /^(?:src|tests)\/(?:.+\/)?[^/]+\.test\.tsx?$/.test(r);
 export const skipNonSource = (r) =>
   /(^|\/)(node_modules|\.next|\.git|coverage|dist|build)(\/|$)/.test(r) || /^tests\/fixtures(\/|$)/.test(r);
 
-// AC ID на початку назв тестів із *.test.ts(x) у src/** і tests/** → [{file, line, title, counted}].
+// AC ID на початку назв тестів із src/**/*.test.ts(x) і tests/**/*.test.ts(x) → [{file, line, title, counted}].
 export function collectTestRefs(dirs = ["src", "tests"]) {
   const refs = new Map();
   for (const d of dirs) {

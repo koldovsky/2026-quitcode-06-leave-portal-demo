@@ -4,6 +4,7 @@
 #   conformance — у ФОРКУ розробника або в репозиторії зі змінною APP_REPO=true: спека збігається з тегом upstream (.spec-source) + покриття AC;
 #   db          — лише push у main (форк або APP_REPO=true) і лише якщо задано секрети Supabase: supabase db push.
 # В upstream PM (репозиторій із «Use this template», не форк, без APP_REPO) jobs conformance і db пропускаються. Звичайний клієнтський проєкт без форків: змінна репозиторію APP_REPO=true (Settings → Secrets and variables → Actions → Variables) вмикає їх; .spec-source лишається закоментованим.
+# Назви jobs spec, app, conformance, db не змінюйте: на них тримаються ruleset-и (обов'язкові перевірки).
 name: CI
 
 on:
@@ -68,12 +69,13 @@ jobs:
           cache: npm
       - run: npm ci
       - name: product/ and openspec/specs match the upstream tag from .spec-source
-        # До першого тегу (у форку ще немає openspec/specs/*/spec.md) .spec-source закоментований — крок пропускається з попередженням; щойно спека у форку, порожній .spec-source або upstream = сам форк — FAIL.
+        # До першого тегу (у форку ще немає openspec/specs/*/spec.md) .spec-source закоментований — крок
+        # пропускається з попередженням; щойно спека у форку, порожній .spec-source або upstream = сам форк — FAIL.
         # Заповнюють його в гілці sync/spec-vX.Y разом із git merge тегу (README, кроки 6 і 8 розробника).
-        # SPEC_SOURCE_IN_FORK лише у форку: у репозиторії з APP_REPO=true (без форків) крок пропускається з попередженням.
+        # У репозиторії з APP_REPO=true (не форк) SPEC_SOURCE_IN_FORK=0: закоментований .spec-source — SKIP.
         run: npm run spec:source
         env:
-          SPEC_SOURCE_IN_FORK: ${{ github.event.repository.fork && '1' || '' }}
+          SPEC_SOURCE_IN_FORK: ${{ github.event.repository.fork && '1' || '0' }}
       - name: Every AC has a matrix row; every «реалізовано» has a test
         if: ${{ !cancelled() }}
         run: npm run ac:coverage

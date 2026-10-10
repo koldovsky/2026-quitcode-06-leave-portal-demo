@@ -42,7 +42,10 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `scripts/` — перевірки спеки й покриття AC; `tests/` — тести (`tests/fixtures/` — дані тестів скриптів)
 - `.claude/skills/` — наші скіли (`spec-clarify`, `spec-review`); Cursor читає їх звідти ж. `openspec-*` і `/opsx*`
   у `.claude/` та `.cursor/` згенерував OpenSpec (однакові копії для двох інструментів) — вручну не редагуй.
-- Нові шари курсу — новими файлами: e2e-тести — окремою текою (наприклад, `tests/e2e/`); `ac:coverage` рахує лише `*.test.ts(x)`, які запускає `npm test`, тож e2e зараховуються як покриття AC лише разом із кроком CI, що їх запускає (розширити фільтр у `scripts/lib/test-titles.mjs`); нові перевірки — окремим workflow у `.github/workflows/`. Jobs `spec`, `app`, `conformance`, `db` у `ci.yml` не перейменовуй і не видаляй: на їхніх назвах тримаються ruleset-и.
+- Нові шари курсу — новими файлами: e2e-тести — `tests/e2e/*.spec.ts` (Vitest їх не запускає, і `ac:coverage`
+  не рахує їх як покриття AC, доки e2e не запускає окремий крок CI — тоді фільтр у `scripts/lib/test-titles.mjs`
+  розширюють разом із цим кроком), нові перевірки — окремим workflow у `.github/workflows/`. Jobs `spec`, `app`,
+  `conformance`, `db` у `ci.yml` не перейменовуй і не видаляй: на їхніх назвах тримаються ruleset-и.
 
 ## Процес зі специфікацією
 
@@ -53,7 +56,7 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   merge (merge commit) → `git switch main && git pull` → `git tag spec-vX.Y` → `git push origin spec-vX.Y`.
   Розробник: своя зміна `impl-<зріз>` з `skip_specs: true`, `design.md` і `tasks.md` («Done when: AC-…»);
   archive — в останньому PR зрізу до merge.
-- AC ID (`AC-<AREA>-<NN>`) — на початку назви сценарію і в назві тесту: `it("AC-LEAVE-02: …")`. Тести — лише у файлах `*.test.ts` / `*.test.tsx` під `src/` або `tests/`: інші файли (зокрема `*.spec.ts`) Vitest не запускає, і `ac:coverage` їх не рахує.
+- AC ID (`AC-<AREA>-<NN>`) — на початку назви сценарію і в назві тесту: `it("AC-LEAVE-02: …")`. Тести — лише у файлах `*.test.ts` / `*.test.tsx` під `src/` або `tests/`: інші файли (зокрема `*.spec.ts`) Vitest не запускає, і `ac:coverage` їх не рахує. Перевірки в тестах — через `expect(…)`: `vitest.config.mts` вимагає хоча б один `expect` у кожному тесті, а `assert` (з `vitest` чи `node:assert`) не рахується — такий тест падає з «expected any number of assertion, but got none».
 - Рядок у `docs/conformance.md` оновлюється в тому самому PR, що й код (`/conformance`, `npm run ac:coverage`).
 - Кожна версія спеки у форку, і перша теж, — гілка `sync/spec-vX.Y` (merge тегу upstream) + оновити
   `.spec-source` + рядки нових AC у `docs/conformance.md`.
@@ -83,6 +86,7 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `.claude/settings.json` забороняє Claude Code читати `.env*` (крім `.env.example`); Cursor цих правил не читає — у Cursor не відкривай `.env*` агентом і не вставляй значень у чат. Скрипти з секретами запускай
   як `node --env-file=.env.local …` — вони значень не друкують.
 - Supabase MCP (`.mcp.json`, лише Claude Code; Cursor бере MCP з `.cursor/mcp.json`) — лише читання, один проєкт: перед запуском задай `SUPABASE_PROJECT_REF`.
+- `product/denylist.local*` — справжні назви клієнта: не відкривай і не цитуй (найкраще зусилля, не гарантія: у Claude Code — deny `Read(product/denylist.local*)` у `.claude/settings.json`, у Cursor — `.cursorignore`, який за документацією Cursor не закриває термінал і MCP; чи deny діє на пошук і `cat`, звіряємо на репетиції).
 
 ## Межі
 
@@ -95,4 +99,4 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 
 **Ніколи:** не змінюй `product/` і `openspec/specs/` у форку; не редагуй застосовані міграції;
 `supabase db reset --linked`, `migration down --linked`, `migration repair`, `db push --include-all`;
-не коміть секрети й справжні дані клієнтів (назви, імена — ні в коді, сидах, тестах і `docs/`, ні в текстах комітів, PR та issues; `npm run spec:check` з локальним `product/denylist.local.txt` ловить їх у файлах ще до push); не створюй `middleware.ts`; не використовуй `getSession()` для авторизації.
+не пиши секрети й справжні назви клієнтів, імена людей і їхні дані ні у файли, ні в тексти комітів, PR чи issues (`spec:check` ловить назви з denylist лише у файлах); не створюй `middleware.ts`; не використовуй `getSession()` для авторизації.

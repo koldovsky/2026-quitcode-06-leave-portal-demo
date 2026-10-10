@@ -34,24 +34,26 @@ describe("scripts/check-ac-coverage.mjs", () => {
     expect(out).toContain("AC-DEMO-01");
   });
 
-  it("does not count it(\"AC-…\") without a test function (Vitest treats it as todo)", () => {
+  it("does not count a test without a body (Vitest treats it as todo)", () => {
     const { code, out } = run("no-body");
     expect(code).toBe(1);
     expect(out).toContain("MISSING");
     expect(out).toContain("AC-DEMO-01");
   });
 
-  it("reports WRONG-REF for missing paths and tests in another file, but not for line numbers or column names", () => {
+  it("reports WRONG-REF for a missing file in «Код»/«Тест» and for a test that lives in another file", () => {
     const { code, out } = run("wrong-ref");
     expect(code).toBe(1);
-    const wrong = out.slice(out.indexOf("WRONG-REF"));
-    expect(wrong).toContain("`src/nope.ts`");
-    expect(wrong).toContain("`tests/nope.test.ts`");
-    expect(wrong).toMatch(/AC-DEMO-02 — docs\/conformance\.md:8: у файлах колонки «Тест» немає тесту/);
-    expect(wrong).not.toContain("src/lib/demo.ts");
-    expect(wrong).not.toContain("public.x");
-    expect(wrong).not.toContain("leave_records.kind");
+    expect(out).toContain("WRONG-REF");
+    expect(out).toContain("src/nope.ts");
+    expect(out).toMatch(/AC-DEMO-02 — docs\/conformance\.md:\d+: у файлах колонки «Тест»/);
     expect(out).not.toContain("MISSING");
+  });
+
+  it("accepts a line number and non-path backticks in the «Код» cell", () => {
+    const { code, out } = run("ok");
+    expect(code).toBe(0);
+    expect(out).not.toContain("WRONG-REF");
   });
 
   it("reports ORPHAN when a test names an AC that the spec lacks", () => {
@@ -85,6 +87,8 @@ describe("scripts/check-ac-coverage.mjs", () => {
     expect(out).toContain("BAD-STATUS");
     expect(out).toContain("готово");
     expect(out).toContain("«Реалізовано частково»");
+    // Багаторядковий HTML-коментар над таблицею не зсуває номер рядка.
+    expect(out).toContain("AC-DEMO-01 — docs/conformance.md:10:");
     expect(out).not.toContain("MISSING");
   });
 

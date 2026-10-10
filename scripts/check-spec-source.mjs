@@ -6,12 +6,12 @@
 //   version: spec-v0.1            # тег релізу специфікації
 //
 // Кроки: git fetch https://github.com/<owner>/<repo>.git refs/tags/<version> →
-//        git diff --quiet <version> -- product openspec/specs
+//        git diff --quiet <version> -- product openspec/specs →
+//        git ls-remote --tags: якщо в upstream уже є новіший spec-vX.Y — попередження (не помилка).
 // У самому upstream (немає .spec-source, усі рядки закоментовані або upstream == цей репозиторій)
 // перевірку пропускаємо з повідомленням (у GitHub Actions — з попередженням). SPEC_SOURCE_REQUIRED=1 робить
-// відсутній .spec-source помилкою (вмикайте в CI форку, коли перший тег спеки вже є). SPEC_SOURCE_URL перевизначає адресу (тести, дзеркала).
-// SPEC_SOURCE_IN_FORK=1 (job conformance) — FAIL, якщо upstream — сам форк або спека вже у форку, а .spec-source закоментований.
-// Після OK — попередження (не помилка), якщо в upstream уже є новіший тег spec-vX.Y, ніж у .spec-source.
+// відсутній .spec-source помилкою. SPEC_SOURCE_IN_FORK=1 (job conformance у форку) — FAIL, якщо upstream — сам форк
+// або спека вже у форку, а .spec-source закоментований. SPEC_SOURCE_URL перевизначає адресу (тести, дзеркала).
 import { execFileSync } from "node:child_process";
 import fs, { existsSync } from "node:fs";
 import path from "node:path";
@@ -29,8 +29,13 @@ function skip(reason, { requiredInFork = false } = {}) {
   }
   console.log(`spec:source — SKIP: ${reason}`);
   // У GitHub Actions форку — помітне попередження: до першого тегу spec-v0.1 це нормально.
+  // У репозиторії без форку (ci.yml задає SPEC_SOURCE_IN_FORK=0, APP_REPO=true) .spec-source не потрібен.
   if (requiredInFork && process.env.GITHUB_ACTIONS === "true") {
-    console.log(`::warning title=spec:source::${reason} Заповніть .spec-source після першого релізу специфікації.`);
+    const next =
+      process.env.SPEC_SOURCE_IN_FORK === "0"
+        ? "Репозиторій не форк (APP_REPO): .spec-source не потрібен, перевірку пропущено."
+        : "Заповніть .spec-source після першого релізу специфікації.";
+    console.log(`::warning title=spec:source::${reason} ${next}`);
   }
   process.exit(0);
 }
@@ -66,14 +71,20 @@ const file = path.join(root(), ".spec-source");
 if (!existsSync(file)) skip("файлу .spec-source немає (upstream PM або форк ще не налаштовано).", { requiredInFork: true });
 
 const { upstream, version } = parseSpecSource(file);
+// CI форку (job conformance) задає SPEC_SOURCE_IN_FORK=1; в upstream PM і в одному репозиторії з APP_REPO — ні.
 const inFork = process.env.SPEC_SOURCE_IN_FORK === "1";
 const hasSpecs = () => {
   const dir = path.join(root(), "openspec", "specs");
   return existsSync(dir) && fs.readdirSync(dir, { recursive: true }).some((p) => String(p).endsWith("spec.md"));
 };
 if (!upstream && !version) {
-  // У CI форку (job conformance задає SPEC_SOURCE_IN_FORK=1): спека вже у форку — .spec-source мусить бути заповнений.
-  if (inFork && hasSpecs()) fail(".spec-source закоментований, а openspec/specs/ уже містить спеку. Розкоментуйте upstream і version (крок 10 розробника).");
+  // Спека вже у форку (тег злито) — .spec-source мусить бути заповнений, інакше перевірка нічого не перевіряє.
+  if (inFork && hasSpecs()) {
+    fail(
+      ".spec-source закоментований, а openspec/specs/ уже містить спеку. Розкоментуйте upstream: <pm>/<team-repo> " +
+        "і version: spec-vX.Y (README, «Шлях розробника», крок 6).",
+    );
+  }
   skip(".spec-source порожній або закоментований (upstream PM або форк до першого релізу спеки).", { requiredInFork: true });
 }
 if (!upstream || !/^[\w.-]+\/[\w.-]+$/.test(upstream)) fail(`у .spec-source потрібен рядок "upstream: <owner>/<repo>", а є "${upstream ?? ""}".`);
@@ -81,9 +92,8 @@ if (!version || !/^spec-v\d+\.\d+$/.test(version)) fail(`у .spec-source пот�
 
 const own = ownRepo();
 if (own && own.toLowerCase() === upstream.toLowerCase()) {
-  // У CI форку upstream не може бути самим форком.
-  if (inFork) fail(`upstream у .spec-source — це сам форк (${own}). Вкажіть репозиторій PM.`);
-  if (process.env.SPEC_SOURCE_REQUIRED === "1") {
+  // У форку upstream не може бути самим форком: тоді перевірка порівнювала б форк сам із собою.
+  if (inFork || process.env.SPEC_SOURCE_REQUIRED === "1") {
     fail(`у .spec-source upstream: ${upstream} — це сам цей репозиторій. У форку вкажіть репозиторій PM: "upstream: <pm>/<team-repo>".`);
   }
   skip(`це сам upstream (${own}).`);
@@ -139,7 +149,9 @@ try {
     .filter((tag) => tag && /^spec-v\d+\.\d+$/.test(tag))
     .reduce((best, tag) => (isNewer(num(tag), num(best)) ? tag : best), version);
   if (latest !== version) {
-    const msg = `в ${upstream} уже є ${latest}, а .spec-source вказує ${version}. Синхронізуйтесь: гілка sync/${latest} (README, «Шлях розробника», крок 8).`;
+    const msg =
+      `в ${upstream} уже є ${latest}, а .spec-source вказує ${version}. ` +
+      `Синхронізуйтесь: гілка sync/${latest} (README, «Шлях розробника», крок 8).`;
     console.log(`spec:source — УВАГА: ${msg}`);
     if (process.env.GITHUB_ACTIONS === "true") console.log(`::warning title=spec:source::${msg}`);
   }
