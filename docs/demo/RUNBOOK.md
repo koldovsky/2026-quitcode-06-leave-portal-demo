@@ -229,17 +229,18 @@ git switch main   # основна тека лишається на main (дем
 - [ ] Supabase-проєкт не на паузі (Dashboard відкривається), вхід на прод-URL як `teacher@` працює.
 - [ ] Термінали: основна тека на `main` (демо 3, крок 6 і План Б кроків 9–10) і теки `lp-*`.
 - [ ] Вкладки: PR `demo/first-pr`, issues #1–#5, Vercel → Environment Variables, три вікна браузера (крок 1.5).
-- [ ] Zoom: увімкнено breakout rooms; створено 4 кімнати (property-workflows, therapy-scheduling, school-purchasing, leave-portal) і розподілено учасників за списком команд від клієнта; таймер — за слайдом 25, зворотний відлік 30 с.
+- [ ] Zoom: увімкнено breakout rooms; створено 4 кімнати (property-workflows, therapy-scheduling, school-purchasing, leave-portal) і розподілено учасників за списком команд від клієнта; таймер — за слайдом 25 (≈1 хв — відкрити кімнати; у Zoom увімкнути зворотний відлік 30 с).
 - [ ] Сповіщення ОС, месенджерів і пошти вимкнено (режим «Не турбувати»); вкладки з поштою закрито.
 - [ ] Claude Code: виконано вхід; у кожній теці lp-* уже пройдено запит довіри до теки і запит про сервер із .mcp.json (відхилити: MCP для демо 1–2 не потрібен).
 - [ ] Акаунти на екрані (GitHub, Vercel, Supabase): перевірити, що в перемикачах немає клієнтських організацій; якщо є — окремий профіль браузера з демо-акаунтами. У SQL Editor перед Run — звірити назву проєкту.
 - [ ] Основна тека — на гілці main (`git branch --show-current`).
 - [ ] Знімки для Планів Б (крок 1.5) відкрито у вкладках.
-- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1); деку зібрано на Pages.
+- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1; «Старт зараз» після слайда 45). Перевірка: `gh repo view koldovsky/2026-quitcode-06-project-template --json isTemplate` → `"isTemplate": true`. Деку зібрано на Pages.
 
 ## 2. Сценарій на сцені
 
 Скрізь: шрифт термінала ≥ 18 pt, `OPENSPEC_TELEMETRY=0`, вкладки браузера відкриті заздалегідь.
+Кожен живий запуск агента (демо 1, кроки 3 і 6а; демо 2, кроки 1–2) — ліміт 2 хв від запуску, далі План Б без очікування.
 
 ### Демо 1 — PM: спека, з якою працюють і людина, і агент (блок 2) — `demo-01-template` → `spec-v0.1`
 
@@ -247,12 +248,12 @@ git switch main   # основна тека лишається на main (дем
 |---|---|---|---|
 | 1 | Тека `lp-demo-01-template`: `product/vision.md`, `glossary.md`, `roles.md` (матриця роль × сутність × дія), `roadmap.md` | зріз на кожне заняття WS6–WS11 | файли на GitHub на тезі `demo-01-template` |
 | 2 | `product/denylist.txt` + пояснити `denylist.local.txt` і секрет `SPEC_DENYLIST`; `npm run spec:check` | `слів у denylist: 3` (+ локальні) → `OK` | показати рядок `## 4. Denylist` у `scripts/check-spec.mjs` і тест `reads words from the local product/denylist.local.txt` (`npx vitest run tests/scripts/check-spec.test.ts`) |
-| 3 | Наживо, ~1,5 хв (слайд 16), тека `lp-demo-01-template`, Claude Code: «Ось бриф зрізу «Подання заявки на відсутність і рішення менеджера». Спершу проінтерв'юй мене: по одному питанню, з варіантами. Нічого не вигадуй — чого я не знаю, пиши в Open questions.» → `/opsx:propose add-leave-request` (бриф: працівник подає заявку на відсутність на одну або дві посади, менеджер підрозділу схвалює або повертає з коментарем). Відповідаємо лише на 2 перші питання, далі — крок 4 з готовою зміною; повний прогін — агент ставить PM питання, пише `proposal.md` і дельту (а також `design.md` і `tasks.md` — у PM-зміні їх не лишаємо, див. нотатки слайда) | агент питає по одному, з варіантами (ролі й посади, хто погоджує, заблоковані дні, помилки для працівника); після 2 відповідей — Esc і крок 4 | не чекати агента: перервати (Esc), перейти в теку `lp-spec-v0.1` і виконати крок 4 (`git switch --detach spec-v0.1~1`). У `lp-demo-01-template` після часткового прогону switch впаде на невідстежуваних файлах — цю теку скидає крок 3а після демо |
+| 3 | Наживо, ~1,5 хв (слайд 16), ліміт 2 хв: показати перші 1–2 питання агента, далі План Б. Тека `lp-demo-01-template`, Claude Code: «Ось бриф зрізу «Подання заявки на відсутність і рішення менеджера». Спершу проінтерв'юй мене: по одному питанню, з варіантами. Нічого не вигадуй — чого я не знаю, пиши в Open questions.» → `/opsx:propose add-leave-request` (бриф: працівник подає заявку на відсутність на одну або дві посади, менеджер підрозділу схвалює або повертає з коментарем). Відповідаємо лише на 2 перші питання, далі — крок 4 з готовою зміною; повний прогін — агент ставить PM питання, пише `proposal.md` і дельту (а також `design.md` і `tasks.md` — у PM-зміні їх не лишаємо, див. нотатки слайда) | агент питає по одному, з варіантами (ролі й посади, хто погоджує, заблоковані дні, помилки для працівника); після 2 відповідей — Esc і крок 4 | не чекати агента: перервати (Esc), перейти в теку `lp-spec-v0.1` і виконати крок 4 (`git switch --detach spec-v0.1~1`). У `lp-demo-01-template` після часткового прогону switch впаде на невідстежуваних файлах — цю теку скидає крок 3а після демо |
 | 3а | Після живого `/opsx:propose` (після демо) скинути теку `lp-demo-01-template`: `git restore . && git clean -fd openspec docs` | `git status` порожній | перестворити теку: `git worktree remove --force ../lp-<тег>` і `git worktree add --detach ../lp-<тег> <тег>` |
 | 4 | `git switch --detach spec-v0.1~1` → `openspec/changes/add-leave-request/proposal.md` (Users & roles, Non-goals, Assumptions, Open questions Q4–Q5) і `specs/leave-requests/spec.md` | 5 вимог, AC-LEAVE-01…09 | GitHub, коміт `Propose add-leave-request…` |
 | 5 | `npx openspec validate add-leave-request --strict` | `Change 'add-leave-request' is valid` | скрін з репетиції |
 | 6 | `npm run spec:check` | `сценаріїв: 9 … OK` | вивід з таблиці розділу 3 (рядок `spec-v0.1`) |
-| 6а | Скіл `spec-review` (тека `lp-spec-v0.1` на `spec-v0.1~1`, слайд 17): «Перевір зміну add-leave-request скілом spec-review» — показати звіт, правок не підтверджувати | 2–4 зауваження; найімовірніше, знайдеться AC-LEAVE-04 (THEN без результату). Скіл недетермінований — формулювання інші | пропустити й показати знімок звіту з репетиції (розділ 1.5) |
+| 6а | Скіл `spec-review` (тека `lp-spec-v0.1` на `spec-v0.1~1`, слайд 17): «Перевір зміну add-leave-request скілом spec-review» — показати звіт, правок не підтверджувати; ліміт 2 хв, далі План Б | 2–4 зауваження; найімовірніше, знайдеться AC-LEAVE-04 (THEN без результату). Скіл недетермінований — формулювання інші | пропустити й показати знімок звіту з репетиції (розділ 1.5) |
 | 7 | `npx openspec archive add-leave-request -y` | `+ 5 added`, `archived as '<дата>-add-leave-request'` | показати тег `spec-v0.1` |
 | 8 | Скинути: `git restore . && git clean -fd openspec && git switch --detach spec-v0.1`; показати `openspec/specs/leave-requests/spec.md` і `product/CHANGELOG.md` | канонічна спека з `## Purpose` українською | відкрити ці файли на GitHub на тезі `spec-v0.1` |
 
@@ -266,8 +267,8 @@ git switch main   # основна тека лишається на main (дем
 
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
-| 1 | Тека `lp-spec-v0.1`, Claude Code: «Уточни спеку spec-v0.1 скілом spec-clarify» | таблиця 11 категорій (лише в чаті — див. примітку під таблицею), потім по одному питанню з варіантами й рекомендацією; якщо агент (старіша версія скіла на тезі) запропонує `gh issue create` — відповісти «ні»: issues #1–#5 уже є, а в учасників — вебформа (слайд 23) | агент не відповідає за 2 хв — перервати й показати збережені питання: `git show demo-02-clarify~2:docs/spec-reading.md`, розділ «Питання до PM» (команда з `sed` — під таблицею) |
-| 2 | Пройти 2–3 питання наживо (Q1, Q2, Q3) | Q1: «покриває обидві посади»; Q2: заблокований день — прийняти чи відхилити; Q3: дві черги | `git show demo-02-clarify~2:docs/spec-reading.md`, розділ «Питання до PM» — команда під таблицею (стан «очікуємо»). Команда лише читає з git, тож працює й після живого прогону скіла; `git switch` тут відмовить, бо скіл уже змінив файл |
+| 1 | Тека `lp-spec-v0.1`, Claude Code: «Уточни спеку spec-v0.1 скілом spec-clarify» | таблиця 11 категорій (лише в чаті — див. примітку під таблицею), потім по одному питанню з варіантами й рекомендацією; якщо агент (старіша версія скіла на тезі) запропонує `gh issue create` — відповісти «ні»: issues #1–#5 уже є, а в учасників — вебформа (слайд 23) | ліміт 2 хв (разом із кроком 2): не встигли — перервати й показати збережені питання: `git show demo-02-clarify~2:docs/spec-reading.md`, розділ «Питання до PM» (команда з `sed` — під таблицею) |
+| 2 | Пройти 2–3 питання наживо (Q1, Q2, Q3) у межах того самого ліміту 2 хв | Q1: «покриває обидві посади»; Q2: заблокований день — прийняти чи відхилити; Q3: дві черги | `git show demo-02-clarify~2:docs/spec-reading.md`, розділ «Питання до PM» — команда під таблицею (стан «очікуємо»). Команда лише читає з git, тож працює й після живого прогону скіла; `git switch` тут відмовить, бо скіл уже змінив файл |
 | 2а | Після живого прогону скіла скинути теку: `git restore . && git clean -fd openspec docs` (скіл пише в `docs/spec-reading.md`) | `git status` порожній | перестворити теку: `git worktree remove --force ../lp-<тег>` і `git worktree add --detach ../lp-<тег> <тег>` |
 | 3 | `docs/demo/issues/Q2.md` → на GitHub відкрити issue #2 (створене заздалегідь, крок 1.1.2) | поля форми `spec-question` | файл `Q2.md` на екрані |
 | 4 | `product/decisions.md` на `demo-02-clarify` | Q1–Q5 з відповідями й «spec-v0.2 (готується)» | закриті issues #1–#5 з коментарями PM на GitHub |
@@ -295,22 +296,24 @@ git show demo-02-clarify~2:docs/spec-reading.md | sed -n '/^## Скан за т�
 
 ### Демо 3 — Старт з нуля (блок 4) — `demo-03-impl`
 
-Бюджет на сцені — 6,5 хв (слайди 34–35): обов'язкові кроки 6–10; кроки 1–5 (їх зміст уже на слайдах 24, 32 і 33) і 11–12 — лише якщо випереджаємо час.
+Бюджет на сцені — 6,5 хв (слайди 34–35): обов'язкові кроки 6–8. Кроки 1–5 (їх зміст уже на слайдах 24, 32 і 33) і 9–12 — «якщо є час».
+З них першим — один прод-флоу з нотаток слайда 35: `teacher@` подає заявку (крок 9) → `manager.math@` схвалює (крок 10), ≈1,5 хв.
+Кроки 11–12 без часу — лише команди з колонки «План Б» (`npx vitest run -t "AC-LEAVE-07"`, `-t "AC-LEAVE-08"`).
 
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
-| 1 | `openspec/changes/archive/*-impl-leave-request/design.md` (таблиця прав) і `tasks.md` («Done when: AC-…») | `skip_specs: true` у `.openspec.yaml` | файли на GitHub на тезі `demo-03-impl` |
-| 2 | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики. Про порядок сказати: тут `update` іде до `drop constraint`, бо в цьому демо міграції застосовуються разом, до `users:demo`, і профілів ще немає; у проєкті, де користувачі з `member` уже є, старий constraint знімають першим — зразок у заголовку `20261012000000_profiles_and_roles.sql` на `main` і в `AGENTS.md` | файл на екрані без змін; на питання «чи це працює» — на `main` це перевіряє `tests/db/leave-db.test.ts` (PGlite, розділ 3) | файл на GitHub; в основній теці на `main`: `npx vitest run tests/db` |
-| 3 | `npx vitest run -t "AC-LEAVE-0"` | 15 тестів з AC ID у назвах, решта skipped — усі зелені | `npm test` |
-| 4 | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | `docs/conformance.md` на тезі `demo-03-impl` |
-| 5 | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
+| 1 (якщо є час) | `openspec/changes/archive/*-impl-leave-request/design.md` (таблиця прав) і `tasks.md` («Done when: AC-…») | `skip_specs: true` у `.openspec.yaml` | файли на GitHub на тезі `demo-03-impl` |
+| 2 (якщо є час) | `supabase/migrations/20261013000000_leave_requests.sql`: порядок зміни ролей, `revoke` + колонкові `grant`, хелпери `private`, політики. Про порядок сказати: тут `update` іде до `drop constraint`, бо в цьому демо міграції застосовуються разом, до `users:demo`, і профілів ще немає; у проєкті, де користувачі з `member` уже є, старий constraint знімають першим — зразок у заголовку `20261012000000_profiles_and_roles.sql` на `main` і в `AGENTS.md` | файл на екрані без змін; на питання «чи це працює» — на `main` це перевіряє `tests/db/leave-db.test.ts` (PGlite, розділ 3) | файл на GitHub; в основній теці на `main`: `npx vitest run tests/db` |
+| 3 (якщо є час) | `npx vitest run -t "AC-LEAVE-0"` | 15 тестів з AC ID у назвах, решта skipped — усі зелені | `npm test` |
+| 4 (якщо є час) | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | `docs/conformance.md` на тезі `demo-03-impl` |
+| 5 (якщо є час) | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
 | 6 | **Основна тека на `main`** (не `lp-demo-03-impl`: там немає прив'язки `supabase/.temp` і лише 2 з 5 міграцій): `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції). Підказку CLI `migration repair` **не виконувати** (крок 1.2.3) | скрін Dashboard → Database → Migrations |
 | 7 | Vercel → Project → Environment Variables (лише назви), Deployment Protection вимкнено | — | скрін |
 | 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel. Сказати: у форку учасника перший PR — `docs/bootstrap.md`, тести з AC ID — після PR `sync/spec-v0.1` (інакше ORPHAN) | `conformance` skipped: у цьому репозиторії (не форк) job вимкнено умовою `if: github.event.repository.fork \|\| vars.APP_REPO == 'true'` (змінну `APP_REPO` у демо-репо не задано) у `ci.yml`; у форку учасника зелені всі три — `spec`, `app`, `conformance` | скрін PR |
-| 9 | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | в основній теці на `main` (лише там є `.env.local`): `npm run dev` → http://localhost:3000 |
-| 10 | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше `npm run dev` в основній теці на `main` |
-| 11 | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу «Щоб повернути заявку на доопрацювання, напишіть коментар.» (код `COMMENT_REQUIRED` у `?error=` адреси), потім «на доопрацюванні» | `npx vitest run -t "AC-LEAVE-07"` |
-| 12 | `teacher@` → «Виправити й подати знову» (кінець 12.11) | обидва записи знову «на розгляді» | `npx vitest run -t "AC-LEAVE-08"` |
+| 9 (якщо є час) | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | в основній теці на `main` (лише там є `.env.local`): `npm run dev` → http://localhost:3000 |
+| 10 (якщо є час) | `manager.math@` → «Черга рішень»: лише запис основної посади → «Схвалити» | «Рішення збережено: схвалено» | вхід не працює — перевірити Site URL/Redirect URLs (крок 1.2.6); інакше `npm run dev` в основній теці на `main` |
+| 11 (якщо є час) | `manager.primary@` → «Повернути на доопрацювання» з порожнім коментарем, потім з «Уточніть дату кінця» | спершу «Щоб повернути заявку на доопрацювання, напишіть коментар.» (код `COMMENT_REQUIRED` у `?error=` адреси), потім «на доопрацюванні» | `npx vitest run -t "AC-LEAVE-07"` |
+| 12 (якщо є час) | `teacher@` → «Виправити й подати знову» (кінець 12.11) | обидва записи знову «на розгляді» | `npx vitest run -t "AC-LEAVE-08"` |
 
 На прод-URL уже стан `main` (spec-v0.2): у формі є поле «Заміна». Це нормально — скажіть, що воно з'явиться в демо 4.
 Заявки з репетиції мають бути видалені заздалегідь (крок 1.5, останній пункт; чекліст 1.6) — інакше крок 9 покаже
@@ -328,8 +331,18 @@ Dashboard → SQL Editor → `delete from public.leave_requests;` (записи 
 | 5 | Пояснити: у форку це job `conformance` у PR `sync/spec-v0.2` → CI червоний; MODIFIED (01/02/04/05) перевірка не бачить — їх звіряє людина за diff | — | розділ «Синхронізація на spec-v0.2» у `docs/spec-reading.md` теки `lp-demo-04-sync` (на тезі `spec-v0.2` його ще немає) |
 | 6 | `demo-04-sync`: `tests/leave/calendar.test.ts`, `docs/conformance.md` (spec-v0.2, 11 рядків) | рядки AC-LEAVE-10, 11 «реалізовано» | `git diff spec-v0.2 demo-04-sync -- docs/conformance.md` |
 | 7 | `npm run ac:coverage` | `AC у специфікаціях: 11 … «реалізовано»: 11 … OK` | вивід із розділу 3 |
-| 8 | Прод-URL, `teacher2@`: заявка 05.11–05.11.2026 → помилка (AC-LEAVE-10); дві заявки, що перетинаються → помилка (AC-LEAVE-11) | тексти «лише заблоковані дні», «уже є заявка» | `npx vitest run -t "AC-LEAVE-1"` (3 тести) |
+| 8 (якщо є час) | Прод-URL, `teacher2@`: заявка 05.11–05.11.2026 → помилка (AC-LEAVE-10); дві заявки, що перетинаються → помилка (AC-LEAVE-11) | тексти «лише заблоковані дні», «уже є заявка» | `npx vitest run -t "AC-LEAVE-1"` (3 тести) |
 | 9 | Наголос: `/opsx:verify` і `/conformance` — порадники; ворота — детерміновані перевірки CI | — | слайд деки замість живого запуску `/opsx:verify` |
+
+### Після слайда 45 — «Старт зараз» (5–7 хв, у часі Q&A)
+
+PM кожної команди створює upstream просто на занятті (walkthrough-pm домашки, крок 1): у браузері
+<https://github.com/koldovsky/2026-quitcode-06-project-template> → **Use this template** → свій акаунт, **Public**,
+назва — `<team-slug>`; або `gh repo create <team-slug> --public --template koldovsky/2026-quitcode-06-project-template --clone`.
+Посилання на репозиторій — у чат Zoom. Ведучий відкриває кожне: репозиторій не форк і має `product/` та `openspec/`
+(або `gh repo view <owner>/<team-slug> --json templateRepository` → шаблон курсу). Кнопки «Use this template» немає
+чи `gh` падає — шаблон не позначено як Template repository (чекліст 1.6): `gh repo edit … --template` і повторити.
+PM, який не встиг, робить цей крок одразу після заняття.
 
 ## 3. Очікувані результати воріт на кожному тезі
 
