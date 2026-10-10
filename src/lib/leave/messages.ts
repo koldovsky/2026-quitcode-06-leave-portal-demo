@@ -35,5 +35,5 @@ export const ERROR_MESSAGES: Record<LeaveErrorCode, string> = {
 /** Повідомлення для ?error=… з адреси сторінки; невідомий код — загальна помилка. */
 export function errorMessage(code: string | string[] | undefined): string | undefined {
   if (typeof code !== "string" || code === "") return undefined;
-  return code in ERROR_MESSAGES ? ERROR_MESSAGES[code as LeaveErrorCode] : "Не вдалося зберегти. Спробуйте ще раз.";
+  return Object.hasOwn(ERROR_MESSAGES, code) ? ERROR_MESSAGES[code as LeaveErrorCode] : "Не вдалося зберегти. Спробуйте ще раз.";
 }

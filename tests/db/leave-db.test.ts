@@ -169,6 +169,33 @@ describe("База: доступ", () => {
     }
   });
 
+  it("AC-LEAVE-09: працівник, якого помилково записали в manager_id, не бачить чужих заявок, записів і профілів підрозділу", async () => {
+    const id = await submitAllPositions(TEACHER, "2026-12-21", "2026-12-22"); // MATH (main) + PRIMARY (additional)
+    const [primary] = await t.asService<{ id: string; manager_id: string }>(
+      "select id, manager_id from public.divisions where code = 'PRIMARY'",
+    );
+    // Помилка адміністратора: менеджером «Початкової школи» записано працівника (роль employee).
+    await t.asUser(ADMIN, "update public.divisions set manager_id = $1 where id = $2", [TEACHER2, primary.id]);
+    try {
+      const seen = async (sql: string) => (await t.asUser<{ n: number }>(TEACHER2, sql, [id]))[0].n;
+      expect(await seen("select count(*)::int as n from public.leave_records where request_id = $1")).toBe(0);
+      expect(await seen("select count(*)::int as n from public.leave_requests where id = $1")).toBe(0);
+      expect(
+        await seen(
+          "select count(*)::int as n from public.profiles where id = (select employee_id from public.leave_requests where id = $1)",
+        ),
+      ).toBe(0);
+      const [{ n: profiles }] = await t.asUser<{ n: number }>(
+        TEACHER2,
+        "select count(*)::int as n from public.profiles where id = $1",
+        [TEACHER],
+      );
+      expect(profiles).toBe(0);
+    } finally {
+      await t.asService("update public.divisions set manager_id = $1 where id = $2", [primary.manager_id, primary.id]);
+    }
+  });
+
   it("анонімний відвідувач не читає заявки", async () => {
     await expect(t.db.exec("begin; set local role anon; select count(*) from public.leave_requests; commit;")).rejects.toThrow(
       "permission denied",

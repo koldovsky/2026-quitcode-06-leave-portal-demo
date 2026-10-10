@@ -64,7 +64,7 @@ export default async function ManagePage({ searchParams }: PageProps<"/manage">)
   return (
     <PageShell title={viewer.role === "manager" ? "Черга рішень" : "Усі заявки"} role={viewer.role}>
       {message ? <Notice kind="error">{message}</Notice> : null}
-      {typeof done === "string" && done in STATUS_LABELS ? (
+      {typeof done === "string" && Object.hasOwn(STATUS_LABELS, done) ? (
         <Notice kind="success">Рішення збережено: {STATUS_LABELS[done as RecordStatus]}.</Notice>
       ) : null}
 

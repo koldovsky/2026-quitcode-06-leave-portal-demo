@@ -40,7 +40,7 @@ export default async function MyRequestsPage({ searchParams }: PageProps<"/reque
   return (
     <PageShell title="Мої заявки" role={viewer.role}>
       {message ? <Notice kind="error">{message}</Notice> : null}
-      {typeof done === "string" && DONE[done] ? <Notice kind="success">{DONE[done]}</Notice> : null}
+      {typeof done === "string" && Object.hasOwn(DONE, done) ? <Notice kind="success">{DONE[done]}</Notice> : null}
       {!requests?.length ? (
         <p className="text-sm text-zinc-500">
           Заявок ще немає. <Link href="/requests/new" className="underline">Подати заявку</Link>
