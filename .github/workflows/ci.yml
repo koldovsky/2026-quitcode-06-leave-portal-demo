@@ -1,9 +1,9 @@
 # CI командного проєкту. Один workflow — чотири jobs:
 #   spec        — завжди: структура специфікацій (openspec validate --strict) + AC ID, унікальність, denylist;
 #   app         — завжди: lint (0 warnings), typecheck (typegen + tsc), unit-тести, build;
-#   conformance — лише у ФОРКУ розробника: спека збігається з тегом upstream (.spec-source) + покриття AC;
-#   db          — лише push у main ФОРКУ і лише якщо задано секрети Supabase: supabase db push.
-# В upstream PM (репозиторій із «Use this template», не форк) jobs conformance і db пропускаються.
+#   conformance — у ФОРКУ розробника або в репозиторії зі змінною APP_REPO=true: спека збігається з тегом upstream (.spec-source) + покриття AC;
+#   db          — лише push у main (форк або APP_REPO=true) і лише якщо задано секрети Supabase: supabase db push.
+# В upstream PM (репозиторій із «Use this template», не форк, без APP_REPO) jobs conformance і db пропускаються. Звичайний клієнтський проєкт без форків: змінна репозиторію APP_REPO=true (Settings → Secrets and variables → Actions → Variables) вмикає їх; .spec-source лишається закоментованим.
 name: CI
 
 on:
@@ -56,7 +56,7 @@ jobs:
       - run: npm run build
 
   conformance:
-    if: ${{ github.event.repository.fork }}
+    if: ${{ github.event.repository.fork || vars.APP_REPO == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -68,15 +68,18 @@ jobs:
           cache: npm
       - run: npm ci
       - name: product/ and openspec/specs match the upstream tag from .spec-source
-        # До першого тегу spec-v0.1 .spec-source закоментований: крок пропускається з попередженням.
+        # До першого тегу (у форку ще немає openspec/specs/*/spec.md) .spec-source закоментований — крок пропускається з попередженням; щойно спека у форку, порожній .spec-source або upstream = сам форк — FAIL.
         # Заповнюють його в гілці sync/spec-vX.Y разом із git merge тегу (README, кроки 6 і 8 розробника).
-        # Щоб зробити його обов'язковим, додайте env SPEC_SOURCE_REQUIRED: "1".
+        # SPEC_SOURCE_IN_FORK лише у форку: у репозиторії з APP_REPO=true (без форків) крок пропускається з попередженням.
         run: npm run spec:source
+        env:
+          SPEC_SOURCE_IN_FORK: ${{ github.event.repository.fork && '1' || '' }}
       - name: Every AC has a matrix row; every «реалізовано» has a test
+        if: ${{ !cancelled() }}
         run: npm run ac:coverage
 
   db:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.repository.fork }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (github.event.repository.fork || vars.APP_REPO == 'true') }}
     needs: [spec, app, conformance]
     runs-on: ubuntu-latest
     env:

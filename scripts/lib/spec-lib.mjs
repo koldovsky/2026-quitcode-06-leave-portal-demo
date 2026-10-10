@@ -106,7 +106,8 @@ export function collectSpecAcs(dir = path.join(root(), "openspec", "specs")) {
 }
 
 export function stripHtmlComments(text) {
-  return text.replace(/<!--[\s\S]*?-->/g, "");
+  // Коментар замінюємо його ж переносами рядків, щоб номери рядків у повідомленнях лишались правильними.
+  return text.replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ""));
 }
 
 // Рядки матриці docs/conformance.md: | AC-… | що перевіряє | код | тест | статус |

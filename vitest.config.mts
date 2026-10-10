@@ -5,6 +5,8 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     environment: "node",
+    // Тест без жодного expect — помилка: порожній it("AC-…", () => {}) не покриває AC.
+    expect: { requireAssertions: true },
     include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}"],
     // tests/fixtures — дані для тестів скриптів; файли *.test.ts там НЕ запускаються.
     exclude: ["node_modules/**", "tests/fixtures/**"],

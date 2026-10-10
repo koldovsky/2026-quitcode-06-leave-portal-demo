@@ -4,12 +4,13 @@
 //   - `//` чи `/*` всередині рядка назви не ламають розбір;
 //   - ланцюжки модифікаторів розпізнаються будь-якої довжини: it.each([...])("…"), test.concurrent.each(...)("…"),
 //     test.for(...)("…"), it.runIf(cond)("…"), test.only(...).
-// Пропущений тест (counted = false): у ланцюжку є skip / todo / fixme / fails / fail (Playwright) / skipIf
-// або тест лежить усередині describe.skip / describe.todo / describe.skipIf (Vitest і Playwright).
+// Пропущений тест (counted = false): у ланцюжку є skip / todo / fixme / fails / fail (Playwright) / skipIf,
+// тест лежить усередині describe.skip / describe.todo / describe.skipIf (Vitest і Playwright)
+// або в нього немає функції тесту: it("AC-…") без другого аргументу Vitest вважає todo.
 // Не тест (ігнорується): describe(…), test.step(…), test.extend(…), test.use(…), хуки beforeEach тощо.
 import { createRequire } from "node:module";
 import path from "node:path";
-import { AC_ID_GLOBAL, readText, rel, root, walk } from "./spec-lib.mjs";
+import { AC_ID_AT_START, readText, rel, root, walk } from "./spec-lib.mjs";
 
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
@@ -78,9 +79,11 @@ export function parseTestTitles(file) {
           if (skipped) childScope = true;
         } else if (TEST_ROOTS.has(chain.root) && !chain.names.some((n) => NOT_A_TEST.has(n))) {
           const line = sf.getLineAndCharacterOfPosition(node.arguments[0].getStart(sf)).line + 1;
+          // it("AC-…") без функції тесту Vitest вважає todo — не покриття.
+          const hasBody = node.arguments.length >= 2;
           titles.push({
             title,
-            counted: !skipped && !skippedScope,
+            counted: !skipped && !skippedScope && hasBody,
             modifier: chain.names.join(".") || undefined,
             line,
           });
@@ -94,17 +97,20 @@ export function parseTestTitles(file) {
   return titles;
 }
 
-export const isCodeFile = (r) => /\.(?:[cm]?[jt]sx?)$/.test(r);
+// Рахуємо лише файли, які запускає `npm test` (Vitest, include у vitest.config.mts):
+// src/**/*.test.{ts,tsx} і tests/**/*.test.{ts,tsx}. Тест у *.spec.ts, *.test.js чи будь-якому іншому файлі
+// CI не виконує, тож AC він не покриває. Додаєте e2e (Playwright) — розширюйте цей список РАЗОМ із кроком CI.
+export const isRunByNpmTest = (r) => /^(?:src|tests)\/(?:.+\/)?[^/]+\.test\.tsx?$/.test(r);
 export const skipNonSource = (r) =>
   /(^|\/)(node_modules|\.next|\.git|coverage|dist|build)(\/|$)/.test(r) || /^tests\/fixtures(\/|$)/.test(r);
 
-// AC ID у назвах тестів із src/** і tests/** → [{file, line, title, counted}].
+// AC ID на початку назв тестів із *.test.ts(x) у src/** і tests/** → [{file, line, title, counted}].
 export function collectTestRefs(dirs = ["src", "tests"]) {
   const refs = new Map();
   for (const d of dirs) {
-    for (const file of walk(path.join(root(), d), { skip: skipNonSource, filter: isCodeFile })) {
+    for (const file of walk(path.join(root(), d), { skip: skipNonSource, filter: isRunByNpmTest })) {
       for (const t of parseTestTitles(file)) {
-        for (const id of t.title.match(AC_ID_GLOBAL) ?? []) {
+        for (const id of t.title.match(AC_ID_AT_START) ?? []) {
           if (!refs.has(id)) refs.set(id, []);
           refs.get(id).push({ file: rel(file), line: t.line, title: t.title, counted: t.counted });
         }

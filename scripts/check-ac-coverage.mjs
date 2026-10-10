@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 // npm run ac:coverage — наскрізне покриття критеріїв приймання (AC):
-//   спека (openspec/specs/**) → рядок матриці (docs/conformance.md) → тест (назва test()/it() у src/** або tests/**).
+//   спека (openspec/specs/**) → рядок матриці (docs/conformance.md) → тест (назва test()/it() у файлах *.test.ts(x) з src/** або tests/** — інші файли Vitest не запускає).
 // FAIL, якщо:
 //   NO-ROW     — AC є в специфікаціях, але в docs/conformance.md немає рядка (дрейф після синхронізації спеки);
-//   MISSING    — рядок має статус «реалізовано», але немає непропущеного тесту з цим ID у назві
-//                (закоментовані тести, .skip/.todo/.fails/.skipIf і тести всередині describe.skip не рахуються;
-//                it.each / test.for / .concurrent / .runIf — рахуються);
+//   MISSING    — рядок має статус «реалізовано», але немає непропущеного тесту, назва якого ПОЧИНАЄТЬСЯ з цього ID
+//                (закоментовані тести, .skip/.todo/.fails/.skipIf, it("AC-…") без функції тесту і тести всередині
+//                describe.skip не рахуються; it.each / test.for / .concurrent / .runIf — рахуються);
 //   ORPHAN     — тест посилається на AC, якого немає в специфікаціях;
 //   BAD-STATUS — статус рядка не рівно «реалізовано» і не «відкладено (причина)»
-//                («реалізовано частково» — теж BAD-STATUS: або реалізовано повністю, або відкладено з причиною).
+//                («реалізовано частково» — теж BAD-STATUS: або реалізовано повністю, або відкладено з причиною);
+//   WRONG-REF  — у рядку «реалізовано» шлях із колонок «Код»/«Тест» (`src/…`, `tests/…`, `supabase/…`; `:12` у кінці можна) не існує або тест із цим AC лежить в іншому файлі;
 // Попередження (не валить): рядок матриці для AC, якого вже немає в специфікаціях; дублікати рядків.
 // Секції «## REMOVED Requirements» ігноруються. Скрипт перевіряє НАЯВНІСТЬ тесту, а не те, що він зелений:
 // це робить `npm test`.
-import { collectSpecAcs, isDeferred, isImplemented, parseConformance, printList } from "./lib/spec-lib.mjs";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { collectSpecAcs, isDeferred, isImplemented, parseConformance, printList, root } from "./lib/spec-lib.mjs";
 import { collectTestRefs } from "./lib/test-titles.mjs";
 
 const specAcs = collectSpecAcs();
@@ -31,6 +34,14 @@ const orphan = [];
 const badStatus = [];
 const staleRows = [];
 const duplicateRows = [];
+const wrongRef = [];
+
+// Шляхи з клітинки матриці: лише в бектиках і лише від кореня репозиторію (src/, tests/, supabase/);
+// номер рядка в кінці (`:12`, `:12-20`, `#L12`) відкидаємо, назви колонок і функцій (`public.x`) — не шляхи.
+const paths = (cell) =>
+  [...(cell ?? "").matchAll(/`([^`]+)`/g)]
+    .map((m) => m[1].trim().replace(/(?::\d+(?:-\d+)?|#L\d+(?:-L?\d+)?)$/, ""))
+    .filter((x) => /^(?:src|tests|supabase)\//.test(x));
 
 for (const [id, places] of specAcs) {
   if (!rowsById.has(id)) noRow.push(`${id} (${places[0].file}:${places[0].line})`);
@@ -44,8 +55,18 @@ for (const [id, list] of rowsById) {
       const covered = (testRefs.get(id) ?? []).some((t) => t.counted);
       if (!covered) {
         const skipped = (testRefs.get(id) ?? []).filter((t) => !t.counted);
-        const hint = skipped.length ? ` (є лише пропущені: ${skipped.map((t) => `${t.file}:${t.line}`).join(", ")})` : "";
-        missing.push(`${id} — статус «реалізовано», але тесту з «${id}» у назві немає${hint}`);
+        const hint = skipped.length
+          ? ` (є лише пропущені: ${skipped.map((t) => `${t.file}:${t.line}`).join(", ")})`
+          : " (перевірте, чи AC ID у назві тесту набрано латиницею)";
+        missing.push(`${id} — статус «реалізовано», але тесту, назва якого починається з «${id}», немає${hint}`);
+      }
+      const [, , code, test] = row.cells;
+      for (const f of [...paths(code), ...paths(test)]) {
+        if (!existsSync(path.join(root(), f))) wrongRef.push(`${id} — docs/conformance.md:${row.line}: файлу \`${f}\` немає`);
+      }
+      const listed = paths(test);
+      if (covered && listed.length && !(testRefs.get(id) ?? []).some((t) => t.counted && listed.includes(t.file))) {
+        wrongRef.push(`${id} — docs/conformance.md:${row.line}: у файлах колонки «Тест» немає тесту з «${id}» на початку назви`);
       }
     } else if (!isDeferred(row.status)) {
       badStatus.push(`${id} — docs/conformance.md:${row.line}: «${row.status}» (дозволено: реалізовано / відкладено (причина))`);
@@ -64,13 +85,14 @@ console.log(
     `AC у назвах тестів: ${testRefs.size}`,
 );
 printList("NO-ROW: AC зі специфікації без рядка в docs/conformance.md", noRow);
-printList("MISSING: «реалізовано» без тесту з AC ID у назві", missing);
+printList("MISSING: «реалізовано» без тесту з AC ID у назві (рахуються лише файли *.test.ts / *.test.tsx)", missing);
 printList("ORPHAN: тест посилається на AC, якого немає в специфікаціях", orphan);
 printList("BAD-STATUS: невідомий статус у матриці", badStatus);
+printList("WRONG-REF: колонки «Код» / «Тест» не відповідають репозиторію", wrongRef);
 printList("WARN stale: рядок матриці для AC, якого немає в специфікаціях", staleRows);
 printList("WARN duplicate: кілька рядків для одного AC", duplicateRows);
 
-const failures = noRow.length + missing.length + orphan.length + badStatus.length;
+const failures = noRow.length + missing.length + orphan.length + badStatus.length + wrongRef.length;
 if (failures) {
   console.log(`\nFAIL: проблем — ${failures}. Оновіть docs/conformance.md і тести.`);
   process.exit(1);

@@ -9,10 +9,14 @@
 //      і дві активні зміни не вводять той самий новий ID;
 //   4) жодне слово зі списку заборонених (product/denylist.txt + локальний product/denylist.local.txt
 //      + змінна середовища SPEC_DENYLIST)
-//      не трапляється в product/ і openspec/ (без урахування регістру; збіг за ПОЧАТКОМ слова, тож
-//      «Контосо» ловить і «Контосо», і «Контосою», і «Контосо-офіс»).
+//      не трапляється в product/, openspec/, docs/, src/, supabase/, tests/ (без tests/scripts і tests/fixtures),
+//      README.md і AGENTS.md (без урахування регістру; збіг за ПОЧАТКОМ слова, тож
+//      «Контосо» ловить і «Контосо», і «Контосою», і «Контосо-офіс»; фраза ловиться й через перенос рядка,
+//      латинська літера-двійник замість кириличної — теж);
+//   5) у product/ немає «загубленої» копії локального denylist (denylist.local.txt.txt тощо): її не ігнорує
+//      .gitignore старих форків і не читає ця перевірка — STRAY-DENYLIST.
 // Код виходу: 0 — усе гаразд, 1 — є помилки.
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import {
   acIdOf,
@@ -27,7 +31,7 @@ import {
   walk,
 } from "./lib/spec-lib.mjs";
 
-const errors = { title: [], level: [], duplicate: [], changeDuplicate: [], denylist: [] };
+const errors = { title: [], level: [], duplicate: [], changeDuplicate: [], denylist: [], stray: [] };
 const specsDir = path.join(root(), "openspec", "specs");
 const changesDir = path.join(root(), "openspec", "changes");
 
@@ -46,7 +50,12 @@ for (const file of files) {
     }
     scenarioCount++;
     if (!acIdOf(s.title)) {
-      errors.title.push(`${where} — "${s.title}" не починається з AC-<AREA>-<NN> (напр. AC-LEAVE-01: …)`);
+      // Схоже на AC ID, але не він: кирилична літера-двійник, мала літера чи три цифри — підказуємо, що саме.
+      const nearMiss = /^\s*[AaАа][CcСс]-\p{L}{2,12}-\d+/u.test(s.title);
+      const hint = nearMiss
+        ? " — схоже на AC ID: AREA — 2–12 ВЕЛИКИХ ЛАТИНСЬКИХ літер (кириличні А, В, Е, І, К, М, Н, О, Р, С, Т, Х виглядають так само), NN — рівно дві цифри"
+        : "";
+      errors.title.push(`${where} — "${s.title}" не починається з AC-<AREA>-<NN> (напр. AC-LEAVE-01: …)${hint}`);
     }
   }
 }
@@ -170,6 +179,14 @@ const DENYLIST_FILES = [
   { file: "product/denylist.txt", secret: false },
   { file: "product/denylist.local.txt", secret: true },
 ];
+// 5. «Загублена» копія локального denylist: Провідник Windows із прихованими розширеннями дає
+//    denylist.local.txt.txt. Її не читає ця перевірка (лише точна назва), а старий .gitignore — не ігнорує.
+const productDir = path.join(root(), "product");
+const strayDenylists = existsSync(productDir)
+  ? readdirSync(productDir).filter((name) => name.startsWith("denylist.local") && name !== "denylist.local.txt")
+  : [];
+for (const name of strayDenylists) errors.stray.push(`product/${name} — перейменуйте на denylist.local.txt`);
+
 const words = []; // { word, source, secret }
 for (const { file, secret } of DENYLIST_FILES) {
   const full = path.join(root(), ...file.split("/"));
@@ -184,6 +201,17 @@ for (const raw of (process.env.SPEC_DENYLIST ?? "").split(/[\n,]/)) {
 }
 if (words.length) {
   const escape = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Латинські й кириличні літери-двійники рівноцінні: «Kонтосо» з латинською K ловиться як «Контосо».
+  // Транслітерацію (Kontoso) це не ловить — таку форму пишуть у denylist окремим рядком.
+  const TWINS = ["aа", "bв", "cс", "eе", "hн", "iі", "kк", "mм", "oо", "pр", "tт", "xх", "yу"];
+  const twinClass = new Map(TWINS.flatMap((pair) => [...pair].map((ch) => [ch, `[${pair}]`])));
+  const toPattern = (word) =>
+    word
+      .trim()
+      .split(/\s+/)
+      .map((part) => [...part].map((ch) => twinClass.get(ch.toLowerCase()) ?? escape(ch)).join(""))
+      // Пробіли всередині фрази — будь-які, зокрема перенесення рядка у відформатованому markdown.
+      .join("\\s+");
   const secretIndex = new Map(); // джерело → лічильник
   const patterns = words.map(({ word, source, secret }) => {
     const n = (secretIndex.get(source) ?? 0) + 1;
@@ -191,24 +219,37 @@ if (words.length) {
     return {
       // Збіг за початком слова (без межі в кінці): у тексті українською назви відмінюються,
       // тож «Контосо» має ловити й «Контосою». Ціна — «Контосовіль» теж збіг (перефразуйте).
-      re: new RegExp(`(?<![\\p{L}\\p{N}])${escape(word)}`, "iu"),
+      re: new RegExp(`(?<![\\p{L}\\p{N}])${toPattern(word)}`, "giu"),
       // Секретні значення не друкуємо — лише номер слова в його джерелі.
       label: secret ? `слово #${n} із ${source}` : `"${word}"`,
     };
   });
   const denylistPaths = new Set(DENYLIST_FILES.map((d) => d.file));
+  // Не лише спека: розробник пише назви в docs/, коді, сидах і тестах. Не скануємо lock-файли (base64-хеші
+  // дають хибні збіги), бінарні файли, згенеровані типи й тести самих скриптів (tests/scripts, tests/fixtures:
+  // там слова denylist навмисно).
+  const skipScan = (r) =>
+    denylistPaths.has(r) ||
+    /^product\/denylist\.local/.test(r) ||
+    /(^|\/)(node_modules|\.next|\.git|\.temp)(\/|$)/.test(r) ||
+    /^tests\/(fixtures|scripts)(\/|$)/.test(r) ||
+    r === "src/lib/supabase/database.types.ts" ||
+    /\.(png|jpe?g|gif|webp|ico|svg|pdf|lock)$/i.test(r) ||
+    /(^|\/)package-lock\.json$/.test(r);
+  const SCAN_DIRS = ["product", "openspec", "docs", "src", "supabase", "tests"];
   const scanned = [
-    ...walk(path.join(root(), "product"), { skip: (r) => denylistPaths.has(r) }),
-    ...walk(path.join(root(), "openspec")),
+    ...SCAN_DIRS.flatMap((d) => walk(path.join(root(), d), { skip: skipScan })),
+    ...["README.md", "AGENTS.md"].map((f) => path.join(root(), f)).filter((f) => existsSync(f)),
   ];
   for (const file of scanned) {
-    readText(file)
-      .split("\n")
-      .forEach((line, i) => {
-        for (const p of patterns) {
-          if (p.re.test(line)) errors.denylist.push(`${rel(file)}:${i + 1} — ${p.label}`);
-        }
-      });
+    // Увесь файл, а не рядок за рядком: фраза могла перенестися на інший рядок. М'який перенос і символи
+    // нульової ширини прибираємо, &nbsp; вважаємо пробілом (переноси рядків лишаються — номери рядків точні).
+    const text = readText(file).replace(/[\u00AD\u200B-\u200D\u2060]/g, "").replace(/&nbsp;/gi, " ");
+    for (const p of patterns) {
+      for (const m of text.matchAll(p.re)) {
+        errors.denylist.push(`${rel(file)}:${text.slice(0, m.index).split("\n").length} — ${p.label}`);
+      }
+    }
   }
 }
 
@@ -222,6 +263,7 @@ printList("BAD-LEVEL: неправильний рівень заголовка �
 printList("DUPLICATE: AC ID повторюється в openspec/specs", errors.duplicate);
 printList("DUPLICATE-CHANGE: активна зміна дасть дубль AC ID після archive", errors.changeDuplicate);
 printList("DENYLIST: заборонене слово (анонімізація)", errors.denylist);
+printList("STRAY-DENYLIST: копія локального denylist з іншою назвою (її могли закомітити)", errors.stray);
 if (total) {
   console.log(`\nFAIL: помилок — ${total}.`);
   process.exit(1);

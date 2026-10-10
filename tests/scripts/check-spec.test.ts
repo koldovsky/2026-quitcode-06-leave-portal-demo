@@ -74,6 +74,37 @@ describe("scripts/check-spec.mjs", () => {
     expect(out).toContain("слів у denylist: 3");
   });
 
+  it("catches wrapped phrases, look-alike letters, &nbsp; and soft hyphens, also in docs/ and src/", () => {
+    const { code, out } = run("denylist-forms");
+    expect(code).toBe(1);
+    for (const where of [
+      'product/vision.md:3 — "Зразкова Школа"',
+      'product/vision.md:5 — "Contoso"',
+      'product/vision.md:6 — "Зразкова Школа"',
+      'product/vision.md:7 — "Зразкова Школа"',
+      'docs/notes.md:3 — "Contoso"',
+      'src/lib/x.ts:1 — "Contoso"',
+    ]) {
+      expect(out).toContain(where);
+    }
+    expect(out).not.toContain("product/vision.md:8");
+    expect(out).not.toContain("tests/scripts/self.test.ts");
+  });
+
+  it("reports a stray copy of the local denylist (denylist.local.txt.txt)", () => {
+    const { code, out } = run("denylist-forms");
+    expect(code).toBe(1);
+    expect(out).toContain("STRAY-DENYLIST");
+    expect(out).toContain("product/denylist.local.txt.txt — перейменуйте на denylist.local.txt");
+  });
+
+  it("hints at Cyrillic look-alikes and the two-digit rule for near-miss AC IDs", () => {
+    const { code, out } = run("near-miss-title");
+    expect(code).toBe(1);
+    expect(out).toContain("BAD-TITLE");
+    expect(out.match(/схоже на AC ID/g)?.length).toBe(2);
+  });
+
   it("passes in a directory without openspec/", () => {
     const { code } = runScript("check-spec.mjs", path.join(fixtures, "ac-coverage", "empty"));
     expect(code).toBe(0);
