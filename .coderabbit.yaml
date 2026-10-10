@@ -69,7 +69,7 @@ reviews:
   path_instructions:
     - path: "supabase/migrations/**"
       instructions: |
-        Міграція Postgres для Supabase (з 30.10.2026 автогрантів немає). Для КОЖНОЇ нової таблиці в public
+        Міграція Postgres для Supabase (нові проєкти — без автогрантів уже, усі — з 30.10.2026). Для КОЖНОЇ нової таблиці в public
         перевір у тому ж файлі: `alter table … enable row level security`; `revoke all … from anon, authenticated`;
         явні `grant` лише на потрібні операції (і `service_role`, якщо таблицю пишуть серверні скрипти);
         окрема політика на кожну операцію (select / insert / update / delete) з явним `to authenticated`;

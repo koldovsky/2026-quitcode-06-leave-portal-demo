@@ -30,8 +30,7 @@
 - **Специфікація:** OpenSpec (`openspec/`) з правилами формату в `openspec/config.yaml`; продуктовий
   контекст PM — `product/`; AC ID наскрізно: спека → назва тесту → `docs/conformance.md`.
 - **Агенти:** `AGENTS.md` (+ `CLAUDE.md` = `@AGENTS.md`), команди `/opsx:*` і `/conformance`, скіли
-  `spec-clarify` (розробник) і `spec-review` (PM) — однаково в Claude Code і Cursor; `.mcp.json` з Supabase MCP
-  лише на читання; `.claude/settings.json` забороняє читати `.env*` і деструктивні команди Supabase CLI.
+  `spec-clarify` (розробник) і `spec-review` (PM) — однаково в Claude Code і Cursor; `.mcp.json` (Supabase MCP лише на читання) і `.claude/settings.json` (заборона читати `.env*` і запускати деструктивні команди Supabase CLI) діють лише в Claude Code — Cursor цих файлів не читає (див. AGENTS.md, «Секрети»).
 - **Ворота:** GitHub Actions (`spec`, `app`, `conformance` у форках, `db` у форках із секретами),
   шаблон PR, форма issue «Питання до специфікації», `.coderabbit.yaml`.
 
@@ -39,7 +38,7 @@
 |---|---|
 | Правила й команди | `AGENTS.md`, `CLAUDE.md`, `.claude/commands/`, `.cursor/commands/` |
 | Скіли | `.claude/skills/` (Cursor читає цю ж теку) |
-| MCP з мінімальними правами | `.mcp.json`, `.claude/settings.json` |
+| MCP з мінімальними правами | `.mcp.json`, `.claude/settings.json` (лише Claude Code) |
 | Специфікації | `product/`, `openspec/`, `scripts/check-*.mjs`, `docs/conformance.md` |
 
 ## Модель репозиторіїв
@@ -53,6 +52,8 @@
 
 Розробник змінює специфікацію лише PR-ом в upstream або питанням (issue `spec-question`).
 Нову версію спеки забирає у форк гілкою `sync/spec-vX.Y`.
+
+**Звичайний клієнтський проєкт (один репозиторій).** Код і спека живуть разом, форків немає: задайте змінну репозиторію `APP_REPO=true` — тоді CI запускає `conformance` (покриття AC) і `db` у цьому репозиторії; `.spec-source` не заповнюйте (крок `spec:source` пропускається з попередженням). Поведінку змінної в умові job звіряємо на репетиції.
 
 ## Перед початком (PM і розробники)
 
@@ -68,7 +69,7 @@
 1. **Upstream.** На сторінці шаблону — **Use this template → Create a new repository**, власник — ваш акаунт,
    назва — слаг команди, **Public**. Settings → Rules → Rulesets: для `main` — Require a pull request,
    Require status checks (`spec`, `app`).
-2. **Продукт.** Заповніть `product/vision.md`, `glossary.md`, `roles.md` (матриця прав), `roadmap.md`.
+2. **Продукт.** У гілці `product/context` (прямі коміти в `main` ruleset відхиляє) заповніть `product/vision.md`, `glossary.md`, `roles.md` (матриця прав), `roadmap.md` → `npm run spec:check` → PR → merge.
    Справжні назви клієнта — не в файли репозиторію, а в локальний `product/denylist.local.txt` (у `.gitignore`;
    `npm run spec:check` читає його, але значень не друкує) і в секрет `SPEC_DENYLIST` (Settings → Secrets and
    variables → Actions) для CI. Але CI у PR із форків (пропозиції розробників) секретів не отримує: там `spec:check`
@@ -79,6 +80,7 @@
 3. **Перший зріз.** `npm ci`, `openspec --version` = `1.14.1` (див. «Перед початком»), потім у Claude Code
    `/opsx:propose <опис зрізу>` (у Cursor `/opsx-propose`) або вручну: `npx openspec new change add-<зріз>` → `proposal.md` + `specs/<capability>/spec.md`.
    Формат (вимоги EARS з SHALL, `#### Scenario: AC-<AREA>-<NN> …`) агент бере з `openspec/config.yaml`.
+   `/opsx:propose` (у Cursor `/opsx-propose`) за своєю інструкцією генерує всі артефакти зміни, зокрема `design.md` і `tasks.md` (як реалізувати). У зміні PM їх не лишаємо — це робота розробника у форку: додайте до запиту «пиши лише proposal.md і specs/, без design.md і tasks.md», а якщо агент їх усе ж створив — видаліть обидва файли до коміту.
 4. **Перевірка.** `npm run spec:validate`, `npm run spec:check`, скіл `spec-review`.
 5. **Реліз.** Гілка зміни (`spec/add-<зріз>`) → PR → рев'ю команди → у тій самій гілці, **до merge**,
    `npx openspec archive add-<зріз> -y` і запис у `product/CHANGELOG.md` (ruleset не пускає прямі коміти в `main`) →
@@ -93,6 +95,7 @@
    `git clone https://github.com/<я>/<team-repo>.git` → `gh repo set-default <я>/<team-repo>`
    (інакше `gh pr create` цілить в upstream) → `git remote add upstream https://github.com/<pm>/<team-repo>.git`.
    Ruleset на `main` (PR + статуси `spec`, `app`, `conformance`).
+   Форк зроблено вже після тегу `spec-v0.1`? До ruleset вирівняйте `main` форку з останнім тегом PM: `git fetch upstream --tags` → `git reset --hard <останній тег>` → `git push --force-with-lease origin main`; крок 6 робіть одразу з цим тегом.
 2. **Залежності:** Node 24 (`node -v`), `openspec --version` = `1.14.1` (див. «Перед початком»), `npm ci`,
    `npm run typecheck`, `npm test`.
 3. **Supabase** (власна організація, не через Vercel Marketplace): створіть проєкт; в налаштуваннях
@@ -113,10 +116,10 @@
    **Перший PR у форку — `docs/bootstrap.md`** (докази бутстрапу, день 0–1, без значень секретів): CI зелений
    (`spec`, `app`, `conformance`), preview відкривається. Тестів з AC ID у назвах у ньому ще немає.
 6. **Перша версія спеки.** Форк зроблено до тегу `spec-v0.1` (якщо вже після нього — цей крок робіть до PR
-   бутстрапу, а `docs/bootstrap.md` закомітьте в ту саму гілку `sync/spec-v0.1`: окремий PR бутстрапу впаде на
+   бутстрапу, а `docs/bootstrap.md` закомітьте в ту саму гілку `sync/<останній тег>`: окремий PR бутстрапу впаде на
    `conformance` з `NO-ROW`), тож забирайте її тим самим потоком, що й кожну наступну (крок 8): `git fetch upstream --tags` →
-   `git switch -c sync/spec-v0.1` → `git merge spec-v0.1` →
-   розкоментуйте `.spec-source` (`upstream: <pm>/<team-repo>`, `version: spec-v0.1`) → `npm run spec:source` (OK) →
+   `git switch -c sync/spec-v0.1` → `git merge --no-edit spec-v0.1` →
+   розкоментуйте `.spec-source` (`upstream: <pm>/<team-repo>`, `version: spec-v0.1`) → `npm run spec:source` (OK, не SKIP) → коміт `.spec-source` і `docs/` →
    рядок у `docs/conformance.md` для кожного AC (ще не зроблене — `відкладено (причина)`) → `npm run ac:coverage` →
    PR у форку, злитий кнопкою **Create a merge commit** (не Squash і не Rebase: тег має бути в історії `main`,
    інакше наступна синхронізація дасть конфлікти в `product/`). Потім скіл `spec-clarify` → питання як issues в upstream → журнал у `docs/spec-reading.md`.
@@ -126,10 +129,9 @@
    до нього `npm run ac:coverage` падає з ORPHAN, бо таких AC в `openspec/specs/` форку ще немає.
    В останньому PR зрізу, **до merge**, `npx openspec archive impl-<зріз> -y`
    у тій самій гілці (ruleset не пускає прямі коміти в `main`) → merge.
-8. **Нова версія спеки:** `git fetch upstream --tags` → `git switch -c sync/spec-v0.2` → `git merge spec-v0.2` →
+8. **Нова версія спеки:** `git fetch upstream --tags` → `git switch -c sync/spec-v0.2` → `git merge --no-edit spec-v0.2` →
    оновити `.spec-source` → нові AC у `docs/conformance.md` → PR → **Create a merge commit**. Якщо попередній
-   sync-PR злили squash-ем і merge дав конфлікти в `product/` чи `openspec/specs/`, беріть версію тегу:
-   `git checkout --theirs -- product openspec/specs`.
+   sync-PR злили squash-ем і merge дав конфлікти в `product/` чи `openspec/specs/`, беріть версію тегу й завершіть merge: `git checkout --theirs -- product openspec/specs` → `git add product openspec/specs` → `git commit --no-edit`.
 
 ## Перевірки
 
@@ -137,9 +139,9 @@
 |---|---|
 | `npm run lint` / `typecheck` / `test` / `build` | ESLint без попереджень, типи (`next typegen` + `tsc`), Vitest, збірка з `ƒ Proxy (Middleware)` |
 | `npm run spec:validate` | `openspec validate --all --strict` — структура специфікацій |
-| `npm run spec:check` | AC ID на початку кожного `#### Scenario:`; унікальність у `openspec/specs` і після archive кожної активної зміни; denylist (за початком слова, тож ловить відмінки) |
-| `npm run ac:coverage` | кожен AC має рядок у `docs/conformance.md`; статус дослівно «реалізовано» або «відкладено (причина)»; «реалізовано» має непропущений і не закоментований тест з ID у назві; тести не посилаються на неіснуючі AC |
-| `npm run spec:source` | у форку `product/` і `openspec/specs/` збігаються з тегом upstream із `.spec-source` |
+| `npm run spec:check` | AC ID на початку кожного `#### Scenario:`; унікальність у `openspec/specs` і після archive кожної активної зміни; denylist у `product/`, `openspec/`, `docs/`, `src/`, `supabase/`, `tests/`, README і AGENTS (за початком слова, тож ловить відмінки; фразу — і через перенос рядка; латинські літери-двійники кириличних — теж; транслітерацію пишіть окремим рядком); загублена копія `denylist.local.txt.txt` |
+| `npm run ac:coverage` | кожен AC має рядок у `docs/conformance.md`; статус дослівно «реалізовано» або «відкладено (причина)»; «реалізовано» має непропущений тест у `*.test.ts(x)` у `src/` чи `tests/` (їх запускає `npm test`), назва якого починається з ID; шляхи з колонок «Код»/«Тест» існують; тести не посилаються на неіснуючі AC |
+| `npm run spec:source` | у форку `product/` і `openspec/specs/` збігаються з тегом upstream із `.spec-source`; у CI форку закоментований `.spec-source` (коли спека вже є) або `upstream:` = сам форк — FAIL; новіший тег в upstream — попередження |
 
 ## Як цей шаблон зібрано з нуля
 
@@ -164,9 +166,9 @@ npm pkg set engines.node=24.x scripts.lint="eslint --max-warnings 0" \
   scripts.db:push="supabase db push" \
   scripts.db:types="supabase gen types typescript --linked > src/lib/supabase/database.types.ts" \
   scripts.users:demo="node --env-file=.env.local scripts/create-demo-users.mjs"
-printf '\n!.env.example\n/product/denylist.local.txt\n' >> .gitignore
+printf '\n!.env.example\n/product/denylist.local*\n' >> .gitignore
 # !.env.example — .env.example комітимо (правило після `.env*` скасовує його для цього файлу);
-# /product/denylist.local.txt — справжні назви клієнтів для spec:check лише локально
+# /product/denylist.local* — справжні назви клієнтів для spec:check лише локально (зірочка ловить і denylist.local.txt.txt, якщо Провідник приховав розширення)
 printf '* text=auto eol=lf\n*.ico binary\n*.png binary\n' > .gitattributes
 
 # 3. Supabase: конфіг і міграція
@@ -208,5 +210,5 @@ npm run spec:validate && npm run spec:check && npm run ac:coverage && npm run sp
 - `--no-cache-components`: з Cache Components за замовчуванням (16.4) офіційний патерн Supabase для захищеної
   сторінки не збирається; `proxy.ts` з `--src-dir` має лежати в `src/`, інакше його мовчки ігнорують.
 - `setAll(cookies, headers)` у `src/lib/supabase/proxy.ts` копіює заголовки кешування у відповідь (`@supabase/ssr` ≥ 0.10).
-- `auto_expose_new_tables = false`: як у хмарі, де з 30.10.2026 немає автогрантів на нові таблиці.
+- `auto_expose_new_tables = false`: як у хмарі — нові проєкти без автогрантів приблизно з 30.05.2026, усі — з 30.10.2026.
 - Профіль OpenSpec зберігається на машині, а не в репозиторії, тому згенеровані `.claude/` і `.cursor/` закомічені.

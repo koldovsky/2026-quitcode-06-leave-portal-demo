@@ -5,6 +5,7 @@
       "Read(.env)",
       "Read(.env.*)",
       "Read(!.env.example)",
+      "Read(product/denylist.local*)",
       "Bash(*supabase db reset*--linked*)",
       "Bash(*supabase db reset*--db-url*)",
       "Bash(*supabase migration down*--linked*)",

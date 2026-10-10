@@ -20,7 +20,7 @@ max_rows = 1000
 # `postgres` are reachable through the Data API roles (`anon`, `authenticated`, `service_role`)
 # without explicit GRANTs, matching the cloud default. Set to `false` to require explicit GRANTs
 # instead. Left unset, a fresh project falls back to `true`.
-# ШАБЛОН: false — як у хмарі (з 30.10.2026 автогрантів немає в жодному проєкті).
+# ШАБЛОН: false — як у хмарі (нові проєкти без автогрантів приблизно з 30.05.2026, усі — з 30.10.2026).
 # Кожна міграція сама дає GRANT, вмикає RLS і пише політики. Перевірено на CLI 2.120.0:
 # невалідне значення → CliConfigParseError, false — приймається.
 auto_expose_new_tables = false
