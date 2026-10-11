@@ -1,6 +1,6 @@
 # Таксономія неоднозначностей специфікації
 
-Адаптовано з протоколу `/speckit-clarify` (GitHub Spec Kit) під наш процес: OpenSpec + PM в upstream +
+Адаптовано з протоколу `/speckit-clarify` ([GitHub Spec Kit](https://github.com/github/spec-kit), MIT License, Copyright GitHub, Inc.) під наш процес: OpenSpec + PM в upstream +
 розробники у форках. Використовують обидва скіли: `spec-clarify` (розробник) і `spec-review` (PM).
 
 Для кожної категорії постав статус: **Ясно** / **Частково** / **Немає**. Питання варте уваги, лише якщо

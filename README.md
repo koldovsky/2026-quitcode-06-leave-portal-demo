@@ -247,3 +247,8 @@ npm run spec:validate && npm run spec:check && npm run ac:coverage && npm run sp
 | Дата | SHA | Що виправлено | Чіпає `product/`? |
 |---|---|---|---|
 | — | — | поки немає | — |
+
+## Ліцензія
+
+MIT — див. [LICENSE](LICENSE): шаблон можна вільно брати для власних і клієнтських проєктів. Протокол уточнень у
+`.claude/skills/spec-clarify` адаптовано з [GitHub Spec Kit](https://github.com/github/spec-kit) (MIT, Copyright GitHub, Inc.).

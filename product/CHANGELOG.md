@@ -34,3 +34,7 @@ git switch main && git pull → git tag spec-vX.Y → git push origin spec-vX.Y.
   чи схваленою → `OVERLAPPING_REQUEST`)
 - REMOVED: —
 - Відповіді на питання: Q1 (#1), Q2 (#2), Q3 (#3), Q4 (#4), Q5 (#5) — `product/decisions.md`
+
+## spec-v0.2.1 — 2026-10-11
+- Тег-виправлення, поведінка не змінилась: оновлено коментарі-підказки в `product/` (порядок зміни ролей у `roles.md`, локальний denylist у `denylist.txt`, повний порядок релізу в цьому файлі).
+- Синхронізуйте форк на цей тег, щоб `npm run spec:source` бачив `product/` таким, як в upstream.
