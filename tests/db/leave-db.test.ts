@@ -50,6 +50,33 @@ describe("База: подання заявки", () => {
   });
 });
 
+describe("База: правила подання (останні ворота за server action)", () => {
+  // Прямий виклик RPC із власною сесією — так, як його можна зробити з публічним ключем у бандлі.
+  const submitError = (userId: string, start: string, end: string) =>
+    submitAllPositions(userId, start, end).then(
+      () => "",
+      (e: Error) => e.message,
+    );
+
+  it("AC-LEAVE-03: функція подання відхиляє діапазон, де кінець раніше за початок", async () => {
+    expect(await submitError(TEACHER2, "2026-11-25", "2026-11-24")).toContain("INVALID_RANGE");
+  });
+
+  it("AC-LEAVE-10: функція подання відхиляє діапазон лише із заблокованих днів", async () => {
+    expect(await submitError(TEACHER2, "2026-11-05", "2026-11-05")).toContain("ONLY_BLOCKED_DAYS");
+  });
+
+  it("AC-LEAVE-11: функція подання відхиляє перетин із власною заявкою на розгляді", async () => {
+    await submitAllPositions(TEACHER2, "2026-11-20", "2026-11-21");
+    expect(await submitError(TEACHER2, "2026-11-21", "2026-11-22")).toContain("OVERLAPPING_REQUEST");
+    const [{ n }] = await t.asService<{ n: number }>(
+      "select count(*)::int as n from public.leave_requests where employee_id = $1 and start_date = '2026-11-21'",
+      [TEACHER2],
+    );
+    expect(n).toBe(0);
+  });
+});
+
 describe("База: черги й рішення", () => {
   it("AC-LEAVE-05: запис основної посади — у черзі менеджера «Математики», додаткової — у черзі «Початкової школи»", async () => {
     const id = await submitAllPositions(TEACHER, "2026-11-10", "2026-11-11");

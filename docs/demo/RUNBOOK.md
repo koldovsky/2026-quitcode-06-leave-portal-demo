@@ -110,15 +110,15 @@
      й у хмарі (за кодом GoTrue — так; звіряємо на репетиції, крок 1.5). Точне місце перемикача в Dashboard
      звіряємо на репетиції. Локально те саме задає `[auth] enable_signup = false` у `supabase/config.toml`;
      користувачі — лише через `npm run users:demo`.
-3. Прив'язати й застосувати міграції та сид — **в основній теці на `main`** (усі 5 міграцій; прив'язка
+3. Прив'язати й застосувати міграції та сид — **в основній теці на `main`** (усі 6 міграцій; прив'язка
    зберігається в `supabase/.temp`, який у `.gitignore`, тож діє лише в цій теці):
 
    ```bash
    cd D:/projects/clients/quitcode/2026-quitcode-06-leave-portal-demo && git switch main
    npx supabase login
    npx supabase link --project-ref <ref>          # спитає пароль БД
-   npx supabase db push --dry-run --include-seed  # має показати 5 міграцій і seed.sql
-   npx supabase db push --include-seed            # 20261012…, 20261013…, 20261016…, 20261017…, 20261018… + підрозділи й 05.11.2026
+   npx supabase db push --dry-run --include-seed  # має показати 6 міграцій і seed.sql
+   npx supabase db push --include-seed            # 20261012…, 20261013…, 20261016…, 20261017…, 20261018…, 20261019… + підрозділи й 05.11.2026
    ```
 
    Точний текст виводу CLI 2.120 перевіряємо на репетиції. Повторний `db push --dry-run` має сказати,
@@ -210,7 +210,7 @@ git switch main   # основна тека лишається на main (дем
   Точний текст помилки фіксуємо на репетиції.
 - **Знімки для Планів Б** — зробити на репетиції й зберегти поза репозиторієм (наприклад, `D:/projects/clients/quitcode/demo-shots/`),
   перед заняттям відкрити у вкладках: демо 1 — крок 5 (`openspec validate add-leave-request --strict`) і крок 6а
-  (звіт `spec-review`); демо 3 — крок 6 (Dashboard → Database → Migrations, п'ять міграцій), крок 7 (Vercel →
+  (звіт `spec-review`); демо 3 — крок 6 (Dashboard → Database → Migrations, шість міграцій), крок 7 (Vercel →
   Environment Variables, лише назви, і Deployment Protection), крок 8 (PR `demo/first-pr`: зелені `spec`, `app`,
   skipped `conformance`). На знімках — лише демо-акаунт, без клієнтських організацій у перемикачах.
   Прогонів CI на тегах немає (CI запускають лише PR, push у `main` і ручний запуск): для Плану Б — прогін
@@ -224,7 +224,7 @@ git switch main   # основна тека лишається на main (дем
 #### Факти репетиції 11.10.2026 (CLI 2.120.0, Vercel CLI 59.25.0)
 
 - `npx supabase projects create … --org-id … --region eu-central-1` — проєкт `ACTIVE_HEALTHY` приблизно за хвилину.
-- `db push --dry-run --include-seed` показує 5 міграцій і `supabase/seed.sql`; `db push --include-seed` питає
+- `db push --dry-run --include-seed` показав 5 міграцій і `supabase/seed.sql` (шоста, `20261019…`, з'явилась після репетиції — див. останній пункт); `db push --include-seed` питає
   `[Y/n]` двічі (міграції, потім сид) і застосовує все без помилок.
 - `npx supabase projects api-keys` **маскує** секретний ключ (`sb_secret_…` з `·`): з таким ключем `users:demo`
   падає з «Invalid API key». Беріть ключ у Dashboard (Project Settings → API Keys) або `api-keys --reveal`.
@@ -233,6 +233,14 @@ git switch main   # основна тека лишається на main (дем
 - `vercel link` дописує в `.env.local` `VERCEL_OIDC_TOKEN`, а в кінець `.gitignore` — `.vercel` і `.env*`
   (останній рядок знову ховає `.env.example`): `git checkout -- .gitignore` після нього.
 - Змінні, додані через `vercel env add`, мають тип Config; для двох `NEXT_PUBLIC_…` це правильно.
+- Новий Hobby-проєкт Vercel: `ssoProtection: all_except_custom_domains` — preview й адреси деплоїв за входом у Vercel,
+  прод-аліас `*.vercel.app` відкривається всім. Вимкнути — Settings → Deployment Protection (крок 1.3.3).
+- Реєстрацію вимкнено: самостійна реєстрація з публічним ключем → `422 signup_disabled` («Signups not allowed for this
+  instance»); повторний `npm run users:demo` (Admin API) проходить.
+- **RLS на справжньому Postgres** (скрипт синтетичними користувачами): чужі заявки не видно, власний запис не
+  схвалити, запис чужого підрозділу не змінити, роль собі не підвищити, заявку без записів не зберегти, anon нічого не
+  бачить, повернення без коментаря відхилено. **Знайдено:** прямий виклик RPC обходив AC-LEAVE-10/11 (перевірки були
+  лише в server action) → міграція `20261019000000_enforce_leave_rules_in_db.sql` (зміна `harden-leave-rules-db`).
 
 ### 1.6 Чекліст за годину до заняття
 
@@ -320,7 +328,7 @@ git show demo-02-clarify~2:docs/spec-reading.md | sed -n '/^## Скан за т�
 | 3 (якщо є час) | `npx vitest run -t "AC-LEAVE-0"` | 15 тестів з AC ID у назвах, решта skipped — усі зелені | `npm test` |
 | 4 (якщо є час) | `npm run ac:coverage` | `AC у специфікаціях: 9 … «реалізовано»: 9 … OK` | `docs/conformance.md` на тезі `demo-03-impl` |
 | 5 (якщо є час) | `npm run build` | рядок `ƒ Proxy (Middleware)` | збірка довша за 1 хв — показати лог збірки на Vercel (Deployments → Build Logs) |
-| 6 | **Основна тека на `main`** (не `lp-demo-03-impl`: там немає прив'язки `supabase/.temp` і лише 2 з 5 міграцій): `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції). Підказку CLI `migration repair` **не виконувати** (крок 1.2.3) | скрін Dashboard → Database → Migrations |
+| 6 | **Основна тека на `main`** (не `lp-demo-03-impl`: там немає прив'язки `supabase/.temp` і лише 2 з 6 міграцій): `npx supabase db push --dry-run` | віддалена база актуальна (текст — з репетиції). Підказку CLI `migration repair` **не виконувати** (крок 1.2.3) | скрін Dashboard → Database → Migrations |
 | 7 | Vercel → Project → Environment Variables (лише назви), Deployment Protection вимкнено | — | скрін |
 | 8 | GitHub: PR `demo/first-pr` (крок 1.4) — зелені `spec`, `app`, preview від Vercel. Сказати: у форку учасника перший PR — `docs/bootstrap.md`, тести з AC ID — після PR `sync/spec-v0.1` (інакше ORPHAN) | `conformance` skipped: у цьому репозиторії (не форк) job вимкнено умовою `if: github.event.repository.fork \|\| vars.APP_REPO == 'true'` (змінну `APP_REPO` у демо-репо не задано) у `ci.yml`; у форку учасника зелені всі три — `spec`, `app`, `conformance` | скрін PR |
 | 9 (якщо є час) | Прод-URL: `teacher@` → «Подати заявку», відпустка 10.11–11.11.2026, обидві посади | «Заявку подано»; у «Мої заявки» — два записи «на розгляді» | в основній теці на `main` (лише там є `.env.local`): `npm run dev` → http://localhost:3000 |
@@ -375,7 +383,7 @@ PM, який не встиг, робить цей крок одразу післ
 Схему й політики перевірено на PGlite з емульованими ролями Supabase (`anon`, `authenticated`,
 `service_role`, `auth.uid()`): видимість за ролями, черги за підрозділом, заборона самосхвалення й
 самопідвищення ролі, обов'язковий коментар, повторне подання. На `main` це автоматичний тест у `npm test` і CI —
-`tests/db/leave-db.test.ts` (усі 5 міграцій + сид; зміни `harden-leave-db` і `harden-manager-reads`); він же перевіряє, що заявку без
+`tests/db/leave-db.test.ts` (усі 6 міграцій + сид; зміни `harden-leave-db`, `harden-manager-reads` і `harden-leave-rules-db`); він же перевіряє, що заявку без
 записів база відхиляє (`REQUEST_WITHOUT_RECORDS`). На тегах `demo-*` тестів бази ще немає, а заявку без записів
 там можна вставити напряму через Data API — саме це й закриває `harden-leave-db`. На справжньому проєкті
 Supabase — перевіряємо на репетиції (крок 1.5).
