@@ -182,7 +182,7 @@ git switch -c demo/first-pr main
 
 ```bash
 npm test && git commit -am "Cover past start dates for AC-LEAVE-01" && git push -u origin demo/first-pr
-gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --fill
+gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --web   # не --fill: він пропускає шаблон PR
 git switch main   # основна тека лишається на main (демо 3, крок 6; План Б кроків 9–10)
 ```
 
@@ -241,6 +241,15 @@ git switch main   # основна тека лишається на main (дем
   схвалити, запис чужого підрозділу не змінити, роль собі не підвищити, заявку без записів не зберегти, anon нічого не
   бачить, повернення без коментаря відхилено. **Знайдено:** прямий виклик RPC обходив AC-LEAVE-10/11 (перевірки були
   лише в server action) → міграція `20261019000000_enforce_leave_rules_in_db.sql` (зміна `harden-leave-rules-db`).
+- **CodeRabbit** на PR #6: конфіг із репозиторію застосовано (рев'ю українською, 6 наших custom checks, перевірки
+  docstrings немає). Опис PR не за шаблоном → попередження «Description check»; назви checks CodeRabbit
+  показує з власною капіталізацією («тип Pr і межі змін») — це косметика.
+- **Форк у koldovsky-org:** Actions у новому форку вимкнені, доки людина не натисне «I understand my workflows, go ahead
+  and enable them» на вкладці Actions (API для цього немає); до того PR у форку без перевірок. Ruleset-и з
+  `materials/rulesets/*.json` домашки ставляться `gh api repos/<owner>/<repo>/rulesets --method POST --input <файл>`
+  (у Git Bash для шляхів, що починаються з `/`, — `MSYS_NO_PATHCONV=1`).
+- `spec:source` на форку проти справжнього upstream: OK на `spec-v0.2.1`; до виправлення шаблону відхиляв теги
+  `spec-vX.Y.Z` — виправлення пройшло шляхом «Оновлення шаблону» (cherry-pick, PR у форку).
 
 ### 1.6 Чекліст за годину до заняття
 
