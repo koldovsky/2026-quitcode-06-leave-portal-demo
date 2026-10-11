@@ -221,6 +221,19 @@ git switch main   # основна тека лишається на main (дем
   (записи видаляються каскадом; підрозділи, посади й користувачі лишаються), потім
   `select count(*) from public.leave_records;` → 0.
 
+#### Факти репетиції 11.10.2026 (CLI 2.120.0, Vercel CLI 59.25.0)
+
+- `npx supabase projects create … --org-id … --region eu-central-1` — проєкт `ACTIVE_HEALTHY` приблизно за хвилину.
+- `db push --dry-run --include-seed` показує 5 міграцій і `supabase/seed.sql`; `db push --include-seed` питає
+  `[Y/n]` двічі (міграції, потім сид) і застосовує все без помилок.
+- `npx supabase projects api-keys` **маскує** секретний ключ (`sb_secret_…` з `·`): з таким ключем `users:demo`
+  падає з «Invalid API key». Беріть ключ у Dashboard (Project Settings → API Keys) або `api-keys --reveal`.
+- У новому проєкті поруч із `sb_publishable_…`/`sb_secret_…` усе ще є legacy-ключі `anon` і `service_role` —
+  у `.env.local` беремо лише нові.
+- `vercel link` дописує в `.env.local` `VERCEL_OIDC_TOKEN`, а в кінець `.gitignore` — `.vercel` і `.env*`
+  (останній рядок знову ховає `.env.example`): `git checkout -- .gitignore` після нього.
+- Змінні, додані через `vercel env add`, мають тип Config; для двох `NEXT_PUBLIC_…` це правильно.
+
 ### 1.6 Чекліст за годину до заняття
 
 - [ ] Глобальний OpenSpec: `openspec --version` = `1.14.1` (інакше `/opsx:*` у демо 1 працюють зі старою версією;
