@@ -140,6 +140,24 @@ describe("scripts/check-spec-source.mjs", () => {
     expect(out).toContain("spec-v0.2");
   });
 
+  it("accepts a corrective tag spec-vX.Y.Z and still warns about a newer release", () => {
+    git(upstream, "tag", "spec-v0.1.1", "spec-v0.1"); // виправлення на тому ж стані, що й форк
+    write(fork, ".spec-source", "upstream: pm-owner/team-repo\nversion: spec-v0.1.1\n");
+    const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo" });
+    expect(code).toBe(0);
+    expect(out).toContain("OK");
+    expect(out).toContain("УВАГА");
+    expect(out).toContain("spec-v0.2");
+  });
+
+  it("treats spec-vX.Y.Z as newer than spec-vX.Y", () => {
+    git(upstream, "tag", "spec-v0.2.1");
+    write(fork, ".spec-source", "upstream: pm-owner/team-repo\nversion: spec-v0.1\n");
+    const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo" });
+    expect(code).toBe(0);
+    expect(out).toContain("spec-v0.2.1");
+  });
+
   it("fails when the tag does not exist upstream", () => {
     write(fork, ".spec-source", "upstream: pm-owner/team-repo\nversion: spec-v9.9\n");
     const { code, out } = run(fork, { GITHUB_REPOSITORY: "dev-owner/team-repo" });
