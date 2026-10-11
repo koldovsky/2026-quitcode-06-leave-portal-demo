@@ -88,7 +88,8 @@ if (!upstream && !version) {
   skip(".spec-source порожній або закоментований (upstream PM або форк до першого релізу спеки).", { requiredInFork: true });
 }
 if (!upstream || !/^[\w.-]+\/[\w.-]+$/.test(upstream)) fail(`у .spec-source потрібен рядок "upstream: <owner>/<repo>", а є "${upstream ?? ""}".`);
-if (!version || !/^spec-v\d+\.\d+$/.test(version)) fail(`у .spec-source потрібен рядок "version: spec-vX.Y", а є "${version ?? ""}".`);
+// spec-vX.Y — реліз; spec-vX.Y.Z — тег-виправлення (тег після push не переносимо, помилку виправляє новий тег).
+if (!version || !/^spec-v\d+\.\d+(\.\d+)?$/.test(version)) fail(`у .spec-source потрібен рядок "version: spec-vX.Y" (або spec-vX.Y.Z для тегу-виправлення), а є "${version ?? ""}".`);
 
 const own = ownRepo();
 if (own && own.toLowerCase() === upstream.toLowerCase()) {
@@ -141,12 +142,15 @@ console.log(`spec:source — OK: ${PATHS.join(" і ")} збігаються з $
 // Новіша версія спеки в upstream? Лише попередження (не помилка): синхронізація — окремим PR sync/spec-vX.Y,
 // а без цього рядка форк на старому тезі лишається зеленим і ніхто не помічає, що PM уже випустив нову версію.
 const num = (tag) => tag.replace(/^spec-v/, "").split(".").map(Number);
-const isNewer = (a, b) => (a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1]);
+const isNewer = (a, b) => {
+  for (let i = 0; i < 3; i++) if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) > (b[i] ?? 0);
+  return false;
+};
 try {
   const latest = git(["ls-remote", "--tags", "--refs", url, "refs/tags/spec-v*"])
     .split("\n")
     .map((line) => line.split("refs/tags/")[1]?.trim())
-    .filter((tag) => tag && /^spec-v\d+\.\d+$/.test(tag))
+    .filter((tag) => tag && /^spec-v\d+\.\d+(\.\d+)?$/.test(tag))
     .reduce((best, tag) => (isNewer(num(tag), num(best)) ? tag : best), version);
   if (latest !== version) {
     const msg =
