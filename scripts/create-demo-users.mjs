@@ -5,7 +5,7 @@
 // Портал відсутностей (міграція 20261013000000_leave_requests.sql) додає два необов'язкові поля:
 //   "manages": "MATH"                                         — менеджер підрозділу з цим кодом;
 //   "positions": [{ "kind": "main", "division": "MATH", "title": "…" }] — посади працівника.
-// Підрозділи створює сид (npx supabase db push --include-seed) — запускайте його ДО цього скрипта.
+// Підрозділи створює сид (job db-deploy: Actions → CI → Run workflow на main з include_seed) — ДО цього скрипта.
 //
 // Потрібні змінні (npm run users:demo читає .env.local через `node --env-file`):
 //   NEXT_PUBLIC_SUPABASE_URL  — адреса проєкту;
@@ -66,7 +66,7 @@ async function divisionId(code) {
   if (!divisionIds.has(code)) {
     const { data, error } = await supabase.from("divisions").select("id").eq("code", code).maybeSingle();
     if (error) throw error;
-    if (!data) throw new Error(`підрозділу ${code} немає — застосуйте сид: npx supabase db push --include-seed`);
+    if (!data) throw new Error(`підрозділу ${code} немає — застосуйте сид: Actions → CI → Run workflow на main з include_seed (job db-deploy)`);
     divisionIds.set(code, data.id);
   }
   return divisionIds.get(code);
@@ -148,7 +148,7 @@ for (const u of users) {
 
 if (failed) {
   console.error(
-    `\nПомилок: ${failed}. Перевірте, що міграції й сид застосовано (npx supabase db push --include-seed) і ключ — секретний (sb_secret_…).`,
+    `\nПомилок: ${failed}. Перевірте, що міграції й сид застосовано (job db-deploy у CI, запуск з include_seed) і ключ — секретний (sb_secret_…).`,
   );
   process.exit(1);
 }

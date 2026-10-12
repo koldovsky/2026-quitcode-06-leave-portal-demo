@@ -48,4 +48,4 @@
   Прийнятно для зрізу; якщо PM зробить це критичним — exclusion constraint або перевірка в
   `submit_leave_request`.
 - Власне припущення: перетин перевіряємо й під час повторного подання (AC-LEAVE-08), а не лише для нової
-  заявки, — записано в `docs/spec-reading.md`.
+  заявки, — записано в `docs/spec-reading/koldovsky.md`.

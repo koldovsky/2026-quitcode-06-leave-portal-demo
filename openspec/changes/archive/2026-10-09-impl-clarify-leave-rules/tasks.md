@@ -1,6 +1,6 @@
 # Tasks
 
-Синхронізація реалізації зі spec-v0.2. Перевірка кожної задачі — `npm test` і `npm run ac:coverage`.
+Оновлення реалізації до spec-v0.2. Перевірка кожної задачі — `npm test` і `npm run ac:coverage`.
 
 ## 1. Нові AC
 
