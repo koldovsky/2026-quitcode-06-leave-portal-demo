@@ -6,24 +6,16 @@
       "Read(.env.*)",
       "Read(!.env.example)",
       "Read(product/denylist.local*)",
+      "Bash(*supabase db push*)",
       "Bash(*supabase db reset*--linked*)",
       "Bash(*supabase db reset*--db-url*)",
       "Bash(*supabase migration down*--linked*)",
       "Bash(*supabase migration repair*)",
-      "Bash(*supabase db push*--include-all*)",
-      "Bash(*db:push*--include-all*)",
+      "PowerShell(*supabase db push*)",
       "PowerShell(*supabase db reset*--linked*)",
       "PowerShell(*supabase db reset*--db-url*)",
       "PowerShell(*supabase migration down*--linked*)",
-      "PowerShell(*supabase migration repair*)",
-      "PowerShell(*supabase db push*--include-all*)",
-      "PowerShell(*db:push*--include-all*)"
-    ],
-    "ask": [
-      "Bash(*supabase db push*)",
-      "Bash(npm run db:push*)",
-      "PowerShell(*supabase db push*)",
-      "PowerShell(npm run db:push*)"
+      "PowerShell(*supabase migration repair*)"
     ]
   }
 }

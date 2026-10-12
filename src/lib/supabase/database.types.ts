@@ -1,6 +1,5 @@
-// Типи схеми бази. Після `npm run db:push` перегенеруйте файл:
-//   npm run db:types
-// (supabase gen types typescript --linked). Ця версія написана вручну й описує таблиці з міграцій
+// Типи схеми бази. Оновлюйте разом із міграцією: готовий файл — у Summary прогону job db-check у CI
+// (supabase gen types typescript --local на одноразовій базі); або PM/техлід: npm run db:types (після supabase link). Ця версія написана вручну й описує таблиці з міграцій
 // 20261012000000_profiles_and_roles.sql, 20261013000000_leave_requests.sql і 20261016000000_leave_rules_v0_2.sql
 // (20261017000000_require_leave_records.sql додає тригер і перевірку ролі в політиці, 20261018000000_manager_helpers_require_role.sql —
 // перевірку ролі в хелперах черг; типи обидві не змінюють).

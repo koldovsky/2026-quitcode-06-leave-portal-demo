@@ -81,7 +81,7 @@ describe("scripts/check-spec.mjs", () => {
     expect(out).toContain('product/vision.md:5 — "Нортвінд"');
     expect(out).toContain('product/roadmap.md:3 — "Нортвінд"');
     expect(out).toContain('product/roadmap.md:4 — "Wide World Importers"');
-    expect(out).toContain('docs/spec-reading.md:3 — "Нортвінд"');
+    expect(out).toContain('docs/spec-reading/dev-login.md:3 — "Нортвінд"');
     expect(out).toContain('supabase/seed.sql:2 — "Wide World Importers"');
     expect(out).toContain('supabase/demo-users.json:2 — "Нортвінд"');
     expect(out).toContain('supabase/config.toml:2 — "Wide World Importers"');

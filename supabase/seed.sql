@@ -16,8 +16,8 @@
 --   on conflict (code) do update set name = excluded.name;
 
 -- ── Портал відсутностей: довідники (синтетичні) ──────────────────────────────────────────
--- Застосувати в хмарі: npx supabase db push --include-seed (перед npm run users:demo —
--- скрипт прив'язує менеджерів і посади до підрозділів за кодом).
+-- Застосувати в хмарі: job db-deploy — Actions → CI → Run workflow на main з include_seed (лише PM, перед
+-- npm run users:demo — скрипт прив'язує менеджерів і посади до підрозділів за кодом). Не з ноутбука.
 insert into public.divisions (code, name)
 values
   ('MATH', 'Математика'),

@@ -5,8 +5,8 @@ description: PM перед релізом перевіряє свою OpenSpec-�
 
 # spec-review — рев'ю специфікації PM перед релізом
 
-Ти допомагаєш **PM** в upstream перевірити OpenSpec-зміну до того, як вона піде розробникам
-(archive у гілці зміни → merge → тег `spec-vX.Y`). Мета — знайти те, що розробники прочитають по-різному.
+Ти допомагаєш **PM** у репозиторії команди перевірити OpenSpec-зміну до того, як вона піде розробникам
+(PR → рев'ю техліда → archive у гілці зміни → merge → тег `spec-vX.Y`). Мета — знайти те, що розробники прочитають по-різному.
 
 ## Межі
 
@@ -41,8 +41,10 @@ description: PM перед релізом перевіряє свою OpenSpec-�
 6. **Правки за згодою.** Спитай: «Виправити БЛОКЕРИ (№…)? Інші?» Вносити лише підтверджене;
    після правок знову запусти `npx openspec validate <id> --strict` і `npm run spec:check`.
 7. **Готовність до релізу.** Підсумуй: блокерів 0? Open questions закрито або свідомо відкладено?
-   Далі PM: гілка зміни → PR → рев'ю команди → у гілці зміни, до merge, `npx openspec archive <id> -y` і запис
-   у `product/CHANGELOG.md` (прямі коміти в `main` заборонені ruleset-ом) → merge (merge commit) →
-   `git switch main && git pull` → `git tag spec-vX.Y` → `git push origin spec-vX.Y`.
+   Далі PM: гілка `spec/<id>` → PR «Зміна специфікації» → рев'ю техліда (CODEOWNERS) → у гілці зміни, до merge,
+   `npx openspec archive <id> -y`, запис у `product/CHANGELOG.md` і рядок у `docs/conformance.md` для кожного нового AC
+   зі статусом «відкладено (новий AC — чекає задачі)» (інакше job `conformance` червоний: NO-ROW; прямі коміти в `main`
+   заборонені ruleset-ом) → merge → `git switch main && git pull` → `git tag spec-vX.Y` → `git push origin spec-vX.Y`.
+   Тег-виправлення — `spec-vX.Y.Z`.
 
 Не роби звіт довшим, ніж специфікація: відкидай дрібниці, які не змінять реалізацію.

@@ -1,5 +1,5 @@
 // Тестова база: справжній Postgres у WASM (PGlite) з емульованими ролями Supabase.
-// Застосовує ті самі supabase/migrations/*.sql і supabase/seed.sql, що й `npm run db:push`, без Docker.
+// Застосовує ті самі supabase/migrations/*.sql і supabase/seed.sql, що й job db-deploy у CI (supabase db push), без Docker.
 // Межа емуляції: Auth, PostgREST і JWT — спрощені (auth.uid() читає request.jwt.claim.sub).
 // Налаштування хмарного проєкту (Confirm email, реєстрація, Redirect URLs) тут не перевіряються — RUNBOOK 1.5.
 import { readFileSync, readdirSync } from "node:fs";

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 #
-# CodeRabbit для командного проєкту: upstream PM (зміни специфікації) і форки розробників (реалізація).
+# CodeRabbit для репозиторію команди: один репозиторій, гілки + PR; спека PM і реалізація команди поруч.
 # Публічні репозиторії з < 10 зірок не рецензуються автоматично — рев'ю запускає коментар `@coderabbitai review`
 # (нагадування є в шаблоні PR).
 # Усі перевірки СТАТИЧНІ (лише diff і файли репозиторію): рецензент нічого не запускає.
@@ -56,7 +56,6 @@ reviews:
     - ".mcp.json"
     - ".coderabbit.yaml"
     - ".env*"
-    - ".spec-source"
     - ".gitignore"
     - "package.json"
     - "next.config.ts"
@@ -97,16 +96,16 @@ reviews:
         MODIFIED містить повний блок вимоги з усіма сценаріями. proposal.md має розділи Why, What Changes,
         Capabilities (New / Modified, по дельті specs/<capability>/spec.md на кожну), Users & roles, Non-goals,
         Assumptions, Open questions; Impact — необов'язковий. Познач розмиті слова («швидко», «зручно», «тощо»).
-        У форку розробника openspec/specs змінюватись не повинні (лише через синхронізацію тегу upstream);
-        власні зміни розробника — `openspec/changes/impl-*` із `skip_specs: true`, design.md і tasks.md з AC ID;
-        їхній proposal.md короткий (Why, What Changes) — розділів PM для нього не вимагай.
+        openspec/specs змінюється лише через archive зміни PM у PR типу «Зміна специфікації» (рев'ю техліда);
+        у PR реалізації задачі — ніколи. Зміна команди — `openspec/changes/impl-*` із `skip_specs: true`,
+        design.md і tasks.md з AC ID; її proposal.md короткий (Why, What Changes) — розділів PM для нього не вимагай.
     - path: "product/**"
       instructions: |
         Продуктовий контекст PM: vision, глосарій, ролі й матриця прав, roadmap, рішення, CHANGELOG.
         Перевір анонімізацію: жодних справжніх назв клієнтів, імен людей, адрес, сум; лише синтетичні
         дані й email `*@example.test`. Терміни глосарію вживаються однаково в усіх файлах. Кожне рішення
         в decisions.md має формат питання → відповідь → що змінилось (і посилання на issue).
-        У форку розробника цей каталог змінюється лише через синхронізацію тегу upstream (PR sync/spec-vX.Y).
+        Цей каталог змінює PM у PR типу «Зміна специфікації»; у PR реалізації задачі він не змінюється.
     - path: "scripts/**"
       instructions: |
         Node-скрипти без зайвих залежностей. Секрети читаються лише зі змінних середовища й ніколи не
@@ -125,21 +124,16 @@ reviews:
         name: "Тип PR і межі змін"
         instructions: >
           Static review of the diff and PR description only; do NOT run anything. Read the PR type
-          checkbox in the description (Бутстрап = Bootstrap, Зміна специфікації = Spec change,
-          Реалізація = Implementation, Синхронізація = Sync, Оновлення шаблону = Template update).
-          Bootstrap (first PR in a developer fork):
-          the diff touches only docs/bootstrap.md and docs/img/**. Spec change: the diff touches only
-          product/**, openspec/** and docs/** (no src/**, supabase/**). Implementation: the diff does
-          NOT modify product/** or openspec/specs/** (developer changes live in openspec/changes/impl-*).
-          Sync (branch sync/spec-vX.Y): changes to product/**, openspec/specs/** and the PM's
-          openspec/changes/** (including archive/**) come only from merging an upstream spec tag;
-          besides the merge the branch may update .spec-source, docs/conformance.md and
-          docs/spec-reading.md, may implement new or changed AC (that part follows the Implementation
-          rules), and in a fork made after spec-v0.1 it also carries docs/bootstrap.md and docs/img/**.
-          Files outside product/** and openspec/** that arrive with the merged tag (template updates
-          the PM already merged upstream) are allowed. Template update (branch template/*):
-          cherry-picked course-template commits; in the PM upstream any path may change; in a
-          developer fork product/** and openspec/** must not change.
+          checkbox in the description (Зміна специфікації = Spec change, Реалізація задачі = Task,
+          Онбординг = Onboarding, Оновлення шаблону = Template update). Spec change (branch spec/* or product/context):
+          the diff touches only product/**, openspec/** (including archive/**) and docs/**; when the
+          archive adds new AC IDs to openspec/specs/**, docs/conformance.md gets a row for each with
+          status "відкладено (новий AC — чекає задачі)"; a developer change openspec/changes/impl-*
+          (design.md, tasks.md) is also a Spec change; no src/** or supabase/**. Task (branch task/*):
+          the diff does NOT modify product/** or openspec/specs/**, the description has "Closes #N",
+          new migrations are new files only. Onboarding: only docs/team.md, docs/spec-reading/**,
+          docs/bootstrap.md, docs/img/**, supabase/demo-users.json and (PM, day 0) .github/CODEOWNERS. Template update (branch template/*): cherry-picked
+          course-template commits; any path may change.
           FAIL if the diff crosses these boundaries; answer in Ukrainian.
 
       - mode: "warning"
@@ -185,8 +179,7 @@ reviews:
           (Impact is optional). Developer changes whose .openspec.yaml has skip_specs: true
           (openspec/changes/impl-* and their archive copies) are exempt from these proposal rules:
           only check that design.md decisions and every tasks.md task cite AC IDs ("Done when: AC-…").
-          In a sync/spec-vX.Y PR, files that come from the merged upstream tag are the PM's: do not
-          list them. List each violation with file and line. Answer in Ukrainian.
+          List each violation with file and line. Answer in Ukrainian.
 
       - mode: "warning"
         name: "Supabase у Next.js: proxy і getClaims"
