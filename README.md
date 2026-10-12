@@ -95,11 +95,11 @@ resolution): кожен коментар рев'ю — і CodeRabbit теж — 
 1. **Налаштування команди (день 0, одразу після старту).** Пройдіть чекліст `docs/bootstrap.md` по порядку:
    **Use this template → Create a new repository** (власник — ваш особистий акаунт, **Public** від першого push і
    назавжди: коміти колег, запушені в приватний репозиторій, Vercel Hobby блокує, і після відкриття вони лишаються
-   заблокованими) → collaborators (інвайти мають бути прийняті) → мітки `spec-question` і `task` → `.github/CODEOWNERS`
-   (ваш логін і логін техліда) → CodeRabbit на репозиторій → Supabase (організація `<team-slug>`, проєкт, розробники —
+   заблокованими) → collaborators (інвайти мають бути прийняті) → мітки `spec-question` і `task` →
+   CodeRabbit на репозиторій → Supabase (організація `<team-slug>`, проєкт, розробники —
    роль **Developer**, реєстрацію й Confirm email вимкнено, URL Configuration) → environment `production` із секретом
    `SUPABASE_DB_URL` → Vercel (дві змінні `NEXT_PUBLIC_…`, Require Log In вимкнено) → **Actions → CI → Run workflow**
-   на `main` з `include_seed` (перша міграція й сид) → `npm run users:demo` → зелений CI на `main` → ruleset `main`
+   на `main` з `include_seed` (перша міграція й сид) → `npm run users:demo` → зелений CI на `main` → PR `setup/codeowners` (ваш логін і логін техліда; approve техліда) → ruleset `main`
    (імпорт `materials/rulesets/team-main.json` з курсового репозиторію) → посилання в чат команди.
    Докази — у тому ж файлі, PR-ом «Онбординг».
 2. **Продукт.** У гілці `product/context` заповніть `product/vision.md`, `glossary.md`, `roles.md` (матриця прав),
@@ -199,7 +199,7 @@ Scoped tokens вийшли в GA 06.10.2026, і є відкритий звіт �
   через `main` (`db push` з ноутбука чи з гілки). Лише PM: якщо зміна потрібна — PR із цим файлом у `main`; якщо ні —
   `supabase migration repair --status reverted <версія> --db-url "<рядок pooler>"` зі свого ноутбука й відкат змін схеми
   новою міграцією (точний порядок звіряємо на репетиції).
-- Проєкт Free призупинено після тижня без активності — відновлює лише PM (Dashboard → Restore).
+- Проєкт Free призупинено після тижня без активності — відновлює лише PM (Dashboard → **Restore project**; точну назву кнопки звіряємо на репетиції).
 
 ## Оновлення шаблону
 

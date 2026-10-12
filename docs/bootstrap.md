@@ -18,7 +18,6 @@
 - [ ] Settings → Collaborators → **Add people**: усі розробники (і викладач); інвайти **прийнято** — <!-- знімок docs/img/collaborators.png -->
 - [ ] Мітки створено (форми issues не створюють відсутню мітку): `spec-question`, `task` —
       `gh label create spec-question --description "Питання до специфікації"` і `gh label create task --description "Задача зрізу"` — <!-- знімок Issues → Labels -->
-- [ ] `.github/CODEOWNERS` заповнено логінами PM і техліда (коментар у файлі) і закомічено в `main` — <!-- посилання на коміт -->
 - [ ] CodeRabbit (GitHub App) встановлено на цей репозиторій (github.com/apps/coderabbitai → Configure → Only select repositories) — <!-- знімок -->
 - [ ] Посилання на репозиторій — у чаті команди
 
@@ -53,8 +52,10 @@
 - [ ] `.env.local` PM: дві змінні + `SUPABASE_SECRET_KEY` + `DEMO_USER_PASSWORD` → `npm run users:demo` → вхід як `admin@example.test` працює (локально й на прод-URL)
 - [ ] CI на `main` зелений: `spec`, `app`, `conformance`, `db-check`, `db-deploy` — <!-- посилання на run -->
 
-## 6. Ruleset `main` (лише після зеленого CI на `main`)
+## 6. CODEOWNERS і ruleset `main` (лише після зеленого CI на `main`)
 
+- [ ] `.github/CODEOWNERS` — PR `setup/codeowners` (тип «Онбординг») з логінами PM і техліда (коментар у файлі;
+      інвайт техліда **прийнято**), зелений CI, approve техліда → Squash and merge — <!-- посилання на PR -->
 - [ ] Settings → Rules → Rulesets → **New ruleset → Import a ruleset** → `team-main.json` з курсового репозиторію
       (`materials/rulesets/team-main.json`) або вручну: target `main`; Restrict deletions; Block force pushes;
       Require a pull request — **1 approval**, **Require review from Code Owners**, **Require approval of the most recent

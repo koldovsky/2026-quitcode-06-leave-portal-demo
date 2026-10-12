@@ -59,8 +59,8 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   разом із командою пише зміну `impl-<зріз>` (design.md + tasks.md) і задачі. **Розробник** — питання до спеки, задачі, рев'ю колег.
 - Усе йде в `main` лише через PR (ruleset): 1 approve колеги (автор свій PR не схвалює), для `product/`, `openspec/`,
   `.github/`, `supabase/migrations/` — approve власника з `.github/CODEOWNERS`; зелені `spec`, `app`, `conformance`, `db-check`.
-- Типи PR (шаблон PR): «Зміна специфікації» (гілка `spec/<id>`), «Реалізація задачі» (`task/<N>-<коротко>`, `Closes #N`),
-  «Онбординг» (`docs/team.md`, свій журнал `docs/spec-reading/<login>.md`, PM — `docs/bootstrap.md`),
+- Типи PR (шаблон PR): «Зміна специфікації» (гілка `spec/<id>`; продуктовий контекст — `product/context`), «Реалізація задачі» (`task/<N>-<коротко>`, `Closes #N`),
+  «Онбординг» (`docs/team.md`, свій журнал `docs/spec-reading/<login>.md`, PM — `docs/bootstrap.md` і `.github/CODEOWNERS` у день 0),
   «Оновлення шаблону» (`template/<коротко>`, `git cherry-pick`).
 - `product/` і `openspec/specs/` змінює лише PM PR-ом «Зміна специфікації»; у PR задачі їх не чіпай. Розробник пропонує
   зміну спеки питанням (issue `spec-question`, скіл `spec-clarify`; спершу шукай наявне issue — дублікатів не створюємо)
@@ -113,8 +113,8 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - Значення лише в `.env.local`, Vercel (Production + Preview) і GitHub (секрет environment `production` —
   `SUPABASE_DB_URL`; секрет репозиторію `SPEC_DENYLIST`); ніколи в git, логах чи чаті.
   У Vercel — лише `NEXT_PUBLIC_SUPABASE_URL` і `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `SUPABASE_SECRET_KEY` —
-  лише в `.env.local` для скриптів, у Vercel (тип Secret) — тільки коли його читає серверний код застосунку.
-- Імена: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, серверний `SUPABASE_SECRET_KEY`
+  ніколи (лише `.env.local` PM або техліда для скриптів).
+- Імена: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` лише для скриптів
   (не `NEXT_PUBLIC_`, не `*_ANON_KEY`/`SERVICE_ROLE_KEY`). Шаблон — `.env.example`.
 - `.claude/settings.json` забороняє Claude Code читати `.env*` (крім `.env.example`); Cursor цих правил не читає — у Cursor не відкривай `.env*` агентом і не вставляй значень у чат. Скрипти з секретами запускай
   як `node --env-file=.env.local …` — вони значень не друкують.

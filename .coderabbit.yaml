@@ -125,14 +125,14 @@ reviews:
         instructions: >
           Static review of the diff and PR description only; do NOT run anything. Read the PR type
           checkbox in the description (Зміна специфікації = Spec change, Реалізація задачі = Task,
-          Онбординг = Onboarding, Оновлення шаблону = Template update). Spec change (branch spec/*):
+          Онбординг = Onboarding, Оновлення шаблону = Template update). Spec change (branch spec/* or product/context):
           the diff touches only product/**, openspec/** (including archive/**) and docs/**; when the
           archive adds new AC IDs to openspec/specs/**, docs/conformance.md gets a row for each with
           status "відкладено (новий AC — чекає задачі)"; a developer change openspec/changes/impl-*
           (design.md, tasks.md) is also a Spec change; no src/** or supabase/**. Task (branch task/*):
           the diff does NOT modify product/** or openspec/specs/**, the description has "Closes #N",
           new migrations are new files only. Onboarding: only docs/team.md, docs/spec-reading/**,
-          docs/bootstrap.md, docs/img/** and supabase/demo-users.json. Template update (branch template/*): cherry-picked
+          docs/bootstrap.md, docs/img/**, supabase/demo-users.json and (PM, day 0) .github/CODEOWNERS. Template update (branch template/*): cherry-picked
           course-template commits; any path may change.
           FAIL if the diff crosses these boundaries; answer in Ukrainian.
 

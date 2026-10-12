@@ -1,13 +1,13 @@
 ## Тип PR
 
 <!-- Залиште один варіант. Межі змін перевіряє CodeRabbit (перевірка «Тип PR і межі змін»). -->
-- [ ] **Зміна специфікації** — гілка `spec/<id>`: PM — `product/`, `openspec/` (зміна, archive), `product/CHANGELOG.md`
+- [ ] **Зміна специфікації** — гілка `spec/<id>` (продуктовий контекст — `product/context`): PM — `product/`, `openspec/` (зміна, archive), `product/CHANGELOG.md`
   і рядки нових AC у `docs/conformance.md` зі статусом «відкладено (новий AC — чекає задачі)»; техлід — `openspec/changes/impl-<зріз>/`
   (`design.md`, `tasks.md`); пропозиція розробника — `openspec/changes/<id>/`. Без `src/` і `supabase/`.
 - [ ] **Реалізація задачі** — гілка `task/<N>-<коротко>`: `src/`, `supabase/migrations/`, тести, `docs/conformance.md`, `docs/decisions/`.
   Без `product/` і `openspec/specs/`.
 - [ ] **Онбординг** — `docs/team.md` (рядок про себе), свій журнал `docs/spec-reading/<login>.md`, свій тестовий користувач у `supabase/demo-users.json`;
-  PM — `docs/bootstrap.md`, `docs/img/`. Без коду.
+  PM — `docs/bootstrap.md`, `docs/img/`, `.github/CODEOWNERS` (день 0). Без коду.
 - [ ] **Оновлення шаблону** — гілка `template/<коротко>`: `git cherry-pick` коміту шаблону курсу (README, «Оновлення шаблону»).
 
 Closes #
