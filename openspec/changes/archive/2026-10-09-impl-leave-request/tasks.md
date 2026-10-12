@@ -53,4 +53,4 @@
 ## Workflow follow-up
 
 - `npx openspec archive impl-leave-request -y` в останньому PR зрізу, до merge.
-- Нова версія спеки (spec-v0.2) — окрема зміна розробника після синхронізації.
+- Нова версія спеки (spec-v0.2) — окрема зміна розробника після злиття spec-v0.2.

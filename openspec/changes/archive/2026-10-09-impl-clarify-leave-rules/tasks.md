@@ -23,4 +23,4 @@
 
 ## Workflow follow-up
 
-- `npx openspec archive impl-clarify-leave-rules -y` в останньому PR синхронізації, до merge.
+- `npx openspec archive impl-clarify-leave-rules -y` в останньому PR оновлення до spec-v0.2, до merge.
