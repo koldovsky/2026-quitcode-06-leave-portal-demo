@@ -86,6 +86,29 @@ describe("scripts/check-migration-order.mjs", () => {
     expect(out).not.toContain("OLDER");
   });
 
+  it("allows the recovery rename of a merged-but-unapplied migration to a newer timestamp (same SQL)", () => {
+    const { code, out } = run("renamed");
+    expect(code).toBe(0);
+    expect(out).toContain(
+      "RENAMED supabase/migrations/20261014090000_leave_requests.sql → 20261016080000_leave_requests.sql",
+    );
+    expect(out).not.toContain("DELETED");
+  });
+
+  it("still fails DELETED when the renamed migration's SQL was changed", () => {
+    const { code, out } = run("renamed-edited");
+    expect(code).toBe(1);
+    expect(out).toContain("DELETED   supabase/migrations/20261014090000_leave_requests.sql");
+    expect(out).not.toContain("RENAMED");
+  });
+
+  it("fails DELETED when the newest (already applied) migration on main is renamed", () => {
+    const { code, out } = run("renamed-newest");
+    expect(code).toBe(1);
+    expect(out).toContain("DELETED   supabase/migrations/20261015100000_blocked_days.sql");
+    expect(out).not.toContain("RENAMED");
+  });
+
   it("fails on a file name the Supabase CLI would skip", () => {
     const { code, out } = run("bad-name");
     expect(code).toBe(1);

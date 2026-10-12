@@ -13,6 +13,8 @@
 //   DUPLICATE дві міграції з однаковою міткою;
 //   CHANGED   застосовану міграцію (є в базовій гілці) змінено — зміни лише новим файлом;
 //   DELETED   застосовану міграцію видалено — db push впаде на кожному наступному прогоні.
+// Не FAIL, а попередження RENAMED: файл з базової гілки з тим самим SQL під новішою міткою — відновлення після
+// FAIL db-deploy «inserted before the last migration» (README, «Збої й відновлення»).
 // Корінь проєкту — поточна тека (process.cwd()). Без залежностей: node:fs, node:path, node:child_process (git).
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -103,9 +105,32 @@ try {
 }
 const behind = baseNames.filter((name) => !headNames.includes(name) && !branchPointNames.includes(name));
 
+// Відновлення після FAIL db-deploy «inserted before the last migration»: файл, уже злитий у main, але НЕ застосований
+// (два PR-и злились у зворотному порядку), перейменовують новою міткою без зміни SQL. Це не видалення: такий файл
+// з тим самим вмістом під новішою міткою — RENAMED (попередження, не FAIL). Якщо ж цю міграцію вже застосовано,
+// db-deploy після merge впаде «Remote migration versions not found» — тому рев'ю власника з CODEOWNERS.
+const renamed = [];
+for (const name of baseNames) {
+  if (headNames.includes(name) || behind.includes(name)) continue;
+  // Лише файл, старший за найновіший у базовій гілці (саме такий db-deploy відмовився застосувати); найновіший уже застосовано.
+  const from = version(name);
+  if (!from || !newest || BigInt(from) >= BigInt(newest)) continue;
+  const before = normalize(git(["show", `${base}:${DIR}/${name}`]));
+  const target = added.find((candidate) => {
+    const v = version(candidate);
+    return (
+      v &&
+      newest &&
+      BigInt(v) > BigInt(newest) &&
+      normalize(readFileSync(path.join(headDir, candidate), "utf8")) === before
+    );
+  });
+  if (target) renamed.push([name, target]);
+}
+
 for (const name of baseNames) {
   if (!headNames.includes(name)) {
-    if (!behind.includes(name)) {
+    if (!behind.includes(name) && !renamed.some(([from]) => from === name)) {
       problems.push(`DELETED   ${DIR}/${name}: міграція з ${base} видалена (застосовані міграції не видаляємо).`);
     }
     continue;
@@ -147,6 +172,14 @@ console.log(
     (added.length && newest ? `, усі новіші за ${newest} (${base})` : "") +
     `; застосовані міграції не змінено.`,
 );
+for (const [from, to] of renamed) {
+  const text =
+    `RENAMED ${DIR}/${from} → ${to} (SQL той самий). Лише для відновлення після FAIL db-deploy «Found local migration ` +
+    `files to be inserted before the last migration»: файл є в ${base}, але ще НЕ застосований у базі команди. ` +
+    `Якщо його вже застосовано, db-deploy після merge впаде «Remote migration versions not found» — рев'юер звіряє журнал db-deploy.`;
+  console.log(`Увага: ${text}`);
+  if (process.env.GITHUB_ACTIONS === "true") console.log(`::warning title=migration-order::${text}`);
+}
 if (behind.length) {
   console.log(
     `Примітка: гілка відстає від ${base} (ще не злиті: ${behind.join(", ")}). Перед PR: git fetch origin && git merge origin/main.`,
