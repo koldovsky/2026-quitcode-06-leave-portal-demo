@@ -39,7 +39,9 @@ spec-v
 - [ ] Кожна нова таблиця: `enable row level security`, `revoke all … from anon, authenticated`, явні `grant`, політика на кожну операцію `to authenticated` з `(select auth.uid())`
 - [ ] Для зміни специфікації: `npm run spec:validate` і `npm run spec:check` зелені; для нових AC — рядки «відкладено (новий AC — чекає задачі)»
 - [ ] Жодних секретів і справжніх даних: ключі лише в `.env.local` / Vercel / GitHub Environments, дані — синтетичні (`*@example.test`)
-- [ ] Рев'юер — колега (не автор); для `product/`, `openspec/`, `.github/`, `supabase/migrations/` — власник із CODEOWNERS
+- [ ] Рев'юер — колега (не автор); для `product/`, `openspec/`, `.github/`, `supabase/migrations/` — власник із CODEOWNERS;
+  після кожного push (виправлення, archive, Update branch) — новий approve; усі обговорення (і CodeRabbit) — Resolve
+- [ ] Для реалізації задачі: `openspec/changes/impl-*/tasks.md` не змінено (крім archive в останньому PR зрізу)
 - [ ] Preview на Vercel відкривається (для реалізації задачі); для останнього PR зрізу — запис екрана з прод-URL
 
 <!-- Публічні репозиторії з < 10 зірок CodeRabbit не рецензує автоматично.

@@ -60,7 +60,7 @@ PM створює з шаблону репозиторій команди, ро�
 шаблон (цей репозиторій)
   └─ «Use this template» → <pm>/<team-repo>   (публічний, особистий акаунт PM)
         ├─ main            ← лише через PR (ruleset: 1 approve, CODEOWNERS, зелений CI); теги spec-vX.Y
-        ├─ spec/<id>       ← PM: зміна специфікації (рев'ю техліда)
+        ├─ spec/<id>       ← PM: зміна специфікації (рев'ю техліда); product/context — продуктовий контекст
         ├─ task/<N>-…      ← розробник: задача з issue #N (рев'ю колеги)
         └─ onboarding/<login>, template/<коротко>
   Supabase: організація <team-slug> PM, один проєкт (розробники — Developer)   ← міграції застосовує CI (db-deploy)
@@ -74,7 +74,11 @@ PM створює з шаблону репозиторій команди, ро�
 | Розробник | collaborator (Write) | онбординг (`docs/onboarding.md`), питання до спеки, задачі (PR), рев'ю PR-ів колег |
 
 Автор PR не може схвалити свій PR, тому PR PM зі спекою схвалює техлід, а PR розробника — будь-який колега
-(для `supabase/migrations/` — власник із CODEOWNERS).
+(для `supabase/migrations/` і `openspec/`, зокрема archive `impl-<зріз>` в останньому PR зрізу, — власник із CODEOWNERS).
+Ruleset вимагає approve **останнього push** від іншої людини: будь-який ваш push після approve (виправлення за рев'ю,
+archive, `Update branch`) потребує нового approve; хто натиснув `Update branch`, стає автором останнього push і сам
+схвалити PR уже не може, тому гілку оновлює лише автор PR. Merge блокують і невирішені обговорення (Require conversation
+resolution): кожен коментар рев'ю — і CodeRabbit теж — виправте або дайте відповідь, потім **Resolve conversation**.
 
 ## Перед початком (PM і розробники)
 
@@ -111,7 +115,7 @@ PM створює з шаблону репозиторій команди, ро�
    а якщо агент їх усе ж створив — видаліть обидва файли до коміту.
 4. **Перевірка.** `npm run spec:validate`, `npm run spec:check`, скіл `spec-review`.
 5. **Реліз** — див. «Як виходить версія специфікації» нижче: PR → рев'ю техліда → archive + CHANGELOG + рядки нових AC
-   у гілці → merge → тег `spec-v0.1`.
+   у гілці → повторний approve техліда → merge → тег `spec-v0.1`.
 6. **Питання розробників.** Відповідайте в issues `spec-question` (і в коментарях до них); рішення — у `product/decisions.md`;
    якщо змінюється поведінка — нова зміна (MODIFIED/ADDED) і тег `spec-v0.2` тим самим потоком.
 7. **Задачі.** Разом із техлідом: з `openspec/changes/impl-<зріз>/tasks.md` — issues форми «Задача» (мітка `task`),
@@ -129,14 +133,17 @@ PM створює з шаблону репозиторій команди, ро�
    `skip_specs: true` у `.openspec.yaml`, `design.md`, `tasks.md` з «Done when: AC-…») → задачі-issues.
 4. **Задача:** призначте себе в issue → `git switch main && git pull` → `git switch -c task/<N>-<коротко>` → код +
    тести `it("AC-…: …")` → `/conformance` (рядок матриці → «реалізовано») → `npm run lint && npm run typecheck && npm test`
-   → push → PR «Реалізація задачі» з `Closes #N` → окремим коментарем `@coderabbitai review` → рев'ю колеги →
-   **Squash and merge** → прод-деплой Vercel. В останньому PR зрізу, до merge, — `npx openspec archive impl-<зріз> -y`.
+   → push → PR «Реалізація задачі» з `Closes #N` → окремим коментарем `@coderabbitai review` → рев'ю колеги (обговорення
+   вирішено) → **Squash and merge** → прод-деплой Vercel. `openspec/changes/impl-<зріз>/tasks.md` у PR задачі не змінюйте
+   (галочок не ставимо: прогрес — закриті issues; якщо агент через `/opsx:apply` їх поставив — `git restore` цього файлу),
+   інакше PR потребує approve власника `openspec/` і конфліктує з паралельними PR-ами. В останньому PR зрізу, до merge, —
+   `npx openspec archive impl-<зріз> -y` (незакриті галочки `-y` пропускає з попередженням); approve — PM або техлід.
 5. **Міграція в задачі:** `npx supabase migration new <назва>` → SQL (RLS, GRANT, політики) → у тому ж PR; `db-check`
    застосує всі міграції на одноразовій базі й звірить порядок з `main`; рев'ю — власник із CODEOWNERS; після merge
    `db-deploy` застосує її в базу команди. Ніколи `supabase db push` з ноутбука, ніколи DDL у SQL Editor.
    Типи для нових таблиць — готовий `database.types.ts` у Summary прогону `db-check`.
 6. **Рев'ю колег:** коментарі з посиланнями на рядки, конкретні пропозиції або обґрунтований approve. Гілку
-   (`Update branch`) оновлюйте лише при конфлікті: після цього approve треба отримати знову.
+   (`Update branch`) оновлюйте лише при конфлікті: після будь-якого вашого push approve треба отримати знову.
 7. **Пропозиція змінити спеку** (помилка чи прогалина): питання `spec-question` або гілка `spec/<коротко>` від `main` →
    зміна лише в `openspec/changes/<id>/` (`proposal.md` + дельта) → PR «Зміна специфікації». Рішення — за PM.
 
@@ -145,7 +152,8 @@ PM створює з шаблону репозиторій команди, ро�
 1. PM: гілка `spec/<id>` → зміна → PR «Зміна специфікації» → рев'ю техліда (CODEOWNERS для `openspec/` і `product/`).
 2. У тій самій гілці, **до merge** (прямі коміти в `main` заборонені): `npx openspec archive <id> -y` → нові AC
    потрапляють в `openspec/specs/` → запис у `product/CHANGELOG.md` → у `docs/conformance.md` рядок для **кожного нового
-   AC** зі статусом `відкладено (новий AC — чекає задачі)`, інакше job `conformance` червоний (NO-ROW).
+   AC** зі статусом `відкладено (новий AC — чекає задачі)`, інакше job `conformance` червоний (NO-ROW). Цей push — після
+   approve, тож техлід схвалює PR ще раз (ruleset: approve останнього push).
 3. Merge → `git switch main && git pull` → `git tag spec-v0.1` → `git push origin spec-v0.1` (або Releases →
    **Draft a new release** → новий тег на `main`; точні назви кнопок звіряємо на репетиції). Виправлення без нової
    поведінки — тег `spec-vX.Y.Z`.
@@ -183,7 +191,10 @@ Scoped tokens вийшли в GA 06.10.2026, і є відкритий звіт �
   друкує `scripts/check-migration-order.mjs`) і запуште.
 - `db-deploy` FAIL «Found local migration files to be inserted before the last migration on remote database» — два PR-и
   з міграціями пройшли перевірки паралельно (статуси не вимагають «up to date») і злились у зворотному порядку. Окремий PR:
-  `git mv` старшого файлу на нову мітку → merge → `db-deploy` застосує. Ніколи `--include-all`.
+  `git mv` старшого (ще не застосованого — див. журнал `db-deploy`) файлу на нову мітку без зміни SQL → `db-check`
+  покаже попередження `RENAMED`, не FAIL → рев'ю власника з CODEOWNERS → merge → `db-deploy` застосує. Ніколи `--include-all`.
+- `db-deploy` скасовано (cancelled) на якомусь коміті `main` — кілька merge поспіль: у групі `supabase-prod` GitHub тримає
+  один прогін в очікуванні, і новіший замінює старіший. Нічого не втрачено: наступний прогін застосовує всі міграції з `main`.
 - `db-deploy` FAIL «Remote migration versions not found in local migrations directory» — хтось застосував міграцію не
   через `main` (`db push` з ноутбука чи з гілки). Лише PM: якщо зміна потрібна — PR із цим файлом у `main`; якщо ні —
   `supabase migration repair --status reverted <версія> --db-url "<рядок pooler>"` зі свого ноутбука й відкат змін схеми
@@ -209,7 +220,7 @@ Scoped tokens вийшли в GA 06.10.2026, і є відкритий звіт �
 | `npm run spec:validate` | `openspec validate --all --strict` — структура специфікацій |
 | `npm run spec:check` | AC ID на початку кожного `#### Scenario:` (схожий на ID, але з кириличною літерою чи трьома цифрами — з підказкою); унікальність у `openspec/specs` і після archive кожної активної зміни; denylist (за початком слова, тож ловить відмінки; фраза — і через перенесення рядка) у `product/`, `openspec/`, `docs/`, `src/`, `supabase/`, `tests/`, `README.md`, `AGENTS.md`; немає «бродячого» `product/denylist.local*` під іншим іменем; у кожній зміні без `skip_specs` — `proposal.md` з усіма сімома розділами в порядку правил |
 | `npm run ac:coverage` | кожен AC має рядок у `docs/conformance.md`; статус дослівно «реалізовано» або «відкладено (причина)»; «реалізовано» має непропущений тест у `*.test.ts(x)` у `src/` чи `tests/` (їх запускає `npm test`), назва якого починається з ID; шляхи з колонок «Код»/«Тест» існують; тести не посилаються на неіснуючі AC. E2e-тести (`tests/e2e/*.spec.ts`) не рахуються, доки їх не запускає крок CI |
-| `node scripts/check-migration-order.mjs` | міграції, яких немає в `origin/main` (перевизначення — `MIGRATION_BASE` або `--base <ref>`), новіші за найновішу там (`OLDER`); назви `<14 цифр>_<назва>.sql` (`NAME`); без однакових міток (`DUPLICATE`); застосовані файли не змінено (`CHANGED`) і не видалено (`DELETED`) |
+| `node scripts/check-migration-order.mjs` | міграції, яких немає в `origin/main` (перевизначення — `MIGRATION_BASE` або `--base <ref>`), новіші за найновішу там (`OLDER`); назви `<14 цифр>_<назва>.sql` (`NAME`); без однакових міток (`DUPLICATE`); застосовані файли не змінено (`CHANGED`) і не видалено (`DELETED`); той самий SQL старшого за найновіший файлу під новішою міткою — попередження `RENAMED` (відновлення, див. «Збої й відновлення») |
 | CI `db-check` | `supabase db start` — усі міграції й сид на одноразовій базі в раннері (що саме застосовує `db start`, звіряємо на першому прогоні); у PR — `check-migration-order.mjs`; готовий `database.types.ts` у Summary прогону |
 
 ## Як цей шаблон зібрано з нуля

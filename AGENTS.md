@@ -67,15 +67,20 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   або окремим PR зі зміною в `openspec/changes/<id>/`.
 - Реліз спеки (PM): гілка `spec/<id>` → `proposal.md` + дельта → `spec-review` → PR → рев'ю техліда → у гілці, до merge:
   `npx openspec archive <id> -y`, запис у `product/CHANGELOG.md` і рядок у `docs/conformance.md` для кожного нового AC
-  зі статусом «відкладено (новий AC — чекає задачі)» (інакше `conformance` червоний) → merge →
+  зі статусом «відкладено (новий AC — чекає задачі)» (інакше `conformance` червоний) → повторний approve техліда → merge →
   `git switch main && git pull` → `git tag spec-vX.Y` → `git push origin spec-vX.Y` (виправлення — `spec-vX.Y.Z`).
 - Зміна команди `impl-<зріз>` з `skip_specs: true`: `design.md` і `tasks.md` («Done when: AC-…») → з пунктів tasks.md —
-  issues «Задача» (мітка `task`); archive — в останньому PR зрізу до merge.
+  issues «Задача» (мітка `task`); archive — в останньому PR зрізу до merge (approve — PM або техлід). У PR задачі
+  `tasks.md` не змінюй (галочок не став навіть у `/opsx:apply`; прогрес — закриті issues): інакше PR потребує
+  власника `openspec/` і конфліктує з паралельними PR-ами.
 - AC ID (`AC-<AREA>-<NN>`) — на початку назви сценарію і в назві тесту: `it("AC-LEAVE-02: …")`; лише AC, які вже є в
   `openspec/specs/` (інакше ORPHAN). Тести — лише у файлах `*.test.ts` / `*.test.tsx` під `src/` або `tests/`: інші файли (зокрема `*.spec.ts`) Vitest не запускає, і `ac:coverage` їх не рахує. Перевірки в тестах — через `expect(…)`: `vitest.config.mts` вимагає хоча б один `expect` у кожному тесті, а `assert` (з `vitest` чи `node:assert`) не рахується — такий тест падає з «expected any number of assertion, but got none».
 - Рядок у `docs/conformance.md` для AC задачі оновлюється в тому самому PR, що й код (`/conformance`, `npm run ac:coverage`);
   рядки чужих AC не чіпай.
-- Гілку оновлюй (`Update branch` / merge `main`) лише при конфлікті: після цього approve треба отримати знову.
+- Будь-який push після approve (виправлення, archive, `Update branch` / merge `main`) потребує нового approve
+  (ruleset: approve останнього push), тож гілку оновлюй лише при конфлікті й лише свою (хто оновив гілку, той її вже
+  не схвалить: PR PM зі спекою тоді не зможе схвалити й техлід). Merge блокують і невирішені обговорення
+  (Require conversation resolution): кожен коментар рев'ю, і CodeRabbit теж, — виправ або дай відповідь і Resolve.
 - `/opsx:verify` і `/conformance` — порадники; ворота — CI (`spec`, `app`, `conformance`, `db-check`).
 - Виправлення шаблону курсу переносимо `git cherry-pick <sha>` у гілку `template/<коротко>`, не `git merge` (історії не пов'язані), — PR «Оновлення шаблону».
 

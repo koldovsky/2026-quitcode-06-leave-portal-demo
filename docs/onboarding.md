@@ -47,11 +47,13 @@ git switch -c onboarding/<login>
 # додайте рядок: | @<login> | розробник | <зона> |
 git add docs/team.md && git commit -m "Onboarding: add <login> to docs/team.md"
 git push -u origin onboarding/<login>
-gh pr create --fill          # тип PR — «Онбординг»
+gh pr create --web           # браузер із шаблоном PR: позначте тип «Онбординг» (--fill шаблон пропускає)
 ```
 
 - [ ] PR створено, CI зелений (`spec`, `app`, `conformance`, `db-check`); окремим коментарем — `@coderabbitai review`.
-- [ ] Колега зробив рев'ю й approve (свій PR ви схвалити не можете) → **Squash and merge**.
+- [ ] Колега зробив рев'ю й approve (свій PR ви схвалити не можете); push після approve вимагає нового approve.
+- [ ] Усі обговорення вирішено (ruleset: Require conversation resolution): коментар рев'ю чи CodeRabbit — виправте або
+      дайте відповідь, потім **Resolve conversation** → **Squash and merge**.
 - [ ] Конфлікт у `docs/team.md` (колеги додавали рядки одночасно) — залиште обидва рядки (див. коментар у файлі).
 
 ## 6. Далі
