@@ -266,7 +266,7 @@ git switch main   # основна тека лишається на main (дем
 - [ ] Акаунти на екрані (GitHub, Vercel, Supabase): перевірити, що в перемикачах немає клієнтських організацій; якщо є — окремий профіль браузера з демо-акаунтами. У SQL Editor перед Run — звірити назву проєкту.
 - [ ] Основна тека — на гілці main (`git branch --show-current`).
 - [ ] Знімки для Планів Б (крок 1.5) відкрито у вкладках.
-- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1; «Старт зараз» після слайда 44). Перевірка: `gh repo view koldovsky/2026-quitcode-06-project-template --json isTemplate --jq .isTemplate` → `true`. Деку зібрано на Pages.
+- [ ] Шаблон і домашка — публічні; шаблон позначено як **Template repository** (`gh repo edit koldovsky/2026-quitcode-06-project-template --template`), інакше в PM немає кнопки «Use this template» і `gh repo create --template` падає (walkthrough-pm, крок 1 — PM роблять це одразу після заняття). Перевірка: `gh repo view koldovsky/2026-quitcode-06-project-template --json isTemplate --jq .isTemplate` → `true`. Деку зібрано на Pages.
 
 ## 2. Сценарій на сцені
 
@@ -365,15 +365,14 @@ Dashboard → SQL Editor → `delete from public.leave_requests;` (записи 
 | 8 (якщо є час) | Прод-URL, `teacher2@`: заявка 05.11–05.11.2026 → помилка (AC-LEAVE-10); дві заявки, що перетинаються → помилка (AC-LEAVE-11) | тексти «лише заблоковані дні», «уже є заявка» | `npx vitest run -t "AC-LEAVE-1"` (3 тести) |
 | 9 | Наголос: `/opsx:verify` і `/conformance` — порадники; ворота — детерміновані перевірки CI | — | слайд деки замість живого запуску `/opsx:verify` |
 
-### Після слайда 44 — «Старт зараз» (5–7 хв, у часі Q&A)
+### Після заняття — upstream команд (на сцені не робимо)
 
-PM кожної команди створює upstream просто на занятті (walkthrough-pm домашки, крок 1): у браузері
+PM кожної команди створює upstream одразу після заняття (walkthrough-pm домашки, крок 1): у браузері
 <https://github.com/koldovsky/2026-quitcode-06-project-template> → **Use this template** → свій акаунт, **Public**,
 назва — `<team-slug>`; або `gh repo create <team-slug> --public --template koldovsky/2026-quitcode-06-project-template --clone`.
-Посилання на репозиторій — у чат Zoom. Ведучий відкриває кожне: репозиторій не форк і має `product/` та `openspec/`
+Посилання на репозиторій — у чат команди. Наступного дня викладач відкриває кожне: репозиторій не форк і має `product/` та `openspec/`
 (або `gh repo view <owner>/<team-slug> --json templateRepository` → шаблон курсу). Кнопки «Use this template» немає
 чи `gh` падає — шаблон не позначено як Template repository (чекліст 1.6): `gh repo edit … --template` і повторити.
-PM, який не встиг, робить цей крок одразу після заняття.
 
 ## 3. Очікувані результати воріт на кожному тезі
 
