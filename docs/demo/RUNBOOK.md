@@ -81,8 +81,27 @@
 
 ### 1.1 GitHub: репо команди
 
-Репозиторій уже є (публічний, з історією й тегами, issues #1–#5, PR #6 `demo/first-pr`). Перебудова під одне репо
-приходить PR-ом у `main`; порядок після нього:
+Репозиторій уже є (публічний, з історією й тегами, issues #1–#5, PR #6 `demo/first-pr`). Коміти перебудови під одне
+репо лежать у локальному `main` (на GitHub їх ще немає), а наявний ruleset `main` не приймає прямий push — тож вони
+йдуть PR-ом (тип «Оновлення шаблону»):
+
+```bash
+cd D:/projects/clients/quitcode/2026-quitcode-06-leave-portal-demo
+git switch main && git status --short        # порожньо; git log origin/main..main — коміти перебудови
+git switch -c template/one-team-repo
+git push -u origin template/one-team-repo
+gh pr create --repo koldovsky/2026-quitcode-06-leave-portal-demo --base main --web   # не --fill: він пропускає шаблон PR
+```
+
+Злити кнопкою **Create a merge commit** (не squash: тоді локальний `main` наздожене `origin/main` простим fast-forward),
+потім:
+
+```bash
+git switch main && git pull --ff-only
+git branch -d template/one-team-repo
+```
+
+Порядок після цього:
 
 1. **PR перебудови злито** (merge commit, теги не чіпаємо). Push у `main` запускає CI з п'ятьма jobs: `spec`, `app`,
    `conformance`, `db-check` — зелені; `db-deploy` — зелений або пропущений з повідомленням (крок 5).
@@ -261,9 +280,6 @@ spec-v0.1 (тест з AC, якого ще немає в `openspec/specs/` на 
 - **CodeRabbit** на PR #6: конфіг із репозиторію застосовано (рев'ю українською, 6 наших custom checks, перевірки
   docstrings немає). Опис PR не за шаблоном → попередження «Description check»; назви checks CodeRabbit
   показує з власною капіталізацією («тип Pr і межі змін») — це косметика. Рев'ю на запит — коментар `@coderabbitai review`.
-- *Історичне — модель із форками (до 12.10.2026), для нинішнього процесу не потрібне:* Actions у новому форку
-  вимкнені, доки людина не ввімкне їх на вкладці Actions; скрипт `spec:source` порівнював форк із тегом PM і пройшов
-  на `spec-v0.2.1`. У моделі одного репо форків і `spec:source` немає.
 
 ### 1.6 Чекліст за годину до заняття
 
@@ -336,10 +352,11 @@ merge → `git switch main && git pull` → `git tag spec-vX.Y` → `git push or
 кожен розробник веде свій файл `docs/spec-reading/<login>.md` (`docs/spec-reading/README.md`), а питання ставить
 issue `spec-question` у тому ж репо (спершу пошук: якщо питання вже є — коментар у ньому, а не дублікат).
 
-План Б кроків 1–2 — збережені питання (стан «очікуємо»), з будь-якої теки, без зміни робочої копії:
+План Б кроків 1–2 — збережені питання (стан «очікуємо»), з будь-якої теки, без зміни робочої копії
+(другий `sed` прибирає службовий коментар файлу на тезі — він описує попередню модель курсу):
 
 ```bash
-git show demo-02-clarify~2:docs/spec-reading.md | sed -n '/^## Питання до PM/,/^## Власні припущення/p'
+git show demo-02-clarify~2:docs/spec-reading.md | sed -n '/^## Питання до PM/,/^## Власні припущення/p' | sed '/^<!--/d'
 ```
 
 Скіл `spec-clarify` на тезі `spec-v0.1` — старіша версія: кроку, що записує скан у розділ `## Скан за таксономією`
