@@ -295,7 +295,7 @@ spec-v0.1 (тест з AC, якого ще немає в `openspec/specs/` на 
 - [ ] Supabase-проєкт не на паузі (Dashboard відкривається), Database → Migrations — шість міграцій; вхід на прод-URL
       (`https://quitcode-ws6-leave-portal-demo.vercel.app`) як `teacher@` працює.
 - [ ] Термінали: основна тека на `main` (План Б кроків 9–10 демо 3) і теки `lp-*`. Локальний `main` оновлено
-      після merge PR перебудови (`git switch main && git pull`): демо 4, крок 5 читає `docs/demo/spec-v0.2-new-ac-rows.md`
+      після merge PR перебудови (`git switch main && git pull --ff-only`, крок 1.1): демо 4, крок 5 читає `docs/demo/spec-v0.2-new-ac-rows.md`
       саме з локальної гілки `main` (теки `lp-*` на тегах перестворювати не треба — теги не змінились).
 - [ ] Вкладки: PR #6, issues #1–#5, Settings → Collaborators / Rules / Environments, `.github/CODEOWNERS` на GitHub,
       Actions → останній прогін CI на `main` (job `db-deploy`), Supabase → Database → Migrations, Vercel → Environment
