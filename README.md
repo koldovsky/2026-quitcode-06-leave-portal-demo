@@ -118,8 +118,8 @@
    Authentication вимкніть «Allow new users to sign up» (інакше будь-хто з публічним ключем із бандла
    зареєструється сам; локально те саме робить `[auth] enable_signup = false` у `supabase/config.toml`) і
    Confirm email для Email (точне місце перемикачів у Dashboard звіряємо на репетиції). Користувачів створює
-   лише `npm run users:demo` (Admin API): з вимкненою реєстрацією він працює й у хмарі (за кодом GoTrue — так;
-   звіряємо на репетиції). `npx supabase login` → `npx supabase link --project-ref <ref>` →
+   лише `npm run users:demo` (Admin API): з вимкненою реєстрацією він працює й у хмарі
+   (перевірено 11.10.2026). `npx supabase login` → `npx supabase link --project-ref <ref>` →
    `npx supabase db push --dry-run` → `npm run db:push` → `npm run db:types`.
    `.env.local` за зразком `.env.example` → `npm run users:demo` → `npm run dev` → вхід як `admin@example.test`.
 4. **Vercel** (Hobby): Add New → Project → імпорт форку; для Production і Preview — лише дві змінні
@@ -127,7 +127,8 @@
    не додаємо: коду застосунку першого зрізу він не потрібен (найменші права), він живе лише в `.env.local`
    для `npm run users:demo`. Змінну типу Secret додайте тоді, коли її справді читає ваш серверний код.
    Supabase → Authentication → URL Configuration: Site URL = прод-URL, Redirect URLs `http://localhost:3000/**`
-   і `https://*-<slug>.vercel.app/**`. Для навчальних проєктів вимкніть Vercel Authentication на preview.
+   і `https://*-<slug>.vercel.app/**`. Для навчальних проєктів вимкніть Vercel Authentication на preview
+   (Settings → Deployment Protection → перемикач **Require Log In** → Save; на новому Hobby-проєкті він увімкнений).
 5. **Секрети CI** (для job `db`): `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_ID`.
    За бажанням додайте у форку секрет `SPEC_DENYLIST` (значення — від PM в особистому повідомленні) або локальний
    `product/denylist.local.txt`: тоді `spec:check` ловить справжні назви й у ваших `docs/` і `supabase/`.

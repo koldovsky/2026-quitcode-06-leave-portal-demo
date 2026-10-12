@@ -107,7 +107,7 @@
    - вимкнути **Allow new users to sign up**. Публічний ключ (publishable) є в JS-бандлі прод-URL: з увімкненою
      реєстрацією будь-хто зареєструється через Auth API, одразу увійде (підтвердження вимкнено) з роллю
      `employee` і зможе подавати заявки. `npm run users:demo` — це Admin API: з вимкненою реєстрацією він працює
-     й у хмарі (за кодом GoTrue — так; звіряємо на репетиції, крок 1.5). Точне місце перемикача в Dashboard
+     й у хмарі (перевірено 11.10.2026). Точне місце перемикача в Dashboard
      звіряємо на репетиції. Локально те саме задає `[auth] enable_signup = false` у `supabase/config.toml`;
      користувачі — лише через `npm run users:demo`.
 3. Прив'язати й застосувати міграції та сид — **в основній теці на `main`** (усі 6 міграцій; прив'язка
@@ -158,7 +158,8 @@
 2. Environment Variables для **Production і Preview**: `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. `SUPABASE_SECRET_KEY` застосунку цього зрізу не потрібен (лише
    скрипту `users:demo` локально) — у Vercel його не додаємо. Не через Marketplace-інтеграцію Supabase.
-3. Settings → Deployment Protection → **Vercel Authentication** — вимкнути (PM відкриває preview без входу).
+3. Settings → Deployment Protection → **Vercel Authentication**: перемикач **Require Log In** вимкнути → **Save**
+   (на новому Hobby-проєкті він увімкнений зі «Standard Protection»; PM відкриває preview без входу).
 4. Deployments → Redeploy (змінні діють лише для нових деплоїв). Відкрити прод-URL → `/login`.
 5. Повернутись до кроку 1.2.6 (Site URL і Redirect URLs).
 
@@ -205,9 +206,9 @@ git switch main   # основна тека лишається на main (дем
   `main` посад «Математики»; `admin@` бачить усе на `/manage`, але без кнопок рішення.
 - Якщо форк для «CI червоний» потрібен наживо (демо 4): форк у другий акаунт або організацію (свій репозиторій
   у той самий акаунт GitHub не форкнеться) — перевіряємо на репетиції; інакше — локальний `ac:coverage` (розділ 2, демо 4).
-- **Реєстрація вимкнена (крок 1.2.2):** очікуємо, що повторний `npm run users:demo` проходить без помилок
-  (Admin API; за кодом GoTrue — так, саме тут це й звіряємо), а самостійна реєстрація з публічним ключем — ні.
-  Точний текст помилки фіксуємо на репетиції.
+- **Реєстрація вимкнена (крок 1.2.2):** повторний `npm run users:demo` проходить без помилок (Admin API),
+  самостійна реєстрація з публічним ключем — `422 signup_disabled`, «Signups not allowed for this instance»
+  (перевірено 11.10.2026).
 - **Знімки для Планів Б** — зробити на репетиції й зберегти поза репозиторієм (наприклад, `D:/projects/clients/quitcode/demo-shots/`),
   перед заняттям відкрити у вкладках: демо 1 — крок 5 (`openspec validate add-leave-request --strict`) і крок 6а
   (звіт `spec-review`); демо 3 — крок 6 (Dashboard → Database → Migrations, шість міграцій), крок 7 (Vercel →
