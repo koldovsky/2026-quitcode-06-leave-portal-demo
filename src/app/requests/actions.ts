@@ -15,7 +15,10 @@ const text = (formData: FormData, name: string) => String(formData.get(name) ?? 
 
 // Помилки бази, які ми очікуємо, — у коди зі специфікації (решта — загальна помилка).
 function dbErrorCode(error: { code?: string; message?: string }): LeaveErrorCode | "DB_ERROR" {
-  if (error.message?.includes("leave_requests_range_check")) return "INVALID_RANGE";
+  if (error.message?.includes("leave_requests_range_check") || error.message?.includes("INVALID_RANGE")) return "INVALID_RANGE";
+  // Функція подання повторює перевірки server action (міграція 20261019000000) — на випадок гонки двох подань.
+  if (error.message?.includes("ONLY_BLOCKED_DAYS")) return "ONLY_BLOCKED_DAYS";
+  if (error.message?.includes("OVERLAPPING_REQUEST")) return "OVERLAPPING_REQUEST";
   if (error.message?.includes("leave_requests_substitute_note_check")) return "SUBSTITUTE_TOO_LONG";
   if (error.message?.includes("UNKNOWN_POSITION")) return "UNKNOWN_POSITION";
   return "DB_ERROR";

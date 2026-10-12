@@ -12,7 +12,7 @@ context: |
   Продукт: портал відсутностей персоналу школи — працівники (учителі й асистенти, 1–2 посади в різних підрозділах) подають заявки на відсутність, менеджери підрозділів ухвалюють рішення, адміністратор веде календар заблокованих днів; деталі в product/vision.md, терміни в product/glossary.md, ролі в product/roles.md.
   Стек (фіксований, у специфікаціях його не описуємо): Next.js 16 App Router, React 19, TypeScript, Tailwind 4, Supabase (Postgres + Auth + RLS), Vercel, Node 24.
   Конвенції: одна зміна OpenSpec — один намір; AC ID формату AC-<AREA>-<NN> на початку назви кожного сценарію; ті самі ID — у назвах тестів і в docs/conformance.md; дані в прикладах лише синтетичні (*@example.test).
-  Ролі: PM в upstream пише proposal.md і дельти специфікацій (що і навіщо), тегує релізи spec-vX.Y; розробник у своєму форку пише design.md і tasks.md (як), product/ і openspec/specs не змінює — питання до спеки відкриває issue spec-question в upstream.
+  Ролі (один репозиторій команди): PM пише proposal.md і дельти специфікацій (що і навіщо), тегує релізи spec-vX.Y; техлід із розробниками пише зміну impl-<зріз> — design.md і tasks.md (як); розробники product/ і openspec/specs не змінюють — питання до спеки відкривають issue spec-question у цьому ж репозиторії.
 
 rules:
   proposal:

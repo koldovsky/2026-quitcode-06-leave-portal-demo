@@ -6,14 +6,15 @@ body:
   - type: markdown
     attributes:
       value: |
-        Одне issue — одне питання. Текст можна згенерувати скілом `spec-clarify` у своєму форку й вставити сюди.
+        Одне issue — одне питання. Текст можна згенерувати скілом `spec-clarify` у своєму клоні репозиторію команди й вставити сюди.
+        Спершу пошукайте серед issues з міткою `spec-question`: якщо таке питання вже є — додайте коментар із новим випадком там.
         Варіанти описують **поведінку** («система відхиляє заявку»), а не реалізацію («додати колонку»).
         Issue публічне: без справжніх назв клієнта, імен людей і їхніх даних — лише терміни з product/glossary.md.
   - type: input
     id: spec_version
     attributes:
       label: Версія специфікації
-      description: Тег upstream (як у .spec-source) або id активної зміни OpenSpec.
+      description: Тег релізу специфікації (spec-vX.Y) або id активної зміни OpenSpec, якщо питання до PR зі спекою.
       placeholder: spec-v0.1
     validations:
       required: true

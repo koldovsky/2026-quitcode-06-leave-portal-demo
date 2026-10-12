@@ -44,7 +44,7 @@ export interface Resubmission {
   startDate: IsoDate;
   endDate: IsoDate;
   substituteNote: string | null;
-  /** Усі записи заявки знову на розгляді (власне припущення в docs/spec-reading.md). */
+  /** Усі записи заявки знову на розгляді (власне припущення в docs/spec-reading/koldovsky.md). */
   recordStatus: "pending";
 }
 

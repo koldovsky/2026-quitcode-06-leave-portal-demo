@@ -1,0 +1,54 @@
+name: Задача
+description: Вертикальна задача зрізу з tasks.md зміни impl-… — одна задача, один виконавець, один PR «Closes #N».
+title: "[task] AC-…: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Задачі створює техлід разом із командою з `openspec/changes/impl-<зріз>/tasks.md` (одна задача — один пункт tasks.md).
+        Виконавець призначає себе (Assignees), робить гілку `task/<номер issue>-<коротко>` і PR з рядком `Closes #<номер>`.
+        Issue публічне: без справжніх назв клієнта, імен людей і їхніх даних — лише терміни з product/glossary.md.
+  - type: input
+    id: ac
+    attributes:
+      label: AC ID
+      description: Які критерії приймання закриває задача (через кому). Лише AC, які вже є в openspec/specs/ (після тегу spec-vX.Y).
+      placeholder: AC-AREA-01, AC-AREA-02
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Що зробити
+      description: Вертикальний зріз (екран + дія + дані + тест) — як у tasks.md; посилання на рядок tasks.md або design.md.
+      placeholder: |
+        Пункт 2 з openspec/changes/impl-…/tasks.md: …
+    validations:
+      required: true
+  - type: textarea
+    id: done_when
+    attributes:
+      label: Done when
+      description: Перевірюваний результат — тест із AC ID у назві зелений, рядок docs/conformance.md «реалізовано».
+      placeholder: |
+        Done when: AC-AREA-01 — тест `it("AC-AREA-01: …")` зелений, рядок матриці «реалізовано».
+    validations:
+      required: true
+  - type: checkboxes
+    id: area
+    attributes:
+      label: Область
+      description: Що зачіпає задача (для рев'ю й порядку міграцій).
+      options:
+        - label: UI (сторінка, форма)
+        - label: Дія (server action, перевірка ролі)
+        - label: Міграція (supabase/migrations — рев'ю власника з CODEOWNERS)
+        - label: Тест
+  - type: textarea
+    id: depends
+    attributes:
+      label: Залежить від
+      description: Інші задачі (#N), без яких цю не почати, — необов'язково.
+    validations:
+      required: false
