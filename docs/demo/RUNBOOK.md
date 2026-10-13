@@ -301,7 +301,6 @@ spec-v0.1 (тест з AC, якого ще немає в `openspec/specs/` на 
 - [ ] Вкладки: PR #6, issues #1–#5, Settings → Collaborators / Rules / Environments, `.github/CODEOWNERS` на GitHub,
       Actions → останній прогін CI на `main` (job `db-deploy`), Supabase → Database → Migrations, Vercel → Environment
       Variables і Deployment Protection, три вікна браузера (крок 1.5).
-- [ ] Zoom: увімкнено breakout rooms; створено 4 кімнати (property-workflows, therapy-scheduling, school-purchasing, leave-portal) і розподілено учасників за списком команд від клієнта; таймер — за слайдом 25 (≈1 хв — відкрити кімнати; у Zoom увімкнути зворотний відлік 30 с).
 - [ ] Сповіщення ОС, месенджерів і пошти вимкнено (режим «Не турбувати»); вкладки з поштою закрито.
 - [ ] Claude Code: виконано вхід; у кожній теці lp-* уже пройдено запит довіри до теки і запит про сервер із .mcp.json (відхилити: MCP для демо 1–2 не потрібен).
 - [ ] Акаунти на екрані (GitHub, Vercel, Supabase): перевірити, що в перемикачах немає клієнтських організацій; якщо є — окремий профіль браузера з демо-акаунтами. У SQL Editor перед Run — звірити назву проєкту.
