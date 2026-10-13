@@ -31,7 +31,8 @@
 
 ## 3. GitHub: environment `production` і секрети
 
-- [ ] Settings → Environments → `production` (якщо перший прогін CI вже створив його автоматично — відкрийте наявний):
+- [ ] Settings → Environments → `production` (якщо перший прогін CI вже створив його автоматично — відкрийте наявний;
+      `Production`, яке створює Vercel для своїх деплоїв, — те саме середовище: регістр у назвах GitHub не розрізняє):
       **Deployment branches** = Selected branches → `main` — <!-- знімок -->
 - [ ] Секрет environment `SUPABASE_DB_URL` = рядок **Session pooler** (порт **5432**, не 6543) з Supabase → **Connect**;
       пароль у рядку percent-encoded. Розробники його не бачать і пароля БД не отримують — <!-- лише назва секрету -->

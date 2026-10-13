@@ -129,7 +129,8 @@ git branch -d template/one-team-repo
 4. **CODEOWNERS** приходить у PR перебудови (`.github/CODEOWNERS`, чотири шляхи → `@koldovsky`). Collaborators на
    сцені лише показуємо (Settings → Collaborators, як є); у команді PM додає всіх розробників, і інвайти мають бути прийняті.
 5. **Environment `production` і `SUPABASE_DB_URL` — необов'язково, але бажано для демо 3** (показ «база через
-   `db-deploy`»). Settings → Environments → `production` (якщо перший прогін уже створив його — відкрити наявний) →
+   `db-deploy`»). Settings → Environments → `production` (на демо-репо це наявне `Production`, яке створив Vercel: регістр у
+   назвах GitHub не розрізняє, і `db-deploy` 13.10 використав саме його) →
    Deployment branches = Selected branches → `main` → Add environment secret `SUPABASE_DB_URL` = рядок **Session pooler**
    демо-проєкту з Supabase → **Connect** (порт 5432; пароль БД у рядку percent-encoded). Потім Actions → CI →
    **Run workflow** на `main` **без** `include_seed` (базу й сид застосовано 11.10, розділ 1.2) → у лозі `db-deploy`
