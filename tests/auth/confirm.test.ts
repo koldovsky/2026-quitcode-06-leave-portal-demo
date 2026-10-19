@@ -1,6 +1,7 @@
-// /auth/confirm і новий пароль: що приймаємо з посилання і куди ведемо.
+// /auth/confirm і новий пароль: що приймаємо з посилання і куди ведемо після «Активувати акаунт» (дія activate, POST).
+// Що сама сторінка (GET) нічого не перевіряє — tests/auth/confirm-page.test.tsx.
 import { describe, expect, it, vi } from "vitest";
-import { LINK_ERROR_PATH, confirmTarget } from "@/lib/auth/confirm";
+import { LINK_ERROR_PATH, activationFields, confirmTarget } from "@/lib/auth/confirm";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { validatePassword } from "@/lib/auth/password";
 
@@ -37,10 +38,20 @@ const EVIL_NEXT: unknown[] = [
 ];
 
 describe("Активація за посиланням", () => {
-  it("AC-USERS-02: дійсне посилання запрошення → перевірка token_hash → сторінка нового пароля", async () => {
+  it("AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля", async () => {
     const verify = vi.fn(async () => true);
     const target = await confirmTarget(params(`token_hash=${TOKEN}&type=invite&next=/account/password`), verify);
     expect(target).toBe("/account/password");
+    expect(verify).toHaveBeenCalledWith("invite", TOKEN);
+  });
+
+  it("AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData", async () => {
+    const fields = activationFields({ token_hash: TOKEN, type: "invite", next: "/account/password" });
+    expect(fields).toEqual({ token_hash: TOKEN, type: "invite", next: "/account/password" });
+    const form = new FormData();
+    for (const [name, value] of Object.entries(fields)) form.set(name, value);
+    const verify = vi.fn(async () => true);
+    expect(await confirmTarget(form, verify)).toBe("/account/password");
     expect(verify).toHaveBeenCalledWith("invite", TOKEN);
   });
 
@@ -71,7 +82,7 @@ describe("Активація за посиланням", () => {
     }
   });
 
-  it("AC-USERS-05: використане чи застаріле посилання (verifyOtp відмовив) → вхід з повідомленням про посилання", async () => {
+  it("AC-USERS-05: «Активувати акаунт» з використаним чи застарілим посиланням (verifyOtp відмовив) → вхід з повідомленням", async () => {
     const verify = vi.fn(async () => false);
     expect(await confirmTarget(params(`token_hash=${TOKEN}&type=invite&next=/account/password`), verify)).toBe(LINK_ERROR_PATH);
     expect(LINK_ERROR_PATH).toBe("/login?error=link");
@@ -82,6 +93,10 @@ describe("Активація за посиланням", () => {
     expect(await confirmTarget(params("type=invite&next=/"), verify)).toBe(LINK_ERROR_PATH);
     expect(await confirmTarget(params(`token_hash=${TOKEN}&type=signup`), verify)).toBe(LINK_ERROR_PATH);
     expect(await confirmTarget(params(`token_hash=${TOKEN}&type=email_change`), verify)).toBe(LINK_ERROR_PATH);
+    // Неповне посилання сторінка теж показує (порожні поля), а дія відмовляє, не звертаючись до Supabase.
+    const empty = new FormData();
+    for (const [name, value] of Object.entries(activationFields({}))) empty.set(name, value);
+    expect(await confirmTarget(empty, verify)).toBe(LINK_ERROR_PATH);
     expect(verify).not.toHaveBeenCalled();
   });
 

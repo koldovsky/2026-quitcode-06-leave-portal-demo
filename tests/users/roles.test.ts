@@ -1,13 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { ROLE_CHANGE_MESSAGES, USERS_EMPTY_MESSAGE, canManageUsers, roleChangeError, usersEmptyState } from "@/lib/users/roles";
+import {
+  HOME_NOTICES,
+  ROLE_CHANGE_MESSAGES,
+  USERS_ADMIN_ONLY_MESSAGE,
+  USERS_EMPTY_MESSAGE,
+  canManageUsers,
+  roleChangeError,
+  usersEmptyState,
+  usersPageRedirect,
+} from "@/lib/users/roles";
 
 describe("Доступ до сторінки користувачів", () => {
-  // Сторінка /admin/users — requireRole("admin"), навігація — той самий список ролей.
-  it("AC-USERS-07: список користувачів відкривається лише адміністратору — працівнику й менеджеру ні", () => {
-    expect(canManageUsers("admin")).toBe(true);
+  // Сторінка /admin/users — usersPageRedirect(роль) → головна з notice=admin-only; головна показує HOME_NOTICES[notice].
+  const homeMessageFor = (path: string) => HOME_NOTICES[new URL(path, "http://portal.invalid").searchParams.get("notice") ?? ""];
+
+  it("AC-USERS-07: працівник на сторінці користувачів → головна з «Список користувачів бачить лише адміністратор.»", () => {
+    expect(USERS_ADMIN_ONLY_MESSAGE).toBe("Список користувачів бачить лише адміністратор.");
     expect(canManageUsers("employee")).toBe(false);
+    const away = usersPageRedirect("employee");
+    expect(away).toBe("/?notice=admin-only");
+    expect(new URL(away!, "http://portal.invalid").pathname).toBe("/");
+    expect(homeMessageFor(away!)).toBe(USERS_ADMIN_ONLY_MESSAGE);
+  });
+
+  it("AC-USERS-13: менеджер на сторінці користувачів → головна з «Список користувачів бачить лише адміністратор.»", () => {
     expect(canManageUsers("manager")).toBe(false);
-    expect(canManageUsers(null)).toBe(false);
+    const away = usersPageRedirect("manager");
+    expect(away).toBe("/?notice=admin-only");
+    expect(homeMessageFor(away!)).toBe(USERS_ADMIN_ONLY_MESSAGE);
+  });
+
+  it("адміністратор бачить сторінку; профіль без ролі — теж на головну", () => {
+    expect(canManageUsers("admin")).toBe(true);
+    expect(usersPageRedirect("admin")).toBeNull();
+    expect(usersPageRedirect(null)).toBe("/?notice=admin-only");
+    // Невідомий notice з адреси не показуємо.
+    expect(Object.hasOwn(HOME_NOTICES, "<b>x</b>")).toBe(false);
   });
 });
 
