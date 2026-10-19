@@ -14,6 +14,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 реалізацією — задачі (issues) → гілки → PR → рев'ю колеги → merge. Форків немає.
 Продукт — `product/vision.md`; терміни — `product/glossary.md`; ролі й права — `product/roles.md`.
 
+## З WS7: вимоги PM — в окремому репо (модель v2)
+
+- Вимоги нових зрізів PM пише у своєму публічному репо (демо: `koldovsky/2026-quitcode-07-leave-portal-spec`, варіант
+  `docs/`). Знімок — тека `requirements/`: змінює її **лише** команда `/requirements-sync` (Claude Code і Cursor;
+  інструкція — `.claude/commands/requirements-sync.md`), PR «Оновлення вимог». Руками `requirements/` не правимо.
+- Далі розробник перекладає вимоги в OpenSpec (`add-<зріз>`, ті самі AC ID; правила — `openspec/config.yaml`) і пише
+  план `impl-<зріз>` (`design.md`, `tasks.md`). `npm run ac:coverage` попереджає про AC PM, яких ще немає в `openspec/specs/`.
+- Типи PR v2: «Оновлення вимог», «Специфікація», «Реалізація», «Оновлення шаблону» (шаблон PR). `product/` і теги
+  `spec-vX.Y` — історія зрізу WS6 (старої моделі), їх не видаляємо.
+
 ## Стек і версії (не оновлювати без рішення команди)
 
 Node 24.x · Next.js 16.4 (App Router, `src/`, без Cache Components) · React 19.3 · TypeScript ^5 · ESLint ^9 ·

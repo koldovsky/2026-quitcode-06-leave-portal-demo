@@ -10,6 +10,14 @@
   PM — `docs/bootstrap.md`, `docs/img/`, `.github/CODEOWNERS` (день 0). Без коду.
 - [ ] **Оновлення шаблону** — гілка `template/<коротко>`: `git cherry-pick` коміту шаблону курсу (README, «Оновлення шаблону»).
 
+<!-- З 19.10.2026 (модель v2: вимоги PM — в окремому репо, знімок у requirements/) — ще три типи: -->
+- [ ] **Оновлення вимог** — гілка `sync/<дата>` від команди агента `/requirements-sync`: лише `requirements/` (знімок
+  вимог PM) і рядок «Вимоги: …» у шапці `docs/conformance.md`. Рядків матриці тут немає.
+- [ ] **Специфікація** — гілка `spec/<id зміни>`: `openspec/**` — переклад вимог PM (`add-<зріз>`, archive у цій гілці)
+  або план `impl-<зріз>`; рядки нових AC у `docs/conformance.md` — «відкладено (чекає реалізації)». Без `requirements/`.
+- [ ] **Реалізація** — гілка `task/<коротко>`: `src/`, `supabase/`, `tests/`, рядки `docs/conformance.md`, `docs/decisions/`.
+  Без `requirements/` і `openspec/specs/`.
+
 Closes #
 
 <!-- Для задачі — номер issue «Задача» (Closes #12): після merge issue закриється само.

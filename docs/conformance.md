@@ -20,6 +20,8 @@ PM додає рядки нових AC у PR зі зміною специфік�
 
 Версія специфікації: spec-v0.2
 
+Вимоги: — (заповнює /requirements-sync)
+
 | AC | Що перевіряє | Код | Тест | Статус |
 |---|---|---|---|---|
 | AC-LEAVE-01 | заявка на одну посаду: одна заявка `pending`, один запис `main`; заміна — необов'язковий текст; заявку без записів база не зберігає | `src/lib/leave/submission.ts` (validateSubmission, normalizeSubstitute), `src/app/requests/actions.ts` (createLeaveRequest), `supabase/migrations/20261016000000_leave_rules_v0_2.sql` (substitute_note, submit_leave_request), `supabase/migrations/20261017000000_require_leave_records.sql` (leave_requests_require_records) | `tests/leave/submission.test.ts`, `tests/db/leave-db.test.ts` | реалізовано |
