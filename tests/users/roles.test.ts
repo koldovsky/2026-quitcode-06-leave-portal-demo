@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { USERS_EMPTY_MESSAGE, canManageUsers, usersEmptyState } from "@/lib/users/roles";
+import { ROLE_CHANGE_MESSAGES, USERS_EMPTY_MESSAGE, canManageUsers, roleChangeError, usersEmptyState } from "@/lib/users/roles";
 
 describe("Доступ до сторінки користувачів", () => {
   // Сторінка /admin/users — requireRole("admin"), навігація — той самий список ролей.
@@ -16,5 +16,19 @@ describe("Стан сторінки користувачів", () => {
     expect(USERS_EMPTY_MESSAGE).toBe("Ще немає запрошених. Запросіть першого працівника.");
     expect(usersEmptyState([{ id: "admin-1" }], "admin-1")).toBe(USERS_EMPTY_MESSAGE);
     expect(usersEmptyState([{ id: "admin-1" }, { id: "teacher-1" }], "admin-1")).toBeNull();
+  });
+});
+
+describe("Зміна ролі: повідомлення", () => {
+  it("AC-USERS-06: відмова бази LAST_ADMIN → «Не можна змінити роль останнього адміністратора»", () => {
+    const code = roleChangeError({ code: "23514", message: "LAST_ADMIN" });
+    expect(code).toBe("LAST_ADMIN");
+    expect(ROLE_CHANGE_MESSAGES[code!]).toBe("Не можна змінити роль останнього адміністратора");
+  });
+
+  it("AC-USERS-09: відмова бази FORBIDDEN (42501) — не технічний текст, а зрозуміле повідомлення", () => {
+    expect(roleChangeError({ code: "42501", message: "FORBIDDEN" })).toBe("FORBIDDEN");
+    expect(roleChangeError({ code: "XX000", message: "щось інше" })).toBe("ROLE_FAILED");
+    expect(roleChangeError(null)).toBeNull();
   });
 });

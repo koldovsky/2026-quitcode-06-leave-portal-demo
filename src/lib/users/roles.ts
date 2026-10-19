@@ -21,3 +21,22 @@ export const USERS_EMPTY_MESSAGE = "Ще немає запрошених. Зап
 export function usersEmptyState(users: readonly { id: string }[], viewerId: string): string | null {
   return users.every((u) => u.id === viewerId) ? USERS_EMPTY_MESSAGE : null;
 }
+
+export type RoleChangeError = "LAST_ADMIN" | "FORBIDDEN" | "INVALID_ROLE" | "ROLE_FAILED";
+
+export const ROLE_CHANGE_MESSAGES: Record<RoleChangeError, string> = {
+  // AC-USERS-06 — дослівно з вимоги PM.
+  LAST_ADMIN: "Не можна змінити роль останнього адміністратора",
+  FORBIDDEN: "Змінювати ролі може лише адміністратор.",
+  INVALID_ROLE: "Оберіть роль зі списку.",
+  ROLE_FAILED: "Не вдалося змінити роль. Спробуйте ще раз.",
+};
+
+/** Помилка функції бази public.admin_set_role → код для повідомлення (текст помилки бази користувачу не показуємо). */
+export function roleChangeError(error: { message?: string; code?: string } | null): RoleChangeError | null {
+  if (!error) return null;
+  if (error.message?.includes("LAST_ADMIN")) return "LAST_ADMIN";
+  if (error.message?.includes("FORBIDDEN") || error.code === "42501") return "FORBIDDEN";
+  if (error.message?.includes("INVALID_ROLE")) return "INVALID_ROLE";
+  return "ROLE_FAILED";
+}
