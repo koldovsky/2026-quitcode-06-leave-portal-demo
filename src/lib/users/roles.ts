@@ -12,8 +12,21 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 
 export const isAppRole = (value: unknown): value is AppRole => APP_ROLES.includes(value as AppRole);
 
-/** AC-USERS-07, AC-USERS-08: список користувачів, запрошення й зміна ролі — лише для адміністратора. */
+/** AC-USERS-07, AC-USERS-13, AC-USERS-08: список користувачів, запрошення й зміна ролі — лише для адміністратора. */
 export const canManageUsers = (role: AppRole | null | undefined): boolean => role === "admin";
+
+/** AC-USERS-07, AC-USERS-13 — дослівно з вимоги PM. */
+export const USERS_ADMIN_ONLY_MESSAGE = "Список користувачів бачить лише адміністратор.";
+
+/** Куди /admin/users веде не-адміністратора: головна з повідомленням (головна читає notice=admin-only). */
+export const USERS_ADMIN_ONLY_REDIRECT = "/?notice=admin-only";
+
+/** Повідомлення головної сторінки за параметром notice (лише відомі значення — текст з адреси не показуємо). */
+export const HOME_NOTICES: Record<string, string> = { "admin-only": USERS_ADMIN_ONLY_MESSAGE };
+
+/** AC-USERS-07, AC-USERS-13: null — сторінку можна показати; інакше — шлях, куди перенаправити. */
+export const usersPageRedirect = (role: AppRole | null | undefined): string | null =>
+  canManageUsers(role) ? null : USERS_ADMIN_ONLY_REDIRECT;
 
 export const USERS_EMPTY_MESSAGE = "Ще немає запрошених. Запросіть першого працівника.";
 

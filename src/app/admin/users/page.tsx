@@ -5,18 +5,30 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { POSITION_KIND_LABELS } from "@/lib/leave/messages";
 import type { PositionKind } from "@/lib/leave/types";
-import { requireRole } from "@/lib/supabase/viewer";
-import { APP_ROLES, ROLE_CHANGE_MESSAGES, ROLE_LABELS, isAppRole, usersEmptyState, type RoleChangeError } from "@/lib/users/roles";
+import { redirect } from "next/navigation";
+import { getViewer } from "@/lib/supabase/viewer";
+import {
+  APP_ROLES,
+  ROLE_CHANGE_MESSAGES,
+  ROLE_LABELS,
+  isAppRole,
+  usersEmptyState,
+  usersPageRedirect,
+  type RoleChangeError,
+} from "@/lib/users/roles";
 import { EmptyState, Notice, PageShell } from "../../_components/ui";
 import { changeRole } from "./actions";
 import { InviteDialog } from "./invite-dialog";
 
 const ROLE_OPTIONS = APP_ROLES.map((value) => ({ value, label: ROLE_LABELS[value] }));
 
-// AC-USERS-07: лише адміністратор — працівника й менеджера requireRole веде на головну, без сесії proxy і getViewer
-// ведуть на /login (AC-USERS-10). Дані — клієнтом користувача під RLS: адміністратор бачить усі профілі й посади.
+// AC-USERS-07, AC-USERS-13: лише адміністратор — працівника й менеджера ведемо на головну з повідомленням «Список
+// користувачів бачить лише адміністратор.»; без сесії proxy і getViewer ведуть на /login (AC-USERS-10). Дані — клієнтом
+// користувача під RLS: адміністратор бачить усі профілі й посади, інші — лише свій (захист не тримається на редіректі).
 export default async function UsersPage({ searchParams }: PageProps<"/admin/users">) {
-  const { supabase, viewer } = await requireRole("admin");
+  const { supabase, viewer } = await getViewer();
+  const away = usersPageRedirect(viewer?.role);
+  if (away || !viewer) redirect(away ?? "/");
   const { error, done } = await searchParams;
   const errorText =
     typeof error === "string" && Object.hasOwn(ROLE_CHANGE_MESSAGES, error) ? ROLE_CHANGE_MESSAGES[error as RoleChangeError] : null;

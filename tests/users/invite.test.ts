@@ -64,19 +64,32 @@ describe("Запрошення користувача", () => {
     expect(await inviteUserCore("admin", raw(), ORIGIN, deps)).toEqual({ ok: false, error: "EMAIL_EXISTS" });
   });
 
-  it.each<AppRole | null>(["manager", "employee", null])(
-    "AC-USERS-08: роль %s прямим викликом дії не запрошує — ні перевірки адреси, ні admin-клієнта",
-    async (role) => {
-      const deps = fakeDeps();
-      const result = await inviteUserCore(role, raw({ email: "new.person@example.test" }), ORIGIN, deps);
+  /** Прямий виклик дії запрошення з цією роллю: відмова до будь-якого звернення до бази чи admin-клієнта. */
+  async function expectNoInvite(role: AppRole | null) {
+    const deps = fakeDeps();
+    const result = await inviteUserCore(role, raw({ email: "new.person@example.test" }), ORIGIN, deps);
 
-      expect(result).toEqual({ ok: false, error: "FORBIDDEN" });
-      expect(deps.emailTaken).not.toHaveBeenCalled();
-      expect(deps.generateInvite).not.toHaveBeenCalled();
-      expect(deps.assignRole).not.toHaveBeenCalled();
-      expect(deps.assignMainPosition).not.toHaveBeenCalled();
-    },
-  );
+    // Акаунта немає (generateInvite не викликано), посилання немає (відповідь — лише FORBIDDEN).
+    expect(result).toEqual({ ok: false, error: "FORBIDDEN" });
+    expect(deps.emailTaken).not.toHaveBeenCalled();
+    expect(deps.generateInvite).not.toHaveBeenCalled();
+    expect(deps.assignRole).not.toHaveBeenCalled();
+    expect(deps.assignMainPosition).not.toHaveBeenCalled();
+  }
+
+  it("AC-USERS-14: менеджер напряму не запрошує — ні перевірки адреси, ні admin-клієнта, ні посилання", async () => {
+    await expectNoInvite("manager");
+  });
+
+  it("AC-USERS-15: працівник напряму не запрошує — ні перевірки адреси, ні admin-клієнта, ні посилання", async () => {
+    await expectNoInvite("employee");
+  });
+
+  // Без входу дія inviteUser ще до inviteUserCore веде на /login (getViewer: getClaims() без сесії → redirect);
+  // а якби й дійшла — роль null відхиляється так само.
+  it("AC-USERS-17: без входу напряму не запросити — ні перевірки адреси, ні admin-клієнта, ні посилання", async () => {
+    await expectNoInvite(null);
+  });
 
   it("некоректна адреса, посада без назви — нічого не створено", async () => {
     const deps = fakeDeps();

@@ -84,7 +84,8 @@ export function validateInvite(raw: RawInvite): { ok: true; value: InviteInput }
 }
 
 /**
- * Своє посилання для активації: /auth/confirm перевіряє token_hash (verifyOtp) і веде на /account/password.
+ * Своє посилання для активації: сторінка /auth/confirm («Активувати акаунт»); її дія activate перевіряє token_hash
+ * (verifyOtp) і веде на /account/password.
  * action_link від Supabase не використовуємо — тож Site URL і Redirect URLs проєкту на посилання не впливають.
  */
 export function buildActivationLink(origin: string, tokenHash: string): string {
