@@ -31,7 +31,7 @@
 | Тег | Що показує |
 |---|---|
 | `ws7-01-design-system` | дизайн-система: токени (`src/app/globals.css`), shadcn/ui (`src/components/ui/`), [`DESIGN.md`](DESIGN.md), `npm run check:design` в окремому workflow `architecture.yml`, ADR 0001 |
-| `ws7-02-invites-roles` | запрошення (`/admin/users`, `/auth/confirm`, `/account/password`, `src/lib/supabase/admin.ts`) і ролі (`public.admin_set_role`, міграція `20261020000000_admin_user_management.sql`), PGlite-тести, ADR 0002, 0003 |
+| `ws7-02-invites-roles` | запрошення (`/admin/users`, `/auth/confirm` — сторінка «Активувати акаунт», `verifyOtp` лише в POST, `/account/password`, `src/lib/supabase/admin.ts`) і ролі (`private.admin_set_role` + обгортка `public.admin_set_role`, міграції `20261020000000_admin_user_management.sql` і `20261020000100_admin_set_role_private.sql`), PGlite-тести, ADR 0002, 0003; тег — на фінальному коміті після QA 19.10 (AC-USERS-01…17) |
 
 Сценарій WS7 — [docs/demo/RUNBOOK-ws7.md](docs/demo/RUNBOOK-ws7.md); знімки «до/після» й Плани Б — `docs/demo/ws7/`.
 
