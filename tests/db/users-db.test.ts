@@ -1,20 +1,33 @@
-// Користувачі й ролі (зріз add-user-invites) — правила, які виконує лише база: GRANT, RLS, функції.
+// Користувачі й ролі (зріз add-user-invites) — правила, які виконує лише база: GRANT, RLS, функція admin_set_role.
 // Справжній Postgres (PGlite) з усіма міграціями й синтетичними користувачами з supabase/demo-users.json.
+// Кожен відмовний тест має ВПАСТИ, якщо прибрати правило (мутаційна перевірка — опис PR «Реалізація: ролі»).
 import { beforeAll, describe, expect, it } from "vitest";
 import { createLeaveDb, type LeaveDb } from "./supabase-pglite";
 
 let t: LeaveDb;
-let ADMIN: string, MANAGER_MATH: string, TEACHER: string;
+let ADMIN: string, MANAGER_MATH: string, TEACHER: string, TEACHER2: string;
 
 beforeAll(async () => {
   t = await createLeaveDb();
   ADMIN = t.users["admin@example.test"];
   MANAGER_MATH = t.users["manager.math@example.test"];
   TEACHER = t.users["teacher@example.test"];
+  TEACHER2 = t.users["teacher2@example.test"];
 }, 60_000);
 
 const profileCount = (userId: string) =>
   t.asUser<{ n: number }>(userId, "select count(*)::int as n from public.profiles").then((r) => r[0].n);
+
+const roleOf = async (userId: string) =>
+  (await t.asService<{ role: string }>("select role from public.profiles where id = $1", [userId]))[0].role;
+
+/** Прямий виклик RPC — як supabase.rpc("admin_set_role", …) з публічним ключем і власним входом. */
+const setRole = (callerId: string, userId: string, role: string) =>
+  t.asUser(callerId, "select public.admin_set_role($1, $2)", [userId, role]);
+
+/** Після тесту повертаємо роль: база спільна для всіх тестів файлу. */
+const restoreRole = (userId: string, role: string) =>
+  t.asService("update public.profiles set role = $2 where id = $1", [userId, role]);
 
 describe("База: список користувачів", () => {
   it("AC-USERS-10: без входу (лише публічний ключ) профілі не читаються взагалі", async () => {
@@ -55,5 +68,70 @@ describe("База: список користувачів", () => {
       [NEW],
     );
     expect(rows).toEqual([{ email: "new.teacher@example.test", role: "employee", title: "Вчитель математики" }]);
+  });
+});
+
+describe("База: зміна ролі", () => {
+  it("AC-USERS-03: адміністратор робить teacher2@ менеджером — роль у таблиці, діє з наступного запиту", async () => {
+    try {
+      await setRole(ADMIN, TEACHER2, "manager");
+      expect(await roleOf(TEACHER2)).toBe("manager");
+      // Наступний запит teacher2@ уже бачить нову роль: хелпер політик читає таблицю, а не JWT.
+      const [{ role }] = await t.asUser<{ role: string }>(TEACHER2, "select private.current_app_role() as role");
+      expect(role).toBe("manager");
+    } finally {
+      await restoreRole(TEACHER2, "employee");
+    }
+  });
+
+  it("AC-USERS-06: єдиний адміністратор не понижує сам себе — LAST_ADMIN, роль лишається admin", async () => {
+    const [{ n }] = await t.asService<{ n: number }>("select count(*)::int as n from public.profiles where role = 'admin'");
+    expect(n).toBe(1);
+    await expect(setRole(ADMIN, ADMIN, "employee")).rejects.toThrow("LAST_ADMIN");
+    expect(await roleOf(ADMIN)).toBe("admin");
+  });
+
+  it("AC-USERS-06: коли адміністраторів двоє, одного можна понизити", async () => {
+    try {
+      await setRole(ADMIN, TEACHER2, "admin");
+      await setRole(TEACHER2, ADMIN, "manager");
+      expect(await roleOf(ADMIN)).toBe("manager");
+      // Тепер teacher2@ — єдиний адміністратор: себе понизити не може.
+      await expect(setRole(TEACHER2, TEACHER2, "employee")).rejects.toThrow("LAST_ADMIN");
+    } finally {
+      await restoreRole(ADMIN, "admin");
+      await restoreRole(TEACHER2, "employee");
+    }
+  });
+
+  it("AC-USERS-09: працівник не підвищує собі роль прямим UPDATE — колонкового grant на role немає", async () => {
+    await expect(
+      t.asUser(TEACHER, "update public.profiles set role = 'admin' where id = (select auth.uid())"),
+    ).rejects.toThrow("permission denied");
+    // А власне ім'я — може (grant update (full_name) + політика profiles_update_own).
+    const renamed = await t.asUser(TEACHER, "update public.profiles set full_name = full_name where id = (select auth.uid()) returning id");
+    expect(renamed).toHaveLength(1);
+    expect(await roleOf(TEACHER)).toBe("employee");
+  });
+
+  it("AC-USERS-09: працівник не підвищує собі роль і через RPC admin_set_role — FORBIDDEN", async () => {
+    await expect(setRole(TEACHER, TEACHER, "admin")).rejects.toThrow("FORBIDDEN");
+    expect(await roleOf(TEACHER)).toBe("employee");
+  });
+
+  it("AC-USERS-08: менеджер прямим запитом не змінює ролі — FORBIDDEN, нічого не змінено", async () => {
+    await expect(setRole(MANAGER_MATH, TEACHER, "manager")).rejects.toThrow("FORBIDDEN");
+    await expect(setRole(MANAGER_MATH, MANAGER_MATH, "admin")).rejects.toThrow("FORBIDDEN");
+    expect(await roleOf(TEACHER)).toBe("employee");
+    expect(await roleOf(MANAGER_MATH)).toBe("manager");
+  });
+
+  it("AC-USERS-10: без входу функцію не виконати взагалі (execute лише authenticated)", async () => {
+    await expect(t.asAnon("select public.admin_set_role($1, 'admin')", [TEACHER])).rejects.toThrow("permission denied");
+    expect(await roleOf(TEACHER)).toBe("employee");
+  });
+
+  it("невідома роль — відмова навіть адміністратору", async () => {
+    await expect(setRole(ADMIN, TEACHER, "superuser")).rejects.toThrow("INVALID_ROLE");
   });
 });
