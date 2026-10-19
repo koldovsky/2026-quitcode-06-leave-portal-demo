@@ -85,7 +85,7 @@ export async function inviteUser(_prev: InviteState, formData: FormData): Promis
 /**
  * AC-USERS-03, AC-USERS-06, AC-USERS-08, AC-USERS-09: зміна ролі зі списку користувачів.
  * Не admin-клієнтом: rpc від імені адміністратора, тож перевірку «лише admin» і «не останнього admin» робить база
- * (public.admin_set_role) — і для цієї дії, і для прямого запиту з публічним ключем.
+ * (public.admin_set_role → private.admin_set_role) — і для цієї дії, і для прямого запиту з публічним ключем.
  */
 export async function changeRole(formData: FormData) {
   const { supabase, viewer } = await getViewer();

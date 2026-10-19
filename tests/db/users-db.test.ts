@@ -38,7 +38,9 @@ describe("База: список користувачів", () => {
     const [{ n: all }] = await t.asService<{ n: number }>("select count(*)::int as n from public.profiles");
     expect(await profileCount(TEACHER)).toBe(1);
     expect(await profileCount(ADMIN)).toBe(all);
-    // Менеджер бачить профілі лише тих, чиї записи в його черзі (тут черга порожня) — і свій.
+  });
+
+  it("AC-USERS-13: менеджер бачить лише власний профіль (і тих, чиї записи в його черзі — тут черга порожня)", async () => {
     expect(await profileCount(MANAGER_MATH)).toBe(1);
   });
 
@@ -114,21 +116,52 @@ describe("База: зміна ролі", () => {
     expect(await roleOf(TEACHER)).toBe("employee");
   });
 
+  // Відмовні тести повертають ролі у finally: якщо правило зламане й роль таки змінилась, червоним стає лише цей тест,
+  // а не наступні (мутаційна перевірка показує саме ті AC, чиє правило прибрали).
   it("AC-USERS-09: працівник не підвищує собі роль і через RPC admin_set_role — FORBIDDEN", async () => {
-    await expect(setRole(TEACHER, TEACHER, "admin")).rejects.toThrow("FORBIDDEN");
-    expect(await roleOf(TEACHER)).toBe("employee");
+    try {
+      await expect(setRole(TEACHER, TEACHER, "admin")).rejects.toThrow("FORBIDDEN");
+      expect(await roleOf(TEACHER)).toBe("employee");
+    } finally {
+      await restoreRole(TEACHER, "employee");
+    }
   });
 
-  it("AC-USERS-08: менеджер прямим запитом не змінює ролі — FORBIDDEN, нічого не змінено", async () => {
-    await expect(setRole(MANAGER_MATH, TEACHER, "manager")).rejects.toThrow("FORBIDDEN");
-    await expect(setRole(MANAGER_MATH, MANAGER_MATH, "admin")).rejects.toThrow("FORBIDDEN");
-    expect(await roleOf(TEACHER)).toBe("employee");
-    expect(await roleOf(MANAGER_MATH)).toBe("manager");
+  it("AC-USERS-08: менеджер напряму не змінює ролі — FORBIDDEN, нічого не змінено", async () => {
+    try {
+      await expect(setRole(MANAGER_MATH, TEACHER, "manager")).rejects.toThrow("FORBIDDEN");
+      await expect(setRole(MANAGER_MATH, MANAGER_MATH, "admin")).rejects.toThrow("FORBIDDEN");
+      expect(await roleOf(TEACHER)).toBe("employee");
+      expect(await roleOf(MANAGER_MATH)).toBe("manager");
+    } finally {
+      await restoreRole(TEACHER, "employee");
+      await restoreRole(MANAGER_MATH, "manager");
+    }
   });
 
-  it("AC-USERS-10: без входу функцію не виконати взагалі (execute лише authenticated)", async () => {
-    await expect(t.asAnon("select public.admin_set_role($1, 'admin')", [TEACHER])).rejects.toThrow("permission denied");
-    expect(await roleOf(TEACHER)).toBe("employee");
+  it("AC-USERS-16: без входу функцію не виконати взагалі (execute лише authenticated)", async () => {
+    try {
+      await expect(t.asAnon("select public.admin_set_role($1, 'admin')", [TEACHER])).rejects.toThrow("permission denied");
+      // Приватна функція з логікою — теж ні: anon не має ні usage на схему private, ні execute.
+      await expect(t.asAnon("select private.admin_set_role($1, 'admin')", [TEACHER])).rejects.toThrow("permission denied");
+      expect(await roleOf(TEACHER)).toBe("employee");
+    } finally {
+      await restoreRole(TEACHER, "employee");
+    }
+  });
+
+  it("логіка — у private (security definer), точка входу в public — security invoker; anon не виконує жодної", async () => {
+    const rows = await t.asService<{ schema: string; definer: boolean; anon: boolean; authenticated: boolean }>(
+      `select n.nspname as schema, p.prosecdef as definer,
+              pg_catalog.has_function_privilege('anon', p.oid, 'execute') as anon,
+              pg_catalog.has_function_privilege('authenticated', p.oid, 'execute') as authenticated
+         from pg_catalog.pg_proc as p join pg_catalog.pg_namespace as n on n.oid = p.pronamespace
+        where p.proname = 'admin_set_role' order by n.nspname`,
+    );
+    expect(rows).toEqual([
+      { schema: "private", definer: true, anon: false, authenticated: true },
+      { schema: "public", definer: false, anon: false, authenticated: true },
+    ]);
   });
 
   it("невідома роль — відмова навіть адміністратору", async () => {

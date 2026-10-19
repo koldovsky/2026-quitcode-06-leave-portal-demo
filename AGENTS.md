@@ -108,10 +108,11 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - Кожна таблиця в `public`: `enable row level security`; `revoke all … from anon, authenticated`;
   явні `grant` (автогрантів немає); політика на кожну операцію з `to authenticated` і `(select auth.uid())`;
   колонкові `grant update (…)`, щоб користувач не змінив собі `role`/`status`.
-- Роль користувача змінює **лише** `public.admin_set_role(p_user, p_role)` (міграція `20261020000000_admin_user_management.sql`,
-  ADR 0002): `profiles.role` без колонкового grant — інакше політика «оновлюю свій рядок» дає самопідвищення. Це
-  єдиний свідомий виняток із «definer — лише в `private`»: точка входу RPC з перевіркою `private.current_app_role() = 'admin'`
-  першим оператором, `search_path = ''`, `execute` лише `authenticated`. Нові привілейовані дії — за тим самим шаблоном.
+- Роль користувача змінює **лише** `supabase.rpc("admin_set_role", …)` (міграція `20261020000100_admin_set_role_private.sql`,
+  ADR 0002): `profiles.role` без колонкового grant — інакше політика «оновлюю свій рядок» дає самопідвищення. Логіка —
+  у `private.admin_set_role` (`security definer`, `set search_path = ''`, перевірка `private.current_app_role() = 'admin'`
+  першим оператором, захист останнього admin); `public.admin_set_role` — тонка обгортка `security invoker`; `execute`
+  обох — лише `authenticated`. Нові привілейовані дії — за тим самим шаблоном (definer — лише в `private`).
 - Хелпери ролей — у схемі `private`, `security definer`, `set search_path = ''`; роль — з `profiles.role`,
   ніколи з `user_metadata`. Набір ролей змінюй новою міграцією в такому порядку: зняти старий
   `profiles_role_check` → оновити наявні дані (`update … set role`) → новий `default` колонки `role` →
