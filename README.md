@@ -24,6 +24,17 @@
 
 Сценарій для ведучого й кроки з акаунтами (Supabase, Vercel, GitHub) — [docs/demo/RUNBOOK.md](docs/demo/RUNBOOK.md).
 
+**WS7 «Fullstack з AI: фронт і бек» (20.10.2026)** — зріз `add-user-invites` (запрошення посиланням для активації й ролі)
+у моделі v2: вимоги PM — в окремому репо [`koldovsky/2026-quitcode-07-leave-portal-spec`](https://github.com/koldovsky/2026-quitcode-07-leave-portal-spec)
+(`docs/`), тут — знімок `requirements/` (`/requirements-sync`), специфікація `openspec/specs/user-management/spec.md`.
+
+| Тег | Що показує |
+|---|---|
+| `ws7-01-design-system` | дизайн-система: токени (`src/app/globals.css`), shadcn/ui (`src/components/ui/`), [`DESIGN.md`](DESIGN.md), `npm run check:design` в окремому workflow `architecture.yml`, ADR 0001 |
+| `ws7-02-invites-roles` | запрошення (`/admin/users`, `/auth/confirm`, `/account/password`, `src/lib/supabase/admin.ts`) і ролі (`public.admin_set_role`, міграція `20261020000000_admin_user_management.sql`), PGlite-тести, ADR 0002, 0003 |
+
+Сценарій WS7 — [docs/demo/RUNBOOK-ws7.md](docs/demo/RUNBOOK-ws7.md); знімки «до/після» й Плани Б — `docs/demo/ws7/`.
+
 ---
 
 ## Шаблон командного проєкту: Next.js + Supabase + OpenSpec
