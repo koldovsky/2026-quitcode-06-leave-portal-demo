@@ -32,7 +32,7 @@ export const ROLE_CHANGE_MESSAGES: Record<RoleChangeError, string> = {
   ROLE_FAILED: "Не вдалося змінити роль. Спробуйте ще раз.",
 };
 
-/** Помилка функції бази public.admin_set_role → код для повідомлення (текст помилки бази користувачу не показуємо). */
+/** Помилка функції бази public.admin_set_role (логіка — private.admin_set_role) → код для повідомлення (текст помилки бази користувачу не показуємо). */
 export function roleChangeError(error: { message?: string; code?: string } | null): RoleChangeError | null {
   if (!error) return null;
   if (error.message?.includes("LAST_ADMIN")) return "LAST_ADMIN";
