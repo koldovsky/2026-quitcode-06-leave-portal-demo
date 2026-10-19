@@ -8,7 +8,8 @@
 //      той самий ID двічі в зміні, ADDED-ID, який уже є в openspec/specs, MODIFIED-сценарій з ID чужої вимоги;
 //      і дві активні зміни не вводять той самий новий ID;
 //   4) жодне слово зі списку заборонених (product/denylist.txt + локальний product/denylist.local.txt
-//      + змінна середовища SPEC_DENYLIST) не трапляється в product/, openspec/, docs/, src/, supabase/,
+//      + змінна середовища SPEC_DENYLIST) не трапляється в product/, requirements/ (знімок вимог PM), openspec/,
+//      docs/, src/, supabase/,
 //      tests/ (без tests/scripts і tests/fixtures), README.md і AGENTS.md (без урахування регістру; збіг за
 //      ПОЧАТКОМ слова, тож «Контосо» ловить і «Контосо», і «Контосою», і «Контосо-офіс»; фраза ловиться й
 //      через перенесення рядка, латинські й кириличні літери-двійники рівноцінні; транслітерацію — ні);
@@ -229,7 +230,8 @@ if (words.length) {
     };
   });
   const denylistPaths = new Set(DENYLIST_FILES.map((d) => d.file));
-  // Не лише спека: розробник пише назви в docs/, коді, сидах і тестах. Не скануємо lock-файли (base64-хеші
+  // Не лише спека: знімок вимог PM (requirements/), а ще розробник пише назви в docs/, коді, сидах і тестах.
+  // Не скануємо lock-файли (base64-хеші
   // дають хибні збіги), бінарні файли, згенеровані типи й тести самих скриптів (tests/scripts, tests/fixtures:
   // там слова denylist навмисно).
   const skipScan = (r) =>
@@ -240,7 +242,7 @@ if (words.length) {
     r === "src/lib/supabase/database.types.ts" ||
     /\.(png|jpe?g|gif|webp|ico|svg|pdf|woff2?|ttf|otf|mp4|webm|zip|lock)$/i.test(r) ||
     /(^|\/)package-lock\.json$/.test(r);
-  const SCAN_DIRS = ["product", "openspec", "docs", "src", "supabase", "tests"];
+  const SCAN_DIRS = ["product", "requirements", "openspec", "docs", "src", "supabase", "tests"];
   const scanned = [
     ...SCAN_DIRS.flatMap((d) => walk(path.join(root(), d), { skip: skipScan })),
     ...["README.md", "AGENTS.md"].map((f) => path.join(root(), f)).filter((f) => existsSync(f)),

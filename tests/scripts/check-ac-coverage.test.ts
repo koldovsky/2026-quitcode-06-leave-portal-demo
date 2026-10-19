@@ -98,6 +98,25 @@ describe("scripts/check-ac-coverage.mjs", () => {
     expect(code).toBe(0);
   });
 
+  it("warns (exit 0) about PM acceptance criteria in requirements/ that the spec does not have yet", () => {
+    const { code, out } = run("not-translated");
+    expect(code).toBe(0);
+    expect(out).toContain("AC у вимогах PM (requirements/): 3");
+    const warn = out.slice(out.indexOf("WARN не перекладено"));
+    // Рядок, що починається з ID (зокрема в блоці ``` поля issue-форми), — визначення AC; його немає в openspec/specs.
+    expect(warn).toMatch(/вимогу PM ще не перекладено в специфікацію: AC-DEMO-03 \(requirements\/7-leave-request\.md:\d+\)/);
+    // Перекладені AC, згадка посеред рядка, HTML-коментар, README.md, «Відкриті питання» й «Журнал змін» — без попередження.
+    for (const id of ["AC-DEMO-01", "AC-DEMO-02", "AC-DEMO-04", "AC-DEMO-05", "AC-DEMO-06", "AC-DEMO-08", "AC-DEMO-09"]) {
+      expect(warn).not.toContain(id);
+    }
+    expect(out).not.toContain("FAIL");
+  });
+
+  it("does not warn when requirements/ is absent or every PM AC is in the spec", () => {
+    expect(run("ok").out).not.toContain("WARN не перекладено");
+    expect(run("new-ac").out).toContain("AC у вимогах PM (requirements/): 0");
+  });
+
   it("passes on an empty template", () => {
     const { code, out } = run("empty");
     expect(code).toBe(0);

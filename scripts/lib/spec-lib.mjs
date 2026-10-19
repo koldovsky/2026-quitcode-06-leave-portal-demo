@@ -105,6 +105,38 @@ export function collectSpecAcs(dir = path.join(root(), "openspec", "specs")) {
   return acs;
 }
 
+// AC, які визначає PM у знімку своїх вимог requirements/** (його приносить /requirements-sync; README.md і
+// _template.md не рахуються). Визначення — рядок, що ПОЧИНАЄТЬСЯ з AC ID (після необов'язкових маркера списку,
+// цитати, заголовка чи жирного шрифту), за яким іде двокрапка або тире: так за шаблоном вимоги PM пише критерій
+// приймання — «AC-LEAVE-01: Дано … Коли … Тоді …». Згадки посеред рядка («див. AC-LEAVE-02») і розділи «Журнал змін»
+// та «Відкриті питання» (там PM згадує прибрані чи чужі AC) — не визначення; HTML-коментарі <!-- … --> теж (так PM
+// приховує підказки шаблону чи прибраний критерій: на сторінці їх не видно). Блоки ``` НЕ пропускаємо: поле
+// issue-форми з `render:` GitHub загортає саме в такий блок.
+const REQUIREMENT_AC_DEF = new RegExp(
+  `^\\s*(?:>\\s*)?(?:#{1,6}\\s+)?(?:[-*+]\\s+|\\d+[.)]\\s+)?(?:\\[[ xX]\\]\\s+)?(?:\\*\\*|__)?(${AC_ID})(?![\\w-])` +
+    `(?:\\*\\*|__)?(?:\\s*(?::|—|–|-\\s)|\\s+(?=Дано))`,
+);
+const SKIPPED_REQUIREMENT_SECTIONS = /^(журнал змін|відкриті питання)/i;
+export function collectRequirementAcs(dir = path.join(root(), "requirements")) {
+  const acs = new Map(); // id → [{file, line}]
+  const skipFile = (r) => /^requirements\/(README|_template)\.md$/i.test(r);
+  for (const file of walk(dir, { filter: (r) => isMarkdown(r) && !skipFile(r) })) {
+    let skipSection = false;
+    stripHtmlComments(readText(file))
+      .split("\n")
+      .forEach((line, i) => {
+        const heading = line.match(/^\s*#{1,6}\s+(.*)$/);
+        if (heading) skipSection = SKIPPED_REQUIREMENT_SECTIONS.test(heading[1].replace(/[*_`]/g, "").trim());
+        if (skipSection) return;
+        const m = line.match(REQUIREMENT_AC_DEF);
+        if (!m) return;
+        if (!acs.has(m[1])) acs.set(m[1], []);
+        acs.get(m[1]).push({ file: rel(file), line: i + 1 });
+      });
+  }
+  return acs;
+}
+
 export function stripHtmlComments(text) {
   // Коментар замінюємо його ж переносами рядків, щоб номери рядків у повідомленнях лишались правильними.
   return text.replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ""));

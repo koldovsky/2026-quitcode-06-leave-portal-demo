@@ -52,6 +52,8 @@ describe("scripts/check-spec.mjs", () => {
     expect(out).toContain("openspec/specs/leave/spec.md:3");
     // «Нортвінд» у denylist.txt ловить «Нортвінду» у тексті
     expect(out).toContain('product/vision.md:3 — "Нортвінд"');
+    // і в знімку вимог PM (requirements/), який приносить /requirements-sync
+    expect(out).toContain('requirements/product.md:3 — "Нортвінд"');
     expect(out).not.toContain("product/denylist.txt");
   });
 
