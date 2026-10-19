@@ -1,17 +1,25 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { POSITION_KIND_LABELS } from "@/lib/leave/messages";
 import type { PositionKind } from "@/lib/leave/types";
 import { requireRole } from "@/lib/supabase/viewer";
-import { ROLE_LABELS, isAppRole, usersEmptyState } from "@/lib/users/roles";
-import { EmptyState, PageShell } from "../../_components/ui";
+import { APP_ROLES, ROLE_CHANGE_MESSAGES, ROLE_LABELS, isAppRole, usersEmptyState, type RoleChangeError } from "@/lib/users/roles";
+import { EmptyState, Notice, PageShell } from "../../_components/ui";
+import { changeRole } from "./actions";
 import { InviteDialog } from "./invite-dialog";
+
+const ROLE_OPTIONS = APP_ROLES.map((value) => ({ value, label: ROLE_LABELS[value] }));
 
 // AC-USERS-07: лише адміністратор — працівника й менеджера requireRole веде на головну, без сесії proxy і getViewer
 // ведуть на /login (AC-USERS-10). Дані — клієнтом користувача під RLS: адміністратор бачить усі профілі й посади.
-export default async function UsersPage() {
+export default async function UsersPage({ searchParams }: PageProps<"/admin/users">) {
   const { supabase, viewer } = await requireRole("admin");
+  const { error, done } = await searchParams;
+  const errorText =
+    typeof error === "string" && Object.hasOwn(ROLE_CHANGE_MESSAGES, error) ? ROLE_CHANGE_MESSAGES[error as RoleChangeError] : null;
 
   const [{ data: profiles }, { data: positions }, { data: divisions }] = await Promise.all([
     supabase.from("profiles").select("id, email, full_name, role, created_at").order("created_at", { ascending: true }),
@@ -28,8 +36,16 @@ export default async function UsersPage() {
         <p className="text-sm text-muted-foreground">
           Хто має доступ до порталу і з якою роллю. Нових людей запрошуйте посиланням для активації.
         </p>
-        <InviteDialog divisions={divisions ?? []} />
+        <InviteDialog divisions={divisions ?? []} roles={ROLE_OPTIONS} />
       </div>
+
+      {/* AC-USERS-06: відмову бази (LAST_ADMIN) показуємо словами з вимоги PM. */}
+      {errorText ? (
+        <Notice kind="error" title="Роль не змінено">
+          {errorText}
+        </Notice>
+      ) : null}
+      {done === "role" ? <Notice kind="success">Роль змінено. Нова роль діє з наступного відкриття сторінки.</Notice> : null}
 
       <Card className="py-0">
         <CardContent className="px-0">
@@ -39,7 +55,8 @@ export default async function UsersPage() {
                 <TableHead className="px-4 text-muted-foreground">Email</TableHead>
                 <TableHead className="text-muted-foreground">Ім&apos;я</TableHead>
                 <TableHead className="text-muted-foreground">Роль</TableHead>
-                <TableHead className="px-4 text-muted-foreground">Посади</TableHead>
+                <TableHead className="text-muted-foreground">Посади</TableHead>
+                <TableHead className="px-4 text-muted-foreground">Змінити роль</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -54,7 +71,7 @@ export default async function UsersPage() {
                         {isAppRole(u.role) ? ROLE_LABELS[u.role] : u.role}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-4 py-3 whitespace-normal">
+                    <TableCell className="py-3 whitespace-normal">
                       {own.length ? (
                         <ul className="flex flex-col gap-0.5">
                           {own.map((p) => (
@@ -69,6 +86,28 @@ export default async function UsersPage() {
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      {/* AC-USERS-03: зміна ролі — Server Action changeRole → rpc admin_set_role від імені адміністратора. */}
+                      <form action={changeRole} className="flex items-center gap-2">
+                        <input type="hidden" name="user_id" value={u.id} />
+                        <NativeSelect
+                          name="role"
+                          size="sm"
+                          className="min-w-36"
+                          defaultValue={u.role}
+                          aria-label={`Нова роль для ${u.email ?? "користувача"}`}
+                        >
+                          {ROLE_OPTIONS.map((r) => (
+                            <NativeSelectOption key={r.value} value={r.value}>
+                              {r.label}
+                            </NativeSelectOption>
+                          ))}
+                        </NativeSelect>
+                        <Button type="submit" variant="outline" size="sm">
+                          Змінити
+                        </Button>
+                      </form>
                     </TableCell>
                   </TableRow>
                 );

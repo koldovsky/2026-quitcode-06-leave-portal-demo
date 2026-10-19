@@ -4,9 +4,11 @@
 // сторінку, тому кожна дія сама перевіряє, хто її викликав (getViewer → getClaims + роль з profiles).
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getViewer } from "@/lib/supabase/viewer";
 import { inviteUserCore, type InviteResult } from "@/lib/users/invite";
+import { canManageUsers, isAppRole, roleChangeError } from "@/lib/users/roles";
 
 export type InviteState = { status: "idle" } | ({ status: "done" } & InviteResult);
 
@@ -60,8 +62,11 @@ export async function inviteUser(_prev: InviteState, formData: FormData): Promis
         }
         return { ok: true, userId: data.user.id, tokenHash: data.properties.hashed_token };
       },
-      // Роль, відмінна від employee, — у PR «Реалізація: ролі» (RPC admin_set_role); у цьому PR форма її не надсилає.
-      assignRole: async () => false,
+      // Роль — тією самою функцією бази, що й зміна ролі в списку, і клієнтом адміністратора (не admin-клієнтом).
+      assignRole: async (userId, role) => {
+        const { error } = await supabase.rpc("admin_set_role", { p_user: userId, p_role: role });
+        return !error;
+      },
       assignMainPosition: async (userId, divisionId, title) => {
         // RLS: positions_insert_admin — вставляє лише адміністратор.
         const { error } = await supabase
@@ -75,4 +80,26 @@ export async function inviteUser(_prev: InviteState, formData: FormData): Promis
   if (result.ok) revalidatePath("/admin/users");
   // Посилання — лише у відповіді цієї дії (не в URL і не в логах): це живий credential (ADR 0003).
   return { status: "done", ...result };
+}
+
+/**
+ * AC-USERS-03, AC-USERS-06, AC-USERS-08, AC-USERS-09: зміна ролі зі списку користувачів.
+ * Не admin-клієнтом: rpc від імені адміністратора, тож перевірку «лише admin» і «не останнього admin» робить база
+ * (public.admin_set_role) — і для цієї дії, і для прямого запиту з публічним ключем.
+ */
+export async function changeRole(formData: FormData) {
+  const { supabase, viewer } = await getViewer();
+  // Не адміністратор — нічого не змінюємо й нічого не показуємо (AC-USERS-08).
+  if (!canManageUsers(viewer?.role)) redirect("/");
+
+  const userId = text(formData, "user_id");
+  const role = text(formData, "role");
+  if (!userId || !isAppRole(role)) redirect("/admin/users?error=INVALID_ROLE");
+
+  const { error } = await supabase.rpc("admin_set_role", { p_user: userId, p_role: role });
+  const code = roleChangeError(error);
+  if (code) redirect(`/admin/users?error=${code}`);
+
+  revalidatePath("/admin/users");
+  redirect("/admin/users?done=role");
 }
