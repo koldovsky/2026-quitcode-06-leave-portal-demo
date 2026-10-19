@@ -1,26 +1,132 @@
+/*
+ * Портал відсутностей — токени дизайн-системи (канонічні значення).
+ * Джерело: артефакт Claude Design System https://claude.ai/artifact/DKnNcLTXjgeErK1FoZR6b4
+ * Імена — семантичні й збігаються з shadcn/ui, тож компоненти shadcn беруть їх без змін.
+ * Контраст перевірено (WCAG): текст ≥ 4.5:1 на своєму тлі в обох темах, межі полів і фокус ≥ 3:1.
+ */
 @import "tailwindcss";
+/* Анімації й варіанти станів (data-open, data-closed…) для компонентів shadcn/ui на Base UI — їх додав npx shadcn init. */
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.625rem;
+
+  --background: oklch(0.985 0.004 200);
+  --foreground: oklch(0.24 0.02 220);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.02 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.02 220);
+  --primary: oklch(0.46 0.085 200);
+  --primary-foreground: oklch(0.985 0.004 200);
+  --secondary: oklch(0.95 0.01 200);
+  --secondary-foreground: oklch(0.28 0.03 210);
+  --muted: oklch(0.96 0.006 200);
+  --muted-foreground: oklch(0.48 0.02 220);
+  --accent: oklch(0.94 0.025 195);
+  --accent-foreground: oklch(0.3 0.05 200);
+  --destructive: oklch(0.53 0.19 25);
+  --destructive-foreground: oklch(0.985 0.004 200);
+  --border: oklch(0.9 0.01 210);
+  --input: oklch(0.62 0.015 210);
+  --ring: oklch(0.55 0.09 200);
+
+  /* Статуси запису відсутності: тло (тінт) + текст. Завжди разом із підписом, не лише кольором. */
+  --status-pending: oklch(0.95 0.06 85);
+  --status-pending-foreground: oklch(0.42 0.09 65);
+  --status-approved: oklch(0.95 0.045 165);
+  --status-approved-foreground: oklch(0.4 0.08 165);
+  --status-returned: oklch(0.95 0.03 15);
+  --status-returned-foreground: oklch(0.45 0.13 20);
+
+  /* Тінь — лише діалоги й випадні меню (артефакт: shadow-dialog). Картки відокремлює border, без тіні. */
+  --dialog-shadow: 0 12px 32px rgb(10 34 40 / 0.18);
+}
+
+/* Темна тема — за налаштуванням системи (без перемикача); варіант dark: у Tailwind 4 теж слідує prefers-color-scheme. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background: oklch(0.19 0.015 220);
+  --foreground: oklch(0.95 0.008 200);
+  --card: oklch(0.23 0.018 220);
+  --card-foreground: oklch(0.95 0.008 200);
+  --popover: oklch(0.23 0.018 220);
+  --popover-foreground: oklch(0.95 0.008 200);
+  --primary: oklch(0.72 0.1 195);
+  --primary-foreground: oklch(0.2 0.03 210);
+  --secondary: oklch(0.28 0.02 215);
+  --secondary-foreground: oklch(0.93 0.01 200);
+  --muted: oklch(0.27 0.015 220);
+  --muted-foreground: oklch(0.72 0.015 210);
+  --accent: oklch(0.3 0.04 200);
+  --accent-foreground: oklch(0.93 0.02 195);
+  --destructive: oklch(0.7 0.16 25);
+  --destructive-foreground: oklch(0.2 0.03 25);
+  --border: oklch(0.32 0.015 220);
+  --input: oklch(0.58 0.015 220);
+  --ring: oklch(0.72 0.1 195);
+
+  --status-pending: oklch(0.32 0.06 75);
+  --status-pending-foreground: oklch(0.88 0.1 85);
+  --status-approved: oklch(0.31 0.05 165);
+  --status-approved-foreground: oklch(0.87 0.08 165);
+  --status-returned: oklch(0.32 0.06 20);
+  --status-returned-foreground: oklch(0.87 0.07 20);
+
+  --dialog-shadow: 0 12px 32px rgb(0 0 0 / 0.55);
+}
 }
 
 @theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-status-pending: var(--status-pending);
+  --color-status-pending-foreground: var(--status-pending-foreground);
+  --color-status-approved: var(--status-approved);
+  --color-status-approved-foreground: var(--status-approved-foreground);
+  --color-status-returned: var(--status-returned);
+  --color-status-returned-foreground: var(--status-returned-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-dialog: var(--dialog-shadow);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  /* Нативні поля (дата, select, смуги прокрутки) теж слідують темі системи. */
+  html {
+    color-scheme: light dark;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
 }

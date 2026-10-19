@@ -1,10 +1,13 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { canDecideRecord } from "@/lib/leave/access";
 import { countLeaveDays } from "@/lib/leave/blocked-days";
 import { formatDate } from "@/lib/leave/dates";
 import { LEAVE_TYPE_LABELS, POSITION_KIND_LABELS, STATUS_LABELS, errorMessage } from "@/lib/leave/messages";
 import type { LeaveType, PositionKind, RecordStatus } from "@/lib/leave/types";
 import { requireRole } from "@/lib/supabase/viewer";
-import { Notice, PageShell, StatusBadge, buttonClass, inputClass, secondaryButtonClass } from "../_components/ui";
+import { EmptyState, Field, Notice, PageShell, StatusBadge } from "../_components/ui";
 import { decideRecord } from "./actions";
 
 // AC-LEAVE-05, AC-LEAVE-09: менеджер бачить лише записи підрозділів, якими керує; адміністратор — усі.
@@ -50,13 +53,17 @@ export default async function ManagePage({ searchParams }: PageProps<"/manage">)
         <span className="font-medium">{person?.full_name ?? person?.email ?? "працівник"}</span>
         {req ? (
           <span>
-            {LEAVE_TYPE_LABELS[req.leave_type as LeaveType]}, {formatDate(req.start_date)} – {formatDate(req.end_date)} (днів: {days})
+            {LEAVE_TYPE_LABELS[req.leave_type as LeaveType]},{" "}
+            <span className="font-mono text-[13px] tabular-nums">
+              {formatDate(req.start_date)} – {formatDate(req.end_date)}
+            </span>{" "}
+            (днів: {days})
           </span>
         ) : null}
-        <span className="text-sm text-zinc-500">
+        <span className="text-muted-foreground">
           {POSITION_KIND_LABELS[rec.kind as PositionKind]} посада, {divisionName.get(rec.division_id) ?? "—"}
         </span>
-        {req?.substitute_note ? <span className="text-sm text-zinc-500">Заміна: {req.substitute_note}</span> : null}
+        {req?.substitute_note ? <span className="text-muted-foreground">Заміна: {req.substitute_note}</span> : null}
       </div>
     );
   };
@@ -68,51 +75,60 @@ export default async function ManagePage({ searchParams }: PageProps<"/manage">)
         <Notice kind="success">Рішення збережено: {STATUS_LABELS[done as RecordStatus]}.</Notice>
       ) : null}
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">На розгляді</h2>
-        {!pending.length ? <p className="text-sm text-zinc-500">Нових заявок немає.</p> : null}
+      <section className="flex flex-col gap-3" aria-labelledby="pending-title">
+        <h2 id="pending-title" className="text-lg font-semibold">
+          На розгляді
+        </h2>
+        {!pending.length ? <EmptyState>Нових заявок немає.</EmptyState> : null}
         {pending.map((rec) => (
-          <article key={rec.id} data-testid="queue-record" className="flex flex-col gap-3 rounded border border-zinc-200 p-4 dark:border-zinc-800">
-            {describe(rec)}
-            {rec.comment ? <p className="text-sm text-zinc-500">Попередній коментар: «{rec.comment}»</p> : null}
-            {canDecideRecord(viewer, { employeeId: "", divisionId: rec.division_id }) ? (
-              <div className="flex flex-wrap items-end gap-3">
-                <form action={decideRecord}>
-                  <input type="hidden" name="record_id" value={rec.id} />
-                  <input type="hidden" name="decision" value="approve" />
-                  <button type="submit" className={buttonClass}>
-                    Схвалити
-                  </button>
-                </form>
-                <form action={decideRecord} className="flex flex-1 flex-wrap items-end gap-2">
-                  <input type="hidden" name="record_id" value={rec.id} />
-                  <input type="hidden" name="decision" value="return" />
-                  <label className="flex min-w-48 flex-1 flex-col gap-1 text-sm">
-                    Коментар для повернення
-                    <input name="comment" placeholder="Уточніть дату кінця" className={inputClass} />
-                  </label>
-                  <button type="submit" className={secondaryButtonClass}>
-                    Повернути на доопрацювання
-                  </button>
-                </form>
-              </div>
-            ) : null}
-          </article>
+          <Card key={rec.id} data-testid="queue-record">
+            <CardContent className="flex flex-col gap-3">
+              {describe(rec)}
+              {rec.comment ? <p className="text-muted-foreground">Попередній коментар: «{rec.comment}»</p> : null}
+              {canDecideRecord(viewer, { employeeId: "", divisionId: rec.division_id }) ? (
+                <div className="flex flex-wrap items-end gap-3">
+                  <form action={decideRecord}>
+                    <input type="hidden" name="record_id" value={rec.id} />
+                    <input type="hidden" name="decision" value="approve" />
+                    <Button type="submit">Схвалити</Button>
+                  </form>
+                  <form action={decideRecord} className="flex flex-1 flex-wrap items-end gap-2">
+                    <input type="hidden" name="record_id" value={rec.id} />
+                    <input type="hidden" name="decision" value="return" />
+                    <Field id={`comment-${rec.id}`} label="Коментар для повернення" className="min-w-48 flex-1">
+                      <Input id={`comment-${rec.id}`} name="comment" placeholder="Уточніть дату кінця" />
+                    </Field>
+                    <Button type="submit" variant="outline">
+                      Повернути на доопрацювання
+                    </Button>
+                  </form>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
         ))}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Вирішені</h2>
-        {!decided.length ? <p className="text-sm text-zinc-500">Рішень ще немає.</p> : null}
+      <section className="flex flex-col gap-3" aria-labelledby="decided-title">
+        <h2 id="decided-title" className="text-lg font-semibold">
+          Вирішені
+        </h2>
+        {!decided.length ? <EmptyState>Рішень ще немає.</EmptyState> : null}
         {decided.map((rec) => (
-          <article key={rec.id} className="flex flex-col gap-2 rounded border border-zinc-200 p-4 dark:border-zinc-800">
-            {describe(rec)}
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <StatusBadge status={rec.status as RecordStatus} />
-              {rec.decided_at ? <span className="text-zinc-500">{new Date(rec.decided_at).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" })}</span> : null}
-              {rec.comment ? <span>«{rec.comment}»</span> : null}
-            </div>
-          </article>
+          <Card key={rec.id}>
+            <CardContent className="flex flex-col gap-2">
+              {describe(rec)}
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge status={rec.status as RecordStatus} />
+                {rec.decided_at ? (
+                  <span className="font-mono text-[13px] text-muted-foreground tabular-nums">
+                    {new Date(rec.decided_at).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" })}
+                  </span>
+                ) : null}
+                {rec.comment ? <span>«{rec.comment}»</span> : null}
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </section>
     </PageShell>
