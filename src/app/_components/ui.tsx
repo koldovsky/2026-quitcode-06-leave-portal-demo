@@ -99,17 +99,22 @@ export function EmptyState({ children, action }: { children: ReactNode; action?:
   );
 }
 
-/** Поле форми: видимий підпис (label), поле, підказка під ним. */
+/**
+ * Поле форми: видимий підпис (label), поле, підказка й помилка під ним. Поле (children) саме ставить
+ * aria-describedby={fieldDescribedBy(id, { hint, error })} і aria-invalid, коли є помилка (DESIGN.md, «Стани»).
+ */
 export function Field({
   id,
   label,
   hint,
+  error,
   className,
   children,
 }: {
   id: string;
   label: ReactNode;
   hint?: ReactNode;
+  error?: ReactNode;
   className?: string;
   children: ReactNode;
 }) {
@@ -122,6 +127,17 @@ export function Field({
           {hint}
         </p>
       ) : null}
+      {error ? (
+        <p id={`${id}-error`} role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
+}
+
+/** id підказки й помилки поля для aria-describedby (undefined, якщо немає жодної). */
+export function fieldDescribedBy(id: string, { hint, error }: { hint?: unknown; error?: unknown }): string | undefined {
+  const ids = [hint ? `${id}-hint` : null, error ? `${id}-error` : null].filter(Boolean);
+  return ids.length ? ids.join(" ") : undefined;
 }

@@ -18,3 +18,10 @@ export function validatePassword(password: string, confirm: string): PasswordErr
   if (password !== confirm) return "PASSWORD_MISMATCH";
   return null;
 }
+
+/** До якого поля належить помилка: довжина — «Пароль», розбіжність — «Пароль ще раз»; UPDATE_FAILED — до форми (null). */
+export function passwordErrorField(error: unknown): "password" | "password_confirm" | null {
+  if (error === "PASSWORD_TOO_SHORT" || error === "PASSWORD_TOO_LONG") return "password";
+  if (error === "PASSWORD_MISMATCH") return "password_confirm";
+  return null;
+}

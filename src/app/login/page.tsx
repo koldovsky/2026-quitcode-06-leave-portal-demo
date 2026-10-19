@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SubmitButton } from "../_components/submit-button";
 import { Field, Notice } from "../_components/ui";
 import { login } from "./actions";
 
@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
               <Input id="password" name="password" type="password" autoComplete="current-password" required />
             </Field>
             {message ? <Notice kind="error">{message}</Notice> : null}
-            <Button type="submit">Увійти</Button>
+            <SubmitButton>Увійти</SubmitButton>
           </form>
         </CardContent>
       </Card>

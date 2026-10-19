@@ -29,7 +29,7 @@ export default async function ConfirmPage({ searchParams }: PageProps<"/auth/con
             <input type="hidden" name="token_hash" value={fields.token_hash} />
             <input type="hidden" name="type" value={fields.type} />
             <input type="hidden" name="next" value={fields.next} />
-            <SubmitButton pendingText="Активуємо…">Активувати акаунт</SubmitButton>
+            <SubmitButton>Активувати акаунт</SubmitButton>
           </form>
         </CardContent>
       </Card>

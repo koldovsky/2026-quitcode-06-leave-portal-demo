@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PASSWORD_MESSAGES, PASSWORD_MIN_LENGTH } from "@/lib/auth/password";
+import { PASSWORD_MESSAGES, PASSWORD_MIN_LENGTH, passwordErrorField } from "@/lib/auth/password";
 import { getViewer } from "@/lib/supabase/viewer";
-import { Field, Notice } from "../../_components/ui";
+import { SubmitButton } from "../../_components/submit-button";
+import { Field, Notice, fieldDescribedBy } from "../../_components/ui";
 import { setPassword } from "./actions";
 
 // AC-USERS-02: сюди веде посилання для активації (/auth/confirm → next=/account/password). Без сесії — /login.
@@ -14,6 +14,12 @@ export default async function PasswordPage({ searchParams }: PageProps<"/account
     typeof error === "string" && Object.hasOwn(PASSWORD_MESSAGES, error)
       ? PASSWORD_MESSAGES[error as keyof typeof PASSWORD_MESSAGES]
       : undefined;
+  // Помилка поля — під своїм полем (aria-invalid + aria-describedby); помилка збереження — над кнопкою.
+  const errorField = passwordErrorField(error);
+  const passwordError = errorField === "password" ? message : undefined;
+  const confirmError = errorField === "password_confirm" ? message : undefined;
+  const formError = message && !errorField ? message : undefined;
+  const hint = `Щонайменше ${PASSWORD_MIN_LENGTH} символів.`;
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-16">
@@ -29,7 +35,7 @@ export default async function PasswordPage({ searchParams }: PageProps<"/account
         </CardHeader>
         <CardContent>
           <form action={setPassword} className="flex flex-col gap-4">
-            <Field id="password" label="Пароль" hint={`Щонайменше ${PASSWORD_MIN_LENGTH} символів.`}>
+            <Field id="password" label="Пароль" hint={hint} error={passwordError}>
               <Input
                 id="password"
                 name="password"
@@ -37,11 +43,11 @@ export default async function PasswordPage({ searchParams }: PageProps<"/account
                 autoComplete="new-password"
                 minLength={PASSWORD_MIN_LENGTH}
                 required
-                aria-describedby="password-hint"
-                aria-invalid={message ? true : undefined}
+                aria-describedby={fieldDescribedBy("password", { hint, error: passwordError })}
+                aria-invalid={passwordError ? true : undefined}
               />
             </Field>
-            <Field id="password_confirm" label="Пароль ще раз">
+            <Field id="password_confirm" label="Пароль ще раз" error={confirmError}>
               <Input
                 id="password_confirm"
                 name="password_confirm"
@@ -49,11 +55,12 @@ export default async function PasswordPage({ searchParams }: PageProps<"/account
                 autoComplete="new-password"
                 minLength={PASSWORD_MIN_LENGTH}
                 required
-                aria-invalid={message ? true : undefined}
+                aria-describedby={fieldDescribedBy("password_confirm", { error: confirmError })}
+                aria-invalid={confirmError ? true : undefined}
               />
             </Field>
-            {message ? <Notice kind="error">{message}</Notice> : null}
-            <Button type="submit">Зберегти пароль</Button>
+            {formError ? <Notice kind="error">{formError}</Notice> : null}
+            <SubmitButton>Зберегти пароль</SubmitButton>
           </form>
         </CardContent>
       </Card>
