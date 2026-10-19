@@ -2,7 +2,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getViewer } from "@/lib/supabase/viewer";
-import { PageShell } from "./_components/ui";
+import { Notice, PageShell } from "./_components/ui";
 
 const ROLE_LABELS: Record<string, string> = {
   employee: "працівник",
@@ -12,11 +12,14 @@ const ROLE_LABELS: Record<string, string> = {
 
 // Головна: хто увійшов, з якою роллю (з таблиці profiles) і куди йти далі.
 // Сторінка читає cookies, тому рендериться динамічно (шаблон зібрано з --no-cache-components).
-export default async function Home() {
+export default async function Home({ searchParams }: PageProps<"/">) {
   const { viewer, profile, email } = await getViewer();
+  const { welcome } = await searchParams;
 
   return (
     <PageShell title="Портал відсутностей" role={viewer?.role ?? null}>
+      {/* AC-USERS-02: після активації за посиланням і нового пароля. */}
+      {welcome === "1" ? <Notice kind="success">Пароль збережено. Вітаємо в порталі!</Notice> : null}
       <Card>
         <CardContent>
           <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm">

@@ -136,10 +136,15 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 
 - Значення лише в `.env.local`, Vercel (Production + Preview) і GitHub (секрет environment `production` —
   `SUPABASE_DB_URL`; секрет репозиторію `SPEC_DENYLIST`); ніколи в git, логах чи чаті.
-  У Vercel — лише `NEXT_PUBLIC_SUPABASE_URL` і `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `SUPABASE_SECRET_KEY` —
-  ніколи (лише `.env.local` PM або техліда для скриптів).
-- Імена: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` лише для скриптів
-  (не `NEXT_PUBLIC_`, не `*_ANON_KEY`/`SERVICE_ROLE_KEY`). Шаблон — `.env.example`.
+  У Vercel — `NEXT_PUBLIC_SUPABASE_URL` і `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Production + Preview). З WS7
+  (запрошення, ADR 0003) `SUPABASE_SECRET_KEY` потрібен і застосунку — **лише Vercel Production**, не Preview:
+  preview-збірка виконує код будь-якої гілки. До WS7 — лише `.env.local` PM або техліда для скриптів.
+- Імена: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` — для скриптів і
+  єдиного модуля `src/lib/supabase/admin.ts` (перший рядок `import "server-only"`; імпортують лише `actions.ts`/
+  `route.ts` і лише після перевірки ролі admin; правило — `npm run check:boundary`). Не `NEXT_PUBLIC_`, не
+  `*_ANON_KEY`/`SERVICE_ROLE_KEY`. Шаблон — `.env.example`.
+- Посилання для активації (`/auth/confirm?token_hash=…`) — живий credential: не логувати, не класти в URL сторінок
+  застосунку, не показувати справжнє на записі екрана (ADR 0003).
 - `.claude/settings.json` забороняє Claude Code читати `.env*` (крім `.env.example`); Cursor цих правил не читає — у Cursor не відкривай `.env*` агентом і не вставляй значень у чат. Скрипти з секретами запускай
   як `node --env-file=.env.local …` — вони значень не друкують.
 - Supabase MCP (`.mcp.json`, лише Claude Code; Cursor бере MCP з `.cursor/mcp.json`) — лише читання, один проєкт: перед запуском задай `SUPABASE_PROJECT_REF`.
