@@ -33,9 +33,9 @@ async function requestOrigin(): Promise<string> {
 // Шукаємо адресу через LIKE: екрануємо його спецсимволи, щоб «a_b@example.test» не збігся з «axb@example.test».
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (ch) => `\\${ch}`);
 
-/** AC-USERS-01, AC-USERS-04, AC-USERS-08: запрошення посиланням для активації. */
+/** AC-USERS-01, AC-USERS-04, AC-USERS-14, AC-USERS-15, AC-USERS-17: запрошення посиланням для активації. */
 export async function inviteUser(_prev: InviteState, formData: FormData): Promise<InviteState> {
-  // getViewer: getClaims() (підпис JWT) + роль із public.profiles; без сесії — redirect на /login (AC-USERS-10).
+  // getViewer: getClaims() (підпис JWT) + роль із public.profiles; без сесії — redirect на /login (AC-USERS-17).
   const { supabase, viewer } = await getViewer();
 
   const values: InviteValues = {

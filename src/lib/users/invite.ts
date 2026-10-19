@@ -20,7 +20,7 @@ export interface InviteInput {
 }
 
 export type InviteError =
-  | "FORBIDDEN" // AC-USERS-08: не адміністратор
+  | "FORBIDDEN" // AC-USERS-14, AC-USERS-15, AC-USERS-17: не адміністратор (або без входу)
   | "INVALID_EMAIL"
   | "INVALID_ROLE"
   | "POSITION_TITLE_REQUIRED"
@@ -97,8 +97,8 @@ export function buildActivationLink(origin: string, tokenHash: string): string {
 }
 
 /**
- * AC-USERS-01, AC-USERS-04, AC-USERS-08. Порядок важливий: роль адміністратора → перевірки → адреса вже є? → лише
- * тепер generateInvite (секретний ключ) → роль і посада клієнтом адміністратора під RLS.
+ * AC-USERS-01, AC-USERS-04, AC-USERS-14, AC-USERS-15, AC-USERS-17. Порядок важливий: роль адміністратора →
+ * перевірки → адреса вже є? → лише тепер generateInvite (секретний ключ) → роль і посада клієнтом адміністратора під RLS.
  */
 export async function inviteUserCore(
   viewerRole: AppRole | null,

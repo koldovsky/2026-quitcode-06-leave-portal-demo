@@ -14,7 +14,7 @@ const LINKS: { href: string; label: string; roles: AppRole[] }[] = [
   { href: "/requests", label: "Мої заявки", roles: ["employee"] },
   { href: "/requests/new", label: "Нова заявка", roles: ["employee"] },
   { href: "/manage", label: "Черга рішень", roles: ["manager", "admin"] },
-  // AC-USERS-07: пункт лише для адміністратора (сторінку однаково захищає requireRole("admin") і RLS).
+  // AC-USERS-07: пункт лише для адміністратора (сторінку однаково захищає usersPageRedirect і RLS).
   { href: "/admin/users", label: "Користувачі", roles: ["admin"] },
 ];
 
