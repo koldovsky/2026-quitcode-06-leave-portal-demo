@@ -36,6 +36,8 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `npm run dev` · `npm run build` (має показати `ƒ Proxy (Middleware)`) · `npm run lint` (0 warnings)
 - `npm run typecheck` (`next typegen && tsc --noEmit`) · `npm test` (Vitest)
 - `npm run spec:validate` · `npm run spec:check` · `npm run ac:coverage`
+- `npm run check:design` (лише токени дизайн-системи) · `npm run check:boundary` (секретний ключ лише на сервері) —
+  архітектурні правила, у CI — `.github/workflows/architecture.yml` (окремий від `ci.yml`)
 - `node scripts/check-migration-order.mjs` — нова міграція новіша за `origin/main`, застосовані не змінено (у CI — `db-check`)
 - `npx supabase migration new <назва>` → SQL → PR. Застосовує міграції в базу команди ЛИШЕ CI (`db-deploy` після merge у `main`)
 - Типи БД: готовий `database.types.ts` — у Summary прогону job `db-check` (Docker не потрібен); `npm run db:types` —
@@ -117,6 +119,18 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   репозиторію `koldovsky/2026-quitcode-06-leave-portal-demo`): `security invoker`, або `security definer` лише в
   схемі `private` з `set search_path = ''`.
 - Авторизація на сервері — `supabase.auth.getClaims()`, ніколи `getSession()`.
+
+## Дизайн-система
+
+Правила — `DESIGN.md` (джерело — артефакт Claude Design System; `CLAUDE.md` його імпортує). Коротко:
+
+- У `src/` лише семантичні утиліти токенів: `bg-primary`, `text-muted-foreground`, `border-input`,
+  `bg-status-pending`… Жодних hex, `bg-[#…]` / `text-[oklch(…)]`, сирих палітр (`bg-zinc-900`, `text-rose-700`,
+  `bg-white`) і кольорів в `style={{…}}`. Бракує кольору — новий токен у `src/app/globals.css` (DESIGN.md, розділ 9).
+- Компоненти — лише з `@/components/ui` (shadcn/ui у нашому коді); бракує — `npx shadcn@latest add <name>` і
+  підлаштувати під DESIGN.md. Шар сторінок — `src/app/_components/ui.tsx` (`PageShell`, `StatusBadge`, `Notice`,
+  `EmptyState`, `Field`).
+- Перевірка — `npm run check:design` (у CI — job «Дизайн-система: лише токени», `.github/workflows/architecture.yml`).
 
 ## Секрети
 
