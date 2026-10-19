@@ -38,6 +38,8 @@ export interface LeaveDb {
   users: Record<string, string>;
   /** SQL від імені користувача (role authenticated, auth.uid() = id) в окремій транзакції. */
   asUser<T = Record<string, unknown>>(userId: string, sql: string, params?: unknown[]): Promise<T[]>;
+  /** SQL без входу (role anon, як запит лише з публічним ключем) в окремій транзакції. */
+  asAnon<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
   /** SQL в обхід RLS (як Dashboard / service_role) — для перевірки результату. */
   asService<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
 }
@@ -100,6 +102,7 @@ export async function createLeaveDb(): Promise<LeaveDb> {
     users,
     asUser: <T,>(userId: string, sql: string, params: unknown[] = []) =>
       inTransaction<T>(db, "authenticated", userId, sql, params),
+    asAnon: <T,>(sql: string, params: unknown[] = []) => inTransaction<T>(db, "anon", null, sql, params),
     asService: <T,>(sql: string, params: unknown[] = []) => inTransaction<T>(db, "service_role", null, sql, params),
   };
 }
