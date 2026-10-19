@@ -44,6 +44,7 @@
 
 - [ ] Add New → Project → імпорт репозиторію команди (імпортувати може лише власник особистого репозиторію — PM), Node 24.x — <!-- прод-URL -->
 - [ ] Змінні Production і Preview — лише `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `SUPABASE_SECRET_KEY` — **ніколи** — <!-- знімок (лише назви) -->
+- [ ] З WS7 (запрошення посиланням, ADR 0003): `SUPABASE_SECRET_KEY` — **лише Production** (не Preview), потім Redeploy — <!-- знімок (лише назви) -->
 - [ ] Settings → Deployment Protection → **Require Log In** вимкнено → Save (інакше колеги не відкриють preview) — <!-- знімок -->
 - [ ] Після змінних — редеплой; прод-URL відкривається — <!-- посилання -->
 
