@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { getViewer } from "@/lib/supabase/viewer";
 import { PageShell } from "./_components/ui";
 
@@ -15,27 +17,31 @@ export default async function Home() {
 
   return (
     <PageShell title="Портал відсутностей" role={viewer?.role ?? null}>
-      <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm">
-        <dt className="text-zinc-500">Email</dt>
-        <dd data-testid="user-email">{email ?? "—"}</dd>
-        <dt className="text-zinc-500">Роль</dt>
-        <dd data-testid="user-role">
-          {profile?.role ? (ROLE_LABELS[profile.role] ?? profile.role) : "профіль не знайдено"}
-        </dd>
-      </dl>
-      <div className="flex flex-wrap gap-3 text-sm">
+      <Card>
+        <CardContent>
+          <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm">
+            <dt className="text-muted-foreground">Email</dt>
+            <dd data-testid="user-email">{email ?? "—"}</dd>
+            <dt className="text-muted-foreground">Роль</dt>
+            <dd data-testid="user-role">
+              {profile?.role ? (ROLE_LABELS[profile.role] ?? profile.role) : "профіль не знайдено"}
+            </dd>
+          </dl>
+        </CardContent>
+      </Card>
+      <div className="flex flex-wrap gap-3">
         {viewer?.role === "employee" ? (
           <>
-            <Link href="/requests/new" className="rounded bg-foreground px-4 py-2 font-medium text-background">
+            <Link href="/requests/new" className={buttonVariants()}>
               Подати заявку
             </Link>
-            <Link href="/requests" className="rounded border border-zinc-300 px-4 py-2 dark:border-zinc-700">
+            <Link href="/requests" className={buttonVariants({ variant: "outline" })}>
               Мої заявки
             </Link>
           </>
         ) : null}
         {viewer?.role === "manager" || viewer?.role === "admin" ? (
-          <Link href="/manage" className="rounded bg-foreground px-4 py-2 font-medium text-background">
+          <Link href="/manage" className={buttonVariants()}>
             {viewer.role === "manager" ? "Черга рішень" : "Усі заявки"}
           </Link>
         ) : null}
