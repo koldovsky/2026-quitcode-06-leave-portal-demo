@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,6 +15,7 @@ import {
   usersPageRedirect,
   type RoleChangeError,
 } from "@/lib/users/roles";
+import { SubmitButton } from "../../_components/submit-button";
 import { EmptyState, Notice, PageShell } from "../../_components/ui";
 import { changeRole } from "./actions";
 import { InviteDialog } from "./invite-dialog";
@@ -116,9 +116,9 @@ export default async function UsersPage({ searchParams }: PageProps<"/admin/user
                             </NativeSelectOption>
                           ))}
                         </NativeSelect>
-                        <Button type="submit" variant="outline" size="sm">
+                        <SubmitButton variant="outline" size="sm">
                           Змінити
-                        </Button>
+                        </SubmitButton>
                       </form>
                     </TableCell>
                   </TableRow>
@@ -126,10 +126,14 @@ export default async function UsersPage({ searchParams }: PageProps<"/admin/user
               })}
             </TableBody>
           </Table>
+          {/* AC-USERS-12: порожній стан — у картці, під списком (DESIGN.md, «Стани»). */}
+          {empty ? (
+            <div className="px-4 pb-4">
+              <EmptyState>{empty}</EmptyState>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
-
-      {empty ? <EmptyState>{empty}</EmptyState> : null}
     </PageShell>
   );
 }

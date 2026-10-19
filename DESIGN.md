@@ -35,7 +35,7 @@
 | `secondary` / `secondary-foreground` | `bg-secondary text-secondary-foreground` | другорядні кнопки, бейдж ролі |
 | `accent` / `accent-foreground` | `bg-accent text-accent-foreground` | hover, вибраний рядок, `Notice` `info` |
 | `muted` / `muted-foreground` | `bg-muted`, `text-muted-foreground` | підписи, підказки, дати, порожні стани, шапка таблиці |
-| `destructive` | `text-destructive`, `border-destructive`, `bg-destructive/10` | незворотні дії й помилки (не статус «на доопрацюванні») |
+| `destructive` + `-foreground` | `bg-destructive text-destructive-foreground` (кнопка), `text-destructive`, `border-destructive` | незворотні дії й помилки (не статус «на доопрацюванні») |
 | `border` | `border-border` (за замовчуванням для `border`) | декоративні межі карток і таблиць |
 | `input` | `border-input` | межа полів вводу й select (≥ 3:1 до тла) |
 | `ring` | `ring-ring` | кільце фокусу клавіатури |
@@ -62,7 +62,8 @@
 
 ## 4. Відступи, сітка, радіуси
 
-- Крок — 4px. Між полями форми — `gap-4`, усередині картки — `CardContent` (16px), між розділами — `gap-8`.
+- Крок — 4px. Між полями форми — `gap-4`, усередині картки — `CardContent` (16px; відхилення від артефакту — розділ 11),
+  між розділами — `gap-8`.
 - Сторінка — одна колонка до 64rem (`max-w-5xl`), бічний відступ `px-4` на телефоні.
 - `--radius` = 0.625rem: `rounded-md` — кнопки й поля; `rounded-lg` — картки, таблиці, діалоги; `rounded-sm` — бейджі.
 
@@ -73,12 +74,12 @@
 
 | Компонент | Варіанти | Правило |
 |---|---|---|
-| `Button` | `default` · `secondary` · `outline` · `ghost` · `destructive` · `link`; розміри `sm` · `default` · `lg` | `default` — одна на екран; посилання-кнопка — `buttonVariants()` на `<Link>` |
-| `Badge` | `pending` · `approved` · `returned` · `role` (+ стандартні shadcn) | статус — через `StatusBadge` (крапка + слово); роль — `role` з підписом |
-| `Input`, `NativeSelect`, `Label` | — | кожне поле з видимим `Label` (`Field` у `src/app/_components/ui.tsx`) |
+| `Button` | `default` · `secondary` · `outline` · `ghost` · `destructive` · `link`; розміри `sm` · `default` · `lg` | `default` — одна на екран; `outline` — «Скасувати», «Готово», дії в рядку таблиці (`border-input bg-card`); `ghost` — навігація, «Вийти»; hover `outline`/`ghost` — `accent`; `destructive` — суцільне `bg-destructive text-destructive-foreground`; посилання-кнопка — `buttonVariants()` на `<Link>`; кнопка форми — `SubmitButton` (`src/app/_components/submit-button.tsx`: «Надсилаємо…» + `disabled`) |
+| `Badge` | `pending` · `approved` · `returned` · `role` (+ стандартні shadcn) | статус — через `StatusBadge` (крапка + слово): «на розгляді», «схвалено», «на доопрацюванні»; роль — `role` без крапки: «працівник», «менеджер», «адміністратор» (слова PM, малими — розділ 11) |
+| `Input`, `NativeSelect`, `Label` | — | кожне поле з видимим `Label` (`Field` у `src/app/_components/ui.tsx`: `hint`, `error`; поле ставить `aria-describedby={fieldDescribedBy(id, { hint, error })}` і `aria-invalid`) |
 | `Card` | — | межа `border`, без тіні |
 | `Table` | — | шапка — `text-muted-foreground`; дані — стиль `data` |
-| `Dialog` | — | `shadow-dialog`; заголовок `DialogTitle`, закриття «Закрити» |
+| `Dialog` | — | `shadow-dialog`; заголовок `DialogTitle` — section-title (`text-lg font-semibold`); закривається Esc, кнопкою «Закрити» (X) і, де діалог показує результат, кнопкою «Готово» (`outline`) |
 | `Alert` | — | основа для `Notice` |
 
 Шар сторінок (`src/app/_components/ui.tsx`): `PageShell` (навігація + page-title), `StatusBadge`,
@@ -86,17 +87,20 @@
 
 ## 6. Стани
 
-- **Порожній:** `EmptyState` — `bg-muted` у межах картки, одне речення й одна дія.
-- **Завантаження:** кнопка показує «Надсилаємо…» і `disabled`; сторінка не стрибає.
-- **Помилка:** `Notice kind="error"` (`role="alert"`) над формою; помилка поля — текст під полем у `text-destructive`,
-  поле `aria-invalid`, зв'язок через `aria-describedby`.
+- **Порожній:** `EmptyState` — `bg-muted` у межах картки (усередині `Card`, під списком), одне речення й одна дія.
+- **Завантаження:** кнопка показує «Надсилаємо…» і `disabled` (`SubmitButton`); сторінка не стрибає.
+- **Помилка:** помилка поля — текст під своїм полем у `text-destructive` (`role="alert"`), поле `aria-invalid`, зв'язок
+  через `aria-describedby` (`Field` з `error`); у формі з клієнтським станом фокус переходить на перше поле з помилкою, а
+  введене не зникає. Помилка всієї форми (не поля) — `Notice kind="error"` (`role="alert"`) над кнопкою.
 - **Успіх:** `Notice kind="success"` (`role="status"`) тим самим словом, що й дія.
 - **Немає доступу:** пояснення без технічних деталей і перехід на головну.
 
 ## 7. Доступність (мінімум)
 
 - У кожного поля — видимий `<label>` (`Label htmlFor`); підказка й помилка — `aria-describedby`.
-- Фокус видно завжди: `focus-visible:ring-2 ring-ring ring-offset-2`; `outline: none` без заміни заборонено.
+- Фокус видно завжди: `focus-visible:ring-2 ring-ring ring-offset-2`; `outline: none` без заміни заборонено. Поле з
+  помилкою (`aria-invalid`) має межу `destructive`, а кільце фокусу — те саме `ring`: стандартні shadcn-класи
+  `aria-invalid:ring-*` з `Input`, `NativeSelect`, `Button` прибрано, бо вони перекривали кільце фокусу.
 - Контраст: текст ≥ 4.5:1, межі полів і фокус ≥ 3:1 — у межах токенів; нові кольори — лише з перевіркою.
 - Статус ніколи не передається лише кольором: бейдж має слово (і крапку `aria-hidden`).
 - Семантичний HTML понад `aria-*`: `<button>` для дій, `<a>`/`Link` для переходів, `<table>` для таблиць,
@@ -133,3 +137,15 @@
 - У CI — job «Дизайн-система: лише токени» в `.github/workflows/architecture.yml` (окремо від `ci.yml`).
 - Візуально — браузер агента (Claude Desktop Browser pane, Playwright MCP): зняти сторінку в світлій і темній темі й
   порівняти з цим файлом. Знімки «до/після» — `docs/demo/ws7/`.
+
+## 11. Відхилення від артефакту (рішення)
+
+Де код і цей файл свідомо відрізняються від артефакту Claude Design System, — тут, з причиною. Артефакт оновлюють
+під ці рішення (або рішення змінюють тут), щоб агенти не отримували двох правил.
+
+| Що | Артефакт | Код і цей файл | Чому |
+|---|---|---|---|
+| Слова бейджів | «На розгляді», «Схвалено», «Повернуто»; ролі з великої | «на розгляді», «схвалено», «на доопрацюванні»; «працівник», «менеджер», «адміністратор» | слова PM («Вигляд і тон» у `requirements/product.md`, AC); бейдж стоїть усередині речення й таблиці; тексти закріплені тестами |
+| `Notice` `info` | `muted` | `accent` | `muted` уже мають порожній стан і шапка таблиці — повідомлення має відрізнятися від них |
+| Відступ картки | `space-6` (24px) | 16px (`CardContent` shadcn) | щільні списки з телефона (PM: «списки щільні, але читаються з телефона») |
+| Активний пункт навігації | `primary` | ще немає (і `aria-current` теж) | не встигли в цьому зрізі; де людина, поки видно із заголовка сторінки (page-title) |

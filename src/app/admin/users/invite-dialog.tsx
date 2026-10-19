@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -45,7 +46,24 @@ export function InviteDialog({ divisions, roles }: { divisions: Division[]; role
 
 function InviteForm({ divisions, roles }: { divisions: Division[]; roles?: RoleOption[] }) {
   const [state, formAction, pending] = useActionState(inviteUser, INITIAL);
-  const error = state.status === "done" && !state.ok ? state.error : null;
+  const failed = state.status === "done" && !state.ok ? state : null;
+  const error = failed?.error ?? null;
+  // Що ввела людина: після помилки форма не очищається (React скидає поля до defaultValue).
+  const values = failed?.values;
+  // Помилка поля — під своїм полем (aria-invalid + aria-describedby); FORBIDDEN і LINK_FAILED — до всієї форми.
+  const emailError = error === "INVALID_EMAIL" || error === "EMAIL_EXISTS" ? INVITE_MESSAGES[error] : null;
+  const roleError = error === "INVALID_ROLE" ? INVITE_MESSAGES[error] : null;
+  const titleError = error === "POSITION_TITLE_REQUIRED" ? INVITE_MESSAGES[error] : null;
+  const formError = error === "FORBIDDEN" || error === "LINK_FAILED" ? INVITE_MESSAGES[error] : null;
+
+  // Фокус — на перше поле з помилкою (DESIGN.md, «Стани»).
+  const emailRef = useRef<HTMLInputElement>(null);
+  const roleRef = useRef<HTMLSelectElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const focusField = emailError ? emailRef : roleError ? roleRef : titleError ? titleRef : null;
+  useEffect(() => {
+    focusField?.current?.focus();
+  }, [state, focusField]);
 
   if (state.status === "done" && state.ok) {
     return (
@@ -73,46 +91,70 @@ function InviteForm({ divisions, roles }: { divisions: Division[]; roles?: RoleO
             пароль.
           </p>
         </div>
-        <CopyLinkButton link={state.link} />
+        <div className="flex flex-wrap items-center gap-3">
+          <CopyLinkButton link={state.link} />
+          <DialogClose render={<Button variant="outline" />}>Готово</DialogClose>
+        </div>
       </div>
     );
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4" noValidate>
+    // key: після помилки форма монтується наново з defaultValue = введене (select інакше не відновлює вибір).
+    <form key={`${error ?? "new"}:${JSON.stringify(values ?? null)}`} action={formAction} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-2">
         <Label htmlFor="invite-email">Email</Label>
         <Input
+          ref={emailRef}
           id="invite-email"
           name="email"
           type="email"
           required
           autoComplete="off"
           placeholder="new.teacher@example.test"
-          aria-invalid={error === "INVALID_EMAIL" || error === "EMAIL_EXISTS" ? true : undefined}
-          aria-describedby={error ? "invite-error" : undefined}
+          defaultValue={values?.email}
+          aria-invalid={emailError ? true : undefined}
+          aria-describedby={emailError ? "invite-email-error" : undefined}
         />
+        {emailError ? (
+          <p id="invite-email-error" role="alert" className="text-xs text-destructive">
+            {emailError}
+          </p>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="invite-name">Ім&apos;я (необов&apos;язково)</Label>
-        <Input id="invite-name" name="full_name" autoComplete="off" />
+        <Input id="invite-name" name="full_name" autoComplete="off" defaultValue={values?.full_name} />
       </div>
       {roles?.length ? (
         <div className="flex flex-col gap-2">
           <Label htmlFor="invite-role">Роль</Label>
-          <NativeSelect id="invite-role" name="role" defaultValue="employee" className="w-full">
+          <NativeSelect
+            ref={roleRef}
+            id="invite-role"
+            name="role"
+            defaultValue={values?.role || "employee"}
+            className="w-full"
+            aria-invalid={roleError ? true : undefined}
+            aria-describedby={roleError ? "invite-role-error" : undefined}
+          >
             {roles.map((r) => (
               <NativeSelectOption key={r.value} value={r.value}>
                 {r.label}
               </NativeSelectOption>
             ))}
           </NativeSelect>
+          {roleError ? (
+            <p id="invite-role-error" role="alert" className="text-xs text-destructive">
+              {roleError}
+            </p>
+          ) : null}
         </div>
       ) : null}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="invite-division">Підрозділ основної посади</Label>
-          <NativeSelect id="invite-division" name="division_id" defaultValue="" className="w-full">
+          <NativeSelect id="invite-division" name="division_id" defaultValue={values?.division_id ?? ""} className="w-full">
             <NativeSelectOption value="">без посади</NativeSelectOption>
             {divisions.map((d) => (
               <NativeSelectOption key={d.id} value={d.id}>
@@ -124,16 +166,24 @@ function InviteForm({ divisions, roles }: { divisions: Division[]; roles?: RoleO
         <div className="flex flex-col gap-2">
           <Label htmlFor="invite-title">Назва посади</Label>
           <Input
+            ref={titleRef}
             id="invite-title"
             name="position_title"
             placeholder="Вчитель математики"
-            aria-invalid={error === "POSITION_TITLE_REQUIRED" ? true : undefined}
+            defaultValue={values?.position_title}
+            aria-invalid={titleError ? true : undefined}
+            aria-describedby={titleError ? "invite-title-error" : undefined}
           />
+          {titleError ? (
+            <p id="invite-title-error" role="alert" className="text-xs text-destructive">
+              {titleError}
+            </p>
+          ) : null}
         </div>
       </div>
-      {error ? (
+      {formError ? (
         <p id="invite-error" role="alert" className="text-sm text-destructive">
-          {INVITE_MESSAGES[error]}
+          {formError}
         </p>
       ) : null}
       <Button type="submit" disabled={pending} className="self-start">

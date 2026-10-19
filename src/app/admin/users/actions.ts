@@ -10,7 +10,13 @@ import { getViewer } from "@/lib/supabase/viewer";
 import { inviteUserCore, type InviteResult } from "@/lib/users/invite";
 import { canManageUsers, isAppRole, roleChangeError } from "@/lib/users/roles";
 
-export type InviteState = { status: "idle" } | ({ status: "done" } & InviteResult);
+/** Що людина ввела у форму — повертаємо лише разом із помилкою, щоб форма не очищалась (посилання — ніколи разом). */
+export type InviteValues = { email: string; full_name: string; role: string; division_id: string; position_title: string };
+
+export type InviteState =
+  | { status: "idle" }
+  | ({ status: "done" } & Extract<InviteResult, { ok: true }>)
+  | ({ status: "done"; values: InviteValues } & Extract<InviteResult, { ok: false }>);
 
 const text = (formData: FormData, name: string) => String(formData.get(name) ?? "");
 
@@ -32,14 +38,21 @@ export async function inviteUser(_prev: InviteState, formData: FormData): Promis
   // getViewer: getClaims() (підпис JWT) + роль із public.profiles; без сесії — redirect на /login (AC-USERS-10).
   const { supabase, viewer } = await getViewer();
 
+  const values: InviteValues = {
+    email: text(formData, "email"),
+    full_name: text(formData, "full_name"),
+    role: text(formData, "role"),
+    division_id: text(formData, "division_id"),
+    position_title: text(formData, "position_title"),
+  };
   const result = await inviteUserCore(
     viewer?.role ?? null,
     {
-      email: text(formData, "email"),
-      fullName: text(formData, "full_name"),
-      role: text(formData, "role"),
-      divisionId: text(formData, "division_id"),
-      positionTitle: text(formData, "position_title"),
+      email: values.email,
+      fullName: values.full_name,
+      role: values.role,
+      divisionId: values.division_id,
+      positionTitle: values.position_title,
     },
     await requestOrigin(),
     {
@@ -77,7 +90,8 @@ export async function inviteUser(_prev: InviteState, formData: FormData): Promis
     },
   );
 
-  if (result.ok) revalidatePath("/admin/users");
+  if (!result.ok) return { status: "done", ...result, values };
+  revalidatePath("/admin/users");
   // Посилання — лише у відповіді цієї дії (не в URL і не в логах): це живий credential (ADR 0003).
   return { status: "done", ...result };
 }

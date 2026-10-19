@@ -3,7 +3,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { LINK_ERROR_PATH, activationFields, confirmTarget } from "@/lib/auth/confirm";
 import { safeNextPath } from "@/lib/auth/next-path";
-import { validatePassword } from "@/lib/auth/password";
+import { passwordErrorField, validatePassword } from "@/lib/auth/password";
 
 const params = (query: string) => new URLSearchParams(query);
 const TOKEN = "b".repeat(56);
@@ -60,6 +60,15 @@ describe("Активація за посиланням", () => {
     expect(validatePassword("long-enough-1", "long-enough-2")).toBe("PASSWORD_MISMATCH");
     expect(validatePassword("x".repeat(73), "x".repeat(73))).toBe("PASSWORD_TOO_LONG");
     expect(validatePassword("long-enough-1", "long-enough-1")).toBeNull();
+  });
+
+  it("AC-USERS-02: помилка пароля — під своїм полем: довжина — «Пароль», розбіжність — «Пароль ще раз»", () => {
+    expect(passwordErrorField("PASSWORD_TOO_SHORT")).toBe("password");
+    expect(passwordErrorField("PASSWORD_TOO_LONG")).toBe("password");
+    expect(passwordErrorField("PASSWORD_MISMATCH")).toBe("password_confirm");
+    // Не вдалося зберегти — помилка форми, а не поля.
+    expect(passwordErrorField("UPDATE_FAILED")).toBeNull();
+    expect(passwordErrorField(undefined)).toBeNull();
   });
 
   it("AC-USERS-02: next — лише відносний шлях цього сайту (захист від open redirect)", () => {
