@@ -7,6 +7,8 @@ import { login } from "./actions";
 const ERRORS: Record<string, string> = {
   missing: "Вкажіть email і пароль.",
   invalid: "Невірний email або пароль.",
+  // AC-USERS-05: /auth/confirm не прийняв посилання для активації.
+  link: "Посилання недійсне або вже використане. Зверніться до адміністратора.",
 };
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
