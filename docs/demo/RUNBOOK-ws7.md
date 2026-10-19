@@ -97,24 +97,25 @@ Production (передумова 3): перейти на локальний `npm
 | Крок | Показати / команда | Очікувано | План Б |
 |---|---|---|---|
 | 1 | Вікно 3: `teacher@example.test` → вручну `/admin/users` | головна, пункту «Користувачі» в меню немає (AC-USERS-07) | `npx vitest run -t "AC-USERS-07"` |
-| 2 | DevTools → Console, рядки нижче (пароль і ключ — з буфера обміну, не друкувати на екрані) | `update` → `{ code: '42501', message: 'permission denied for table profiles' }`; `rpc` → `{ code: '42501', message: 'FORBIDDEN' }` | `node --env-file=.env.local scripts/demo-attack-role.mjs` в основній теці |
+| 2 | DevTools → Console, рядки нижче (сесія — з cookie сторінки, пароль не вводимо) | `update` → `{ code: '42501', message: 'permission denied for table profiles' }`; `rpc` → `{ code: '42501', message: 'FORBIDDEN' }` | `node --env-file=.env.local scripts/demo-attack-role.mjs` в основній теці |
 | 3 | Міграція `supabase/migrations/20261020000000_admin_user_management.sql`: заголовок (пастка «update own row + колонка role»), `public.admin_set_role` (перевірка admin першим оператором, `LAST_ADMIN`, `revoke … from public, anon`) | — | файл на GitHub |
 | 4 | `npx vitest run tests/db/users-db.test.ts` | 11 passed (AC-USERS-03, 06, 08, 09, 10, 01, 07) | вивід у PR #21 |
 | 5 | «Зелені тести брешуть»: опис PR #21 — мутаційна перевірка (без перевірки admin у функції → 3 червоні) | — | — |
 | 6 (якщо є час) | Вікно 1, `admin@`: «Змінити роль» себе на «працівник» | «Роль не змінено. Не можна змінити роль останнього адміністратора» (AC-USERS-06) | `after-roles-admin-users-error-LAST_ADMIN-*.png` |
 
-Консоль браузера (крок 2; перед кожним рядком з `clipboard` скопіювати потрібне значення; репетиція обов'язкова —
-`esm.sh` має відкриватися з мережі заняття):
+Консоль браузера (крок 2). `teacher@` уже увійшов у вікні 3, тож пароль не потрібен: `createBrowserClient` з `@supabase/ssr`
+бере сесію з cookie сторінки (вони не `httpOnly`). Project URL і publishable key — Dashboard → Project Settings → API Keys;
+обидва публічні (так само є в будь-якому клієнті), їх можна вставити в `prompt`. Перевірено 19.10.2026 на `npm run dev`
+(Playwright, Edge): `update` → `42501 permission denied for table profiles`; `rpc` до міграції → `PGRST202`. Репетиція на
+прод-URL обов’язкова: `esm.sh` має відкриватися з мережі заняття.
 
 ```js
-const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.117.3");
-// Project URL і publishable key — Dashboard → Project Settings → API Keys (ключ публічний, але на екран не виводимо)
-const url = await navigator.clipboard.readText();      // скопіювати Project URL
-const key = await navigator.clipboard.readText();      // скопіювати publishable key
-const sb = createClient(url, key);
-const { data } = await sb.auth.signInWithPassword({ email: "teacher@example.test", password: await navigator.clipboard.readText() });
-await sb.from("profiles").update({ role: "admin" }).eq("id", data.user.id).select();   // → 42501 permission denied
-await sb.rpc("admin_set_role", { p_user: data.user.id, p_role: "admin" });              // → 42501 FORBIDDEN
+const { createBrowserClient } = await import("https://esm.sh/@supabase/ssr@0.12.7");
+const sb = createBrowserClient(prompt("Project URL"), prompt("Publishable key"));
+const { data: { user } } = await sb.auth.getUser();                                   // teacher@example.test
+await sb.from("profiles").update({ role: "admin" }).eq("id", user.id).select();     // → 42501 permission denied for table profiles
+await sb.rpc("admin_set_role", { p_user: user.id, p_role: "admin" });                 // → 42501 FORBIDDEN (до міграції — PGRST202)
+(await sb.from("profiles").select("role").eq("id", user.id).single()).data.role;     // → "employee"
 ```
 
 Без міграції WS7 `rpc` поверне `PGRST202` (функції немає) — сказати це прямо й показати PGlite-тест (крок 4).
