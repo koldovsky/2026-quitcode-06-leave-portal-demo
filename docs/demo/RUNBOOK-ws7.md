@@ -53,7 +53,9 @@
    - вікно 2 — **окремий профіль браузера** (або інший браузер) для запрошеного: посилання, відкрите у вікні
      адміністратора, замінило б його сесію; на старті — порожня вкладка;
    - вікно 3 — `teacher@example.test` (демо 3), відкрито головну, DevTools → Console відкрито, фрагмент із розділу 3 — у
-     буфері або файлі поза кадром.
+     буфері або файлі поза кадром;
+   - Browser pane агента (демо 1, крок 8, якщо буде) — основна тека, `npm run dev`, вхід `teacher@example.test`
+     (працівник: `/requests/new` відкривається лише йому).
 7. **Теки** (щоб не перемикати гілки на сцені). `.env.local` є лише в основній теці, тож **у теках `lp-ws7-0x`
    `npm run dev` не запускаємо** (proxy без змінних середовища падає на кожній сторінці); живий застосунок — прод-URL
    або основна тека. Тег `ws7-02-invites-roles` перенесено 19.10 — якщо теки створено раніше, оновити:
@@ -82,10 +84,10 @@
 | 2 | **обов'язково** | Термінал у `lp-ws7-01`: `node scripts/check-design-tokens.mjs --root ../lp-ws7-00` (у `lp-ws7-00` скрипта ще немає — ним перевіряємо стан «до»; **не** `npm run check:design` там) | список порушень (`zinc-*`, `amber-*`, `emerald-*`, `rose-*`, `bg-white`…), останній рядок `check-design-tokens: 56 порушень у 5 файлах. Правила — у DESIGN.md.`, exit 1 | вивід у описі PR #19 |
 | 3 | **обов'язково** | `lp-ws7-01`: `cat CLAUDE.md` (`@AGENTS.md`, `@DESIGN.md`), потім `npm run check:design` | `check-design-tokens: OK — сирих кольорів поза src/components/ui немає.`, exit 0 | — |
 | 4 | **обов'язково** | «До/після» світла й темна: `docs/demo/ws7/before-requests-new-teacher-light.png` ↔ `after-requests-new-teacher-light.png`, `…-dark` (Arial і сирі сірі → Geist і токени) | різниця очевидна | ті самі файли |
-| 5 | якщо є час | `lp-ws7-01`: `DESIGN.md` (розділи 2, 5, 7, 11), `src/app/globals.css` (`:root`, темна тема, `@theme inline`, `status-*`), `src/components/ui/badge.tsx` | файли як описано | ті самі файли на GitHub на тезі `ws7-01-design-system` |
+| 5 | якщо є час | `lp-ws7-01`: `DESIGN.md` (розділи 2, 5, 7; розділу 11 «Відхилення від артефакту» на тезі ще немає — він у `DESIGN.md` на `main`), `src/app/globals.css` (`:root`, темна тема, `@theme inline`, `status-*`), `src/components/ui/badge.tsx` | файли як описано | ті самі файли на GitHub на тезі `ws7-01-design-system` |
 | 6 | якщо є час | Червоне наживо: у `lp-ws7-01/src/app/page.tsx` рядок 20 `<Card>` → `<Card className="bg-zinc-900">` → `npm run check:design` → `git checkout -- src/app/page.tsx` → знову | `src/app/page.tsx:20  [raw-palette]  bg-zinc-900  — сира палітра Tailwind — замініть на семантичний клас із DESIGN.md`, `check-design-tokens: 1 порушень у 1 файлах.`, exit 1 → OK, exit 0 | рядок у описі PR #19 |
 | 7 | якщо є час | PR #19 → Checks: «Дизайн-система: лише токени», «Секретний ключ лише на сервері» (окремий `architecture.yml`; `ci.yml` не змінено) | обидва зелені | вкладка PR #19 → Checks, відкрита заздалегідь (передумова 9) |
-| 8 | якщо є час | Візуальна перевірка агентом в **основній теці** (`npm run dev`, там є `.env.local`; вікно 1 уже з входом): Browser pane / Playwright MCP — «Додай порожній стан на /requests за DESIGN.md, зніми сторінку у світлій і темній темі, `npm run check:design`»; після показу — `git checkout -- .` | агент додає порожній стан, знімки, `check:design` OK | пропустити; знімки кроку 4 |
+| 8 | якщо є час | Візуальна перевірка агентом в **основній теці** (`npm run dev`, там є `.env.local`; Browser pane агента заздалегідь увійшов як `teacher@` — працівник, паролі на сцені не вводимо, передумова 6): Browser pane / Playwright MCP — «Переведи кнопки форм /requests/new і /manage на SubmitButton за DESIGN.md (стан «Надсилаємо…»), зніми /requests/new у світлій і темній темі, npm run check:design»; після показу — `git checkout -- .` | агент замінює `<Button type="submit">` на `SubmitButton` у `src/app/requests/new/page.tsx` і `src/app/manage/page.tsx` (розрив записано в `DESIGN.md`, розділ 11), знімки `/requests/new`, `check:design` OK | пропустити; знімки кроку 4 |
 
 ## 2. Демо 2 — запрошення (блок 2, слайд 24, ≈ 4 хв) — прод-URL або `npm run dev` в основній теці
 
@@ -102,7 +104,7 @@
 | 5 | **обов'язково** | «Активувати акаунт» → пароль ≥ 8 символів двічі → «Зберегти пароль» | `/account/password` «Новий пароль» з адресою акаунта → головна, «Пароль збережено. Вітаємо в порталі!», роль «працівник» (AC-USERS-02) | `after-account-password-*.png` |
 | 6 | **обов'язково** | Те саме посилання ще раз (вікно 2) → «Активувати акаунт» | знову сторінка «Активувати акаунт»; після натискання — `/login` з «Посилання недійсне або вже використане. Зверніться до адміністратора.» (AC-USERS-05) | `after-login-link-error-*.png` |
 | 7 | якщо є час | Вікно 1: «Запросити» → `Teacher@Example.test` → «Запросити» | під полем Email: «Користувач з цією адресою вже є в порталі» (AC-USERS-04); введене в полях лишилось | `npx vitest run tests/users/invite.test.ts` → `10 passed` |
-| 8 | якщо є час | Код: `src/app/admin/users/actions.ts` (`inviteUser`: `getViewer()` → роль admin → **лише потім** `createAdminClient()` → `generateLink`), `src/lib/supabase/admin.ts` (перший рядок `import "server-only"`), `src/app/auth/confirm/page.tsx` (GET — лише форма) і `actions.ts` (`activate`: `verifyOtp` → `safeNextPath`) | порядок перевірок видно; `verifyOtp` — лише в POST | файли на GitHub на тезі `ws7-02-invites-roles`; `npx vitest run tests/auth tests/users` → `27 passed` |
+| 8 | якщо є час | Код: `src/lib/users/invite.ts` — `inviteUserCore` (рядки 103–127): перший рядок — роль admin (`FORBIDDEN`, рядок 109), далі перевірки, «адреса вже є?» і **лише тоді** `generateInvite`; `src/app/admin/users/actions.ts` — `createAdminClient()` лише всередині `generateInvite` (рядок 66), тобто після перевірки ролі в `inviteUserCore`; `src/lib/supabase/admin.ts` (перший рядок `import "server-only"`), `src/app/auth/confirm/page.tsx` (GET — лише форма) і `actions.ts` (`activate`: `verifyOtp` → `safeNextPath`) | порядок перевірок видно; `verifyOtp` — лише в POST | файли на GitHub на тезі `ws7-02-invites-roles`; `npx vitest run tests/auth tests/users` → `27 passed` |
 
 Якщо запрошення на проді відповідає «Не вдалося створити посилання» — `SUPABASE_SECRET_KEY` не задано в Vercel
 Production (передумова 3): перейти на локальний `npm run dev` в основній теці.

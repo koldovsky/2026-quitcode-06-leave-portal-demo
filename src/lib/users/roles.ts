@@ -12,7 +12,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 
 export const isAppRole = (value: unknown): value is AppRole => APP_ROLES.includes(value as AppRole);
 
-/** AC-USERS-07, AC-USERS-13, AC-USERS-08: список користувачів, запрошення й зміна ролі — лише для адміністратора. */
+/** AC-USERS-07, AC-USERS-13 (список), AC-USERS-14, AC-USERS-15 (запрошення), AC-USERS-08, AC-USERS-09 (зміна ролі) — лише адміністратор. */
 export const canManageUsers = (role: AppRole | null | undefined): boolean => role === "admin";
 
 /** AC-USERS-07, AC-USERS-13 — дослівно з вимоги PM. */

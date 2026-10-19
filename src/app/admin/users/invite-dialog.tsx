@@ -87,8 +87,8 @@ function InviteForm({ divisions, roles }: { divisions: Division[]; roles?: RoleO
             className="font-mono text-xs"
           />
           <p id="activation-link-hint" className="text-xs text-muted-foreground">
-            Посилання одноразове й діє 1 годину. Передайте його лише цій людині: хто відкриє його першим, той і задасть
-            пароль.
+            Посилання одноразове й діє 1 годину. Передайте його лише цій людині: хто першим активує за ним акаунт, той і
+            задасть пароль.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
