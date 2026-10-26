@@ -1,0 +1,8 @@
+Без мутацій: 2 файл(и) тестів зелені (1.8 с)
+
+✗ X1 SURVIVED test — тотожна заміна з $$ (має вижити) (1.7 с)
+✗ X2 ERROR    test — синтаксична помилка в міграції (має бути ERROR) (1.7 с)
+      ! leave-db.test.ts: unrecognized exception condition "exceptio"
+
+Мутаційний бал: 0 з 1 вбито (0 %), ERROR (не в балі): 1 — 3.3 с
+old string replace: "as $x" | fixed: "as $$x"

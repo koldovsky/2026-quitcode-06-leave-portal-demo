@@ -1,0 +1,27 @@
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 gates
+> npm run lint && npm run typecheck && fallow audit --base ws8-00-baseline
+
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 lint
+> eslint --max-warnings 0
+
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+loaded config: D:\projects\clients\quitcode\ws8-build\demo-runbook\.fallowrc.jsonc
+   0.744422500s  WARN Graph cache decoded but not reused: resolver, entry points, or plugins changed
+note: using auto-detected coverage at D:\projects\clients\quitcode\ws8-build\demo-runbook\coverage/coverage-final.json; pass --coverage explicitly for deterministic CI scores
+
+Audit scope: 18 changed files vs ws8-00-baseline (e6789e4..HEAD)
+■ Metrics: dead code 0 · complexity 0 · duplication 0
+
+── Styling ────────────────────────────────────────
+  13 styling candidates (run `fallow health --css` for detail)
+note: skipped 14 files matching default duplicates ignores
+  (--explain-skipped for the list)
+✓ No issues in 18 changed files (1.13s)
+<claude-code-hint v="1" type="plugin" value="fallow@claude-plugins-official" />

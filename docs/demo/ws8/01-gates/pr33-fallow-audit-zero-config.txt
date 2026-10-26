@@ -1,0 +1,97 @@
+
+Audit scope: 8 changed files vs ws8-00-baseline (a390345..HEAD)
+■ Metrics: dead code 1 · complexity 7 (warn, max cyclomatic: 11) · duplication 0
+
+── Dead Code ──────────────────────────────────────
+
+── Policy ─────────────────────────────────────
+
+● Unused server actions (1)
+  src/app/manage/actions.ts
+    :46 exportQueueCsv is exported from a "use server" file but no code in this project references it
+  A Next.js Server Action exported from a "use server" file that no code in the
+  project references (wire it to a consumer or remove it)
+  https://fallow.tools/docs/explanations/dead-code/#unused-server-actions
+
+⚠ 1 unused server action (0.26s)
+
+── Complexity ─────────────────────────────────────
+
+■ Metrics: 504 LOC · dead files 0.0% · dead exports 0.0% · avg cyclomatic 2.9 · p90 cyclomatic 8 · maintainability 88.0 (good) · 1 unused dep
+  Cyclomatic units: functions 39, module scopes 0, templates 0
+
+  Function size: 80% low · 8% medium · 5% high · 8% very high  (1-15 / 16-30 / 31-60 / >60 LOC)
+
+  Render fan-in: <Button> 10 parents (12 incl. repeats) · <Card> 8 parents (9 incl. repeats) · <CardContent> 8 parents (9 incl. repeats) · <Notice> 7 parents (12 incl. repeats) · <Input> 6 parents (15 incl. repeats)
+
+● Large functions (3)
+  src/app/requests/page.tsx
+    :22 MyRequestsPage  112 lines
+    :62 <arrow>   67 lines
+  tests/leave/decisions.test.ts
+    :5 describe("Рішення менеджера")   65 lines
+  Functions exceeding 60 lines of code (very high risk)
+  https://fallow.tools/docs/explanations/health/#unit-size
+
+● High complexity functions (7)
+  CRAP scores are estimated from export references; run `fallow health --coverage <coverage-final.json>` for exact scores.
+  src/lib/supabase/viewer.ts
+    :11 getViewer CRITICAL
+          11   cyclomatic    5   cognitive   28 lines
+         132.0 ! CRAP
+  src/app/manage/actions.ts
+    :11 decideRecord CRITICAL
+          10   cyclomatic    8   cognitive   33 lines
+         110.0 ! CRAP
+  src/app/requests/page.tsx
+    :22 MyRequestsPage CRITICAL
+          10   cyclomatic    8   cognitive  112 lines
+         react: 1 prop, JSX depth 3
+         110.0 ! CRAP
+  src/app/admin/users/actions.ts
+    :24 requestOrigin HIGH
+           8   cyclomatic    6   cognitive   10 lines
+          72.0 ! CRAP
+  src/lib/users/invite-link.ts
+    :9 generateInviteLink HIGH
+           8   cyclomatic    5   cognitive   13 lines
+          72.0 ! CRAP
+  src/app/admin/users/actions.ts
+    :94 changeRole
+           6   cyclomatic    4   cognitive   16 lines
+          42.0 ! CRAP
+  src/app/requests/page.tsx
+    :62 <arrow>
+           6   cyclomatic    5   cognitive   67 lines
+         react: JSX depth 6
+          42.0 ! CRAP
+  Functions exceeding cyclomatic, cognitive, or CRAP thresholds; ! marks the
+  dimension that breached
+  https://fallow.tools/docs/explanations/health/#complexity-metrics
+  To suppress: // fallow-ignore-next-line complexity
+
+
+CSS health
+  Styling health: 99 A (CSS quality, scored separately from the code health score)
+  Deductions: token erosion -0.7
+  1 stylesheet · 5 rules · 0.0% !important · 0 empty · max nesting 0
+  value sprawl: 43 distinct colors · 0 font sizes · 0 z-index values
+  custom properties: 27 defined, 0 unreferenced in CSS, 3 undefined (candidates; may be set from JS)
+⚠ 7 above threshold · 39 analyzed (0.00s)
+
+── Worse than base ────────────────────────────────
+  src/app/admin/users/actions.ts:24 requestOrigin  cyclomatic 7 -> 8, cognitive 5 -> 6, CRAP 56 -> 72  (worsened: warn only, --worsened error gates it)
+
+── Styling ────────────────────────────────────────
+  13 styling candidates (run `fallow health --css` for detail)
+
+── Diff risk ──────────────────────────────────────
+  src/app/admin/users/actions.ts:26  test-only-branch [warn]  process.env.NODE_ENV
+  tests/leave/decisions.test.ts  weakened-tests (assertion-drop) [warn]  assertions: 10 -> 9
+  tests/leave/decisions.test.ts:17  weakened-tests (skip-only) [warn]  it.skip
+note: skipped 24 files matching default duplicates ignores
+  (--explain-skipped for the list)
+⚠ dead code: 1 issue · complexity: 7 findings · diff risk: 3 findings (warn) · 8 changed files (1.79s)
+  1 inherited complexity finding got worse since ws8-00-baseline (worsened: warn only, --worsened error gates it)
+  audit gate excluded 6 inherited findings (run with --gate all to enforce)
+<claude-code-hint v="1" type="plugin" value="fallow@claude-plugins-official" />

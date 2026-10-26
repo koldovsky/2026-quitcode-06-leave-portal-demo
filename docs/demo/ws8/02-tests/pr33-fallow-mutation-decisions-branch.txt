@@ -1,0 +1,46 @@
+fallow: mutation testing runs the project tests against each mutant. Fallow does not write to project files. The report lists any path that the tests changed.
+fallow: mutation: runner setup for 55 mutants (0s)
+fallow: mutation: baseline run of 2 test files with no active mutant (0s)
+fallow: mutation: 0/52 mutants done (1s)
+fallow: mutation: 52/52 mutants done (4s)
+fallow: mutation: 0/8 retries of survivors and timeouts done (4s)
+fallow: mutation: 8/8 retries of survivors and timeouts done (6s)
+fallow: mutation: the tests stopped; worktree check and report (6s)
+Mutation testing (ran the project tests)
+Scope: the given paths
+Score 84.6%  killed 44  survived 8  timeout 0  complete
+Coverage 94.5%  no coverage 3
+
+● Survived (8)
+  src/lib/leave/decisions.ts
+    #9 25:7  decide  relational-operator  if (decision === "return" && comment === "") return fa... -> if (false && comment === "") return fail("COMMENT_REQU...
+      id 371036b29e187456
+      covered by 2 tests, first: tests/leave/decisions.test.ts::Рішення менеджера > AC-LEA...
+    #11 25:20  decide  string-literal  if (decision === "return" && comment === "") return fa... -> if (decision === "" && comment === "") return fail("CO...
+      id 2bac3c523691d005
+      covered by 2 tests, first: tests/leave/decisions.test.ts::Рішення менеджера > AC-LEA...
+    #13 25:32  decide  relational-operator  ...ion === "return" && comment === "") return fail("COMME... -> ...ion === "return" && false) return fail("COMMENT_REQUIR...
+      id a80a0bdac2656ab3
+      covered by 1 test: tests/leave/decisions.test.ts::Рішення менеджера > AC-LEA...
+    #15 25:44  decide  string-literal  ...return" && comment === "") return fail("COMMENT_REQUIR... -> ...return" && comment === "fallow") return fail("COMMENT_...
+      id 08c23e8daee7d9d5
+      covered by 1 test: tests/leave/decisions.test.ts::Рішення менеджера > AC-LEA...
+    #37 63:7  resubmit  negate-condition  if (!substitute.ok) return substitute; -> if (false) return substitute;
+      id 3dae1df859a74c68
+      covered by 1 test: tests/leave/decisions.test.ts::Рішення менеджера > AC-LEA...
+    #48 38:7  requestStatus  negate-condition  if (recordStatuses.some((s) => s === "approved")) retu... -> if (true) return "approved";
+      id e50e9bf8f1ad9056
+      covered by 4 tests, first: tests/leave/calendar.test.ts::Заблоковані дні й перетин з...
+    #51 39:10  requestStatus  string-literal  return "pending"; -> return "";
+      id 4fd6fa63b77b95d8
+      covered by 2 tests, first: tests/leave/calendar.test.ts::Заблоковані дні й перетин з...
+    #52 39:10  requestStatus  return-value  return "pending"; -> return undefined;
+      id b53067e187f59eb2
+      covered by 2 tests, first: tests/leave/calendar.test.ts::Заблоковані дні й перетин з...
+
+● No coverage (3): no test reaches these mutants
+  src/lib/leave/decisions.ts  3 mutants  test reach: 3 direct
+
+Next
+  Inspect a survivor (runs no code): fallow mutation inspect 371036b29e187456
+<claude-code-hint v="1" type="plugin" value="fallow@claude-plugins-official" />

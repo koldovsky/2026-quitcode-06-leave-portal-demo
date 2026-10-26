@@ -1,0 +1,102 @@
+
+ RUN  v5.0.3 D:/projects/clients/quitcode/ws8-build/demo-quality
+      Coverage enabled with v8
+
+ ✓ tests/leave/blocked-days.test.ts (3 tests) 4ms
+ ✓ tests/users/roles.test.ts (6 tests) 4ms
+ ✓ tests/users/invite.test.ts (10 tests) 7ms
+ ✓ tests/leave/access.test.ts (2 tests) 3ms
+ ✓ tests/leave/decisions.test.ts (7 tests) 5ms
+ ✓ tests/leave/calendar.test.ts (7 tests) 6ms
+ ✓ tests/leave/submission.test.ts (9 tests) 5ms
+ ✓ tests/auth/confirm.test.ts (10 tests) 24ms
+ ✓ tests/auth/confirm-page.test.tsx (2 tests) 13ms
+ ✓ tests/scripts/check-spec.test.ts (13 tests) 885ms
+ ✓ tests/db/users-db.test.ts (13 tests) 1469ms
+ ✓ tests/db/leave-db.test.ts (17 tests) 1565ms
+ ✓ tests/scripts/check-ac-coverage.test.ts (14 tests) 2858ms
+   ✓ scripts/check-ac-coverage.mjs (14)
+     ✓ does not warn when requirements/ is absent or every PM AC is in the spec 358ms
+ ✓ tests/scripts/check-migration-order.test.ts (14 tests) 8263ms
+   ✓ scripts/check-migration-order.mjs (14)
+     ✓ passes when the PR migration is newer than the newest on main 685ms
+     ✓ fails when the PR migration is older than the newest on main and suggests a rename 645ms
+     ✓ fails on a timestamp equal to the newest on main (older-or-equal and duplicate) 563ms
+     ✓ fails when an applied migration is edited 591ms
+     ✓ fails when an applied migration is deleted 571ms
+     ✓ allows the recovery rename of a merged-but-unapplied migration to a newer timestamp (same SQL) 571ms
+     ✓ still fails DELETED when the renamed migration's SQL was changed 561ms
+     ✓ fails DELETED when the newest (already applied) migration on main is renamed 533ms
+     ✓ fails on a file name the Supabase CLI would skip 551ms
+     ✓ passes when the PR adds no migrations 514ms
+     ✓ passes when main has no migrations yet 491ms
+     ✓ does not report main's newer migrations as deleted when the branch is behind main 653ms
+     ✓ still fails OLDER (and only OLDER) for a branch behind main 709ms
+     ✓ fails with a fetch hint when the base branch is missing 491ms
+
+ Test Files  14 passed (14)
+      Tests  127 passed (127)
+   Start at  19:43:18
+   Duration  8.65s (tests 92%, transform 4%, import 2%, worker 1%)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    34.5 |    26.29 |   28.76 |   32.01 |                   
+ src               |       0 |      100 |       0 |       0 |                   
+  proxy.ts         |       0 |      100 |       0 |       0 | 7-10              
+ src/app           |       0 |        0 |       0 |       0 |                   
+  layout.tsx       |       0 |      100 |       0 |       0 | 5-21              
+  page.tsx         |       0 |        0 |       0 |       0 | 8-21              
+ ...pp/_components |      20 |    19.04 |   11.11 |      20 |                   
+  ...it-button.tsx |     100 |       80 |     100 |     100 | 17                
+  ui.tsx           |       0 |        0 |       0 |       0 | 13-142            
+ ...count/password |       0 |        0 |       0 |       0 |                   
+  actions.ts       |       0 |        0 |       0 |       0 | 1-24              
+  page.tsx         |       0 |        0 |       0 |       0 | 11-24             
+ ...pp/admin/users |       0 |        0 |       0 |       0 |                   
+  actions.ts       |       0 |        0 |       0 |       0 | 1-118             
+  ...nk-button.tsx |       0 |        0 |       0 |       0 | 1-19              
+  ...te-dialog.tsx |       0 |        0 |       0 |       0 | 1-160             
+  page.tsx         |       0 |        0 |       0 |       0 | 23-114            
+ ...p/auth/confirm |    37.5 |      100 |   33.33 |    37.5 |                   
+  actions.ts       |   16.66 |      100 |       0 |   16.66 | 16-21             
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ src/app/login     |       0 |        0 |       0 |       0 |                   
+  actions.ts       |       0 |        0 |       0 |       0 | 1-34              
+  page.tsx         |       0 |        0 |       0 |       0 | 7-18              
+ src/app/manage    |       0 |        0 |       0 |       0 |                   
+  actions.ts       |       0 |        0 |       0 |       0 | 1-42              
+  page.tsx         |       0 |        0 |       0 |       0 | 16-118            
+ src/app/requests  |       0 |        0 |       0 |       0 |                   
+  actions.ts       |       0 |        0 |       0 |       0 | 1-129             
+  page.tsx         |       0 |        0 |       0 |       0 | 16-97             
+ ...p/requests/new |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 15-54             
+ src/lib           |       0 |        0 |       0 |       0 |                   
+  utils.ts         |       0 |        0 |       0 |       0 |                   
+ src/lib/auth      |   95.45 |    97.22 |     100 |   96.87 |                   
+  confirm.ts       |     100 |      100 |     100 |     100 |                   
+  next-path.ts     |   85.71 |    92.85 |     100 |    90.9 | 25                
+  password.ts      |     100 |      100 |     100 |     100 |                   
+ src/lib/leave     |   88.88 |    86.48 |   91.66 |   88.88 |                   
+  access.ts        |     100 |      100 |     100 |     100 |                   
+  blocked-days.ts  |     100 |      100 |     100 |     100 |                   
+  calendar.ts      |     100 |      100 |     100 |     100 |                   
+  dates.ts         |   84.61 |      100 |   66.66 |   81.81 | 24-25             
+  decisions.ts     |   95.23 |       96 |     100 |     100 | 63                
+  messages.ts      |       0 |        0 |       0 |       0 | 3-38              
+  records.ts       |     100 |       75 |     100 |     100 | 20                
+  submission.ts    |   95.65 |       95 |     100 |     100 | 66                
+  types.ts         |     100 |      100 |     100 |     100 |                   
+ src/lib/supabase  |       0 |        0 |       0 |       0 |                   
+  admin.ts         |       0 |        0 |       0 |       0 | 9-15              
+  client.ts        |       0 |      100 |       0 |       0 | 7                 
+  proxy.ts         |       0 |        0 |       0 |       0 | 9-55              
+  server.ts        |       0 |      100 |       0 |       0 | 8-23              
+  viewer.ts        |       0 |        0 |       0 |       0 | 8-43              
+ src/lib/users     |   98.36 |    95.65 |     100 |     100 |                   
+  invite.ts        |     100 |    96.87 |     100 |     100 | 79                
+  roles.ts         |   95.83 |    92.85 |     100 |     100 | 53                
+-------------------|---------|----------|---------|---------|-------------------

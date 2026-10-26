@@ -1,0 +1,31 @@
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 mutation:ts
+> stryker run --mutate src/lib/leave/calendar.ts
+
+19:42:31 (91920) INFO ProjectReader Found 1 of 448 file(s) to be mutated.
+19:42:31 (91920) INFO Instrumenter Instrumented 1 source file(s) with 30 mutant(s)
+19:42:32 (91920) INFO ConcurrencyTokenProvider Creating 23 test runner process(es).
+19:42:32 (91920) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+19:42:33 (91920) INFO DryRunExecutor Starting initial test run (vitest test runner with "perTest" coverage analysis). This may take a while.
+19:42:33 (91920) INFO DryRunExecutor Initial test run succeeded. Ran 7 tests in 0 seconds (net 2.7583000000001903 ms, overhead 220.2416999999998 ms).
+
+All tests/calendar.test.ts
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-04: заявку 04.11–06.11.2026 із заблокованим 05.11 прийнято — 2 дні відсутності [line 13] (killed 5)
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-10: заявка 05.11–05.11.2026 лише із заблокованих днів — ONLY_BLOCKED_DAYS [line 20] (killed 2)
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 04.11–06.11 перетинається із заявкою pending 03.11–04.11 — OVERLAPPING_REQUEST [line 27] (killed 11)
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST [line 35] (killed 1)
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: заявка 01.11–02.11 цілком раніше за pending 03.11–04.11 — приймається [line 41] (killed 5)
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: схвалена заявка теж блокує, а заявка на доопрацюванні — ні [line 47] (killed 4)
+  ✓ Заблоковані дні й перетин заявок (spec-v0.2) > повторне подання не перетинається саме з собою; суміжні діапазони не перетинаються [line 55] (killed 2)
+
+Ran 2.13 tests per mutant on average.
+-------------|------------------|----------|-----------|------------|----------|----------|
+             | % Mutation score |          |           |            |          |          |
+File         |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------|--------|---------|----------|-----------|------------|----------|----------|
+All files    | 100.00 |  100.00 |       30 |         0 |          0 |        0 |        0 |
+ calendar.ts | 100.00 |  100.00 |       30 |         0 |          0 |        0 |        0 |
+-------------|--------|---------|----------|-----------|------------|----------|----------|
+19:42:34 (91920) INFO JsonReporter Your report can be found at: file:///D:/projects/clients/quitcode/ws8-build/demo-quality/reports/mutation/mutation.json
+19:42:34 (91920) INFO HtmlReporter Your report can be found at: file:///D:/projects/clients/quitcode/ws8-build/demo-quality/reports/mutation/mutation.html
+19:42:34 (91920) INFO MutationTestExecutor Done in 2 seconds.

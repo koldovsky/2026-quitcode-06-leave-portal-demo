@@ -1,0 +1,6 @@
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 smoke
+> node scripts/smoke.mjs https://quitcode-ws6-leave-portal-demo.vercel.app
+
+{"base":"https://quitcode-ws6-leave-portal-demo.vercel.app","root":307,"login":200,"health":{"status":307,"location":"/login"}}
+::error title=smoke https://quitcode-ws6-leave-portal-demo.vercel.app::"/api/health": 307 → /login — додайте "/api/health" у PUBLIC_PATHS (src/lib/supabase/proxy.ts)
