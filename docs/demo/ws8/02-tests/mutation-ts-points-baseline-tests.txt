@@ -1,0 +1,6 @@
+Без мутацій: 2 файл(и) тестів зелені (0.5 с)
+
+✗ T1 SURVIVED AC-LEAVE-11 — rangesOverlap: b.startDate <= a.endDate → < (нова заявка, що закінчується в день початку наявної, проходить) (0.5 с)
+✗ T2 SURVIVED AC-USERS-02 — validatePassword: password.length < 8 → <= 8 (пароль рівно з 8 символів відхилено) (0.5 с)
+
+Мутаційний бал: 0 з 2 вбито (0 %) — 0.9 с

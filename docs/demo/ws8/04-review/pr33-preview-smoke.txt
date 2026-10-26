@@ -1,0 +1,4 @@
+# Vercel preview of PR 33 (deployment 7338894091, sha a390345), read-only GETs 2026-10-26T17:35:26Z
+https://quitcode-ws6-leave-portal-demo-h1cba9fic-ssa-68744910.vercel.app
+GET / -> 307 -> /login
+GET /login -> 200, password field present

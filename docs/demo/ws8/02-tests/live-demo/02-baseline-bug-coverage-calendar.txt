@@ -1,0 +1,48 @@
+
+ RUN  v5.0.3 D:/projects/clients/quitcode/ws8-build/demo-quality
+      Coverage enabled with v8
+
+ ✓ tests/users/roles.test.ts (6 tests) 3ms
+ ✓ tests/leave/blocked-days.test.ts (3 tests) 5ms
+ ✓ tests/users/invite.test.ts (10 tests) 7ms
+ ✓ tests/leave/access.test.ts (2 tests) 3ms
+ ✓ tests/auth/confirm.test.ts (9 tests) 20ms
+ ✓ tests/leave/decisions.test.ts (7 tests) 5ms
+ ✓ tests/leave/calendar.test.ts (5 tests) 5ms
+ ✓ tests/leave/submission.test.ts (9 tests) 5ms
+ ✓ tests/auth/confirm-page.test.tsx (2 tests) 14ms
+ ✓ tests/scripts/check-spec.test.ts (13 tests) 906ms
+ ✓ tests/db/users-db.test.ts (13 tests) 1517ms
+ ✓ tests/db/leave-db.test.ts (12 tests) 1550ms
+ ✓ tests/scripts/check-ac-coverage.test.ts (14 tests) 2889ms
+   ✓ scripts/check-ac-coverage.mjs (14)
+     ✓ does not warn when requirements/ is absent or every PM AC is in the spec 358ms
+ ✓ tests/scripts/check-migration-order.test.ts (14 tests) 8223ms
+   ✓ scripts/check-migration-order.mjs (14)
+     ✓ passes when the PR migration is newer than the newest on main 695ms
+     ✓ fails when the PR migration is older than the newest on main and suggests a rename 665ms
+     ✓ fails on a timestamp equal to the newest on main (older-or-equal and duplicate) 612ms
+     ✓ fails when an applied migration is edited 565ms
+     ✓ fails when an applied migration is deleted 544ms
+     ✓ allows the recovery rename of a merged-but-unapplied migration to a newer timestamp (same SQL) 590ms
+     ✓ still fails DELETED when the renamed migration's SQL was changed 574ms
+     ✓ fails DELETED when the newest (already applied) migration on main is renamed 538ms
+     ✓ fails on a file name the Supabase CLI would skip 532ms
+     ✓ passes when the PR adds no migrations 520ms
+     ✓ passes when main has no migrations yet 497ms
+     ✓ does not report main's newer migrations as deleted when the branch is behind main 708ms
+     ✓ still fails OLDER (and only OLDER) for a branch behind main 661ms
+     ✓ fails with a fetch hint when the base branch is missing 407ms
+
+ Test Files  14 passed (14)
+      Tests  119 passed (119)
+   Start at  19:41:26
+   Duration  8.47s (tests 91%, transform 5%, import 2%, worker 1%)
+
+ % Coverage report from v8
+-------------|---------|----------|---------|---------|-------------------
+File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------|---------|----------|---------|---------|-------------------
+All files    |     100 |      100 |     100 |     100 |                   
+ calendar.ts |     100 |      100 |     100 |     100 |                   
+-------------|---------|----------|---------|---------|-------------------

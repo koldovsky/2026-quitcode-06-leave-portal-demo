@@ -1,0 +1,13 @@
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 lint
+> eslint --max-warnings 0
+
+
+D:\projects\clients\quitcode\ws8-build\demo-runbook\tests\leave\decisions.test.ts
+  17:6  error  Disabled test - if you want to skip a test temporarily, use .todo() instead  vitest/no-disabled-tests
+
+D:\projects\clients\quitcode\ws8-build\demo-runbook\tests\leave\submission.test.ts
+  35:5  error  Remove conditional tests  vitest/no-conditional-in-test
+
+✖ 2 problems (2 errors, 0 warnings)
+

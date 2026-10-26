@@ -1,0 +1,2 @@
+{"base":"https://quitcode-ws6-leave-portal-demo-ge8uxrodo-ssa-68744910.vercel.app","root":307,"login":200,"health":{"status":200,"ok":true,"sha":"2a41c338a92cd04f890952dedaa6c254fbd3ae8e","env":"preview","db":"ok","reason":""}}
+OK — прод живий, сторінка входу відкривається, база відповідає.

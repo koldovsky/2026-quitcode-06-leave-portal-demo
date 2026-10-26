@@ -1,0 +1,28 @@
+fallow: mutation testing runs the project tests against each mutant. Fallow does not write to project files. The report lists any path that the tests changed.
+fallow: mutation: runner setup for 56 mutants (0s)
+fallow: mutation: baseline run of 2 test files with no active mutant (0s)
+fallow: mutation: 0/55 mutants done (1s)
+fallow: mutation: 55/55 mutants done (5s)
+fallow: mutation: 0/2 retries of survivors and timeouts done (5s)
+fallow: mutation: 2/2 retries of survivors and timeouts done (6s)
+fallow: mutation: the tests stopped; worktree check and report (6s)
+Mutation testing (ran the project tests)
+Scope: the given paths
+Score 96.4%  killed 53  survived 2  timeout 0  complete
+Coverage 98.2%  no coverage 1
+
+● Survived (2)
+  src/lib/leave/decisions.ts
+    #33 38:29  requestStatus  relational-operator  if (recordStatuses.length > 0 && recordStatuses.every(... -> if (recordStatuses.length >= 0 && recordStatuses.every...
+      id af545b61442a021f
+      covered by 4 tests, first: tests/leave/calendar.test.ts::Заблоковані дні й перетин з...
+    #49 63:7  resubmit  negate-condition  if (!substitute.ok) return substitute; -> if (false) return substitute;
+      id 3dae1df859a74c68
+      covered by 1 test: tests/leave/decisions.test.ts::Рішення менеджера > AC-LEA...
+
+● No coverage (1): no test reaches these mutants
+  src/lib/leave/decisions.ts  1 mutant  test reach: 1 direct
+
+Next
+  Inspect a survivor (runs no code): fallow mutation inspect af545b61442a021f
+<claude-code-hint v="1" type="plugin" value="fallow@claude-plugins-official" />

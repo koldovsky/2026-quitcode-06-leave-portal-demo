@@ -1,0 +1,25 @@
+UAT: https://quitcode-ws6-leave-portal-demo.vercel.app
+
+Running 6 tests using 1 worker
+
+  ok 1 [setup] › tests\e2e\auth.setup.ts:13:8 › вхід: admin (8.1s)
+  ok 2 [setup] › tests\e2e\auth.setup.ts:13:8 › вхід: teacher (1.8s)
+  ok 3 [chromium] › tests\e2e\leave-blocked-day.spec.ts:24:5 › AC-LEAVE-04: заявка 04.11–06.11.2026 із заблокованим 05.11 — прийнята, днів відсутності 2 @uat @writes (10.6s)
+  ok 4 [chromium] › tests\e2e\users-copy-link.spec.ts:18:5 › AC-USERS-11: адміністратор копіює посилання для активації — воно в буфері обміну, видно «Посилання скопійовано» @uat @writes (9.2s)
+  ok 5 [chromium] › tests\e2e\users-forbidden.spec.ts:18:5 › AC-USERS-07: працівник відкриває список користувачів — головна з «Список користувачів бачить лише адміністратор.», чужих даних не видно @uat (2.5s)
+  ok 6 [cleanup] › tests\e2e\cleanup.teardown.ts:9:11 › прибирання: синтетичні uat-*@example.test (465ms)
+
+  6 passed (39.6s)
+AC-LEAVE-04: passed, кадрів «Тоді»: 1
+AC-USERS-11: passed, кадрів «Тоді»: 1
+AC-USERS-07: passed, кадрів «Тоді»: 1
+AC-USERS-11 [claude-haiku-5-5] → PASS; $0.0023428; 8799 мс
+AC-USERS-07 [claude-haiku-5-5] → PASS; $0.0026189900000000003; 10530 мс
+AC-LEAVE-04 [claude-haiku-5-5] → NEEDS-HUMAN; $0.0029837099999999997; 14263 мс
+AC-LEAVE-04 [claude-sonnet-5-5] → NEEDS-HUMAN; $0.0466421; 11351 мс (суперечка → Sonnet)
+
+Звіт: docs/qa/uat/2026-10-26/report.md
+  AC-LEAVE-04: NEEDS-HUMAN — R3: перевірки пройшли, агент не погоджується — вирішує людина
+  AC-USERS-07: PASS — R6: перевірки, агент і цитати збігаються
+  AC-USERS-11: PASS — R6: перевірки, агент і цитати збігаються
+Є NEEDS-HUMAN: рішення — за PM (див. звіт).

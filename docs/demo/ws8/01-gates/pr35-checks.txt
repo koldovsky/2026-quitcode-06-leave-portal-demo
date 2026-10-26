@@ -1,0 +1,15 @@
+# gh pr checks 35 — 2026-10-26T18:16:02Z, head e6789e4
+CodeRabbit	pass	0
+GitGuardian Security Checks	pass	1s
+Vercel	pass	0
+Vercel Preview Comments	pass	0
+app	pass	42s
+conformance	pass	26s
+db-check	pass	1m11s
+spec	pass	27s
+Дизайн-система: лише токени	pass	6s
+Покриття: доменна підлога	pass	37s
+Порада: вразливі залежності	pass	7s
+Секретний ключ лише на сервері	pass	6s
+db-deploy	skipping	0
+Ворота: fallow audit	pass	26s

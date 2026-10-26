@@ -1,0 +1,764 @@
+19:35:08 (46312) INFO ProjectReader Found 13 of 502 file(s) to be mutated.
+19:35:08 (46312) INFO Instrumenter Instrumented 13 source file(s) with 505 mutant(s)
+19:35:08 (46312) INFO ConcurrencyTokenProvider Creating 23 test runner process(es).
+19:35:09 (46312) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+19:35:09 (46312) INFO DryRunExecutor Starting initial test run (vitest test runner with "perTest" coverage analysis). This may take a while.
+19:35:10 (46312) INFO DryRunExecutor Initial test run succeeded. Ran 56 tests in 0 seconds (net 46.21449999999959 ms, overhead 946.7855000000004 ms).
+19:35:10 (46312) WARN MutantTestPlanner Detected 63 static mutants (12% of total) that are estimated to take 65% of the time running the tests!
+  You might want to enable "ignoreStatic" to ignore these static mutants for your next run. 
+  For more information about static mutants visit: https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants
+  (disable "warnings.slow" to ignore this warning)
+
+All tests
+  auth
+    confirm-page.test.tsx
+      ~ Сторінка активації (GET /auth/confirm) > AC-USERS-02: відкрите посилання — сторінка «Активувати акаунт» з полями посилання, посилання не перевірено й не витрачено [line 28] (covered 6)
+      ~ Сторінка активації (GET /auth/confirm) > AC-USERS-05: неповне чи підроблене посилання — та сама сторінка; відмова лише після «Активувати акаунт» [line 39] (covered 7)
+    confirm.test.ts
+      ✓ Активація за посиланням > AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля [line 41] (killed 31)
+      ✓ Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData [line 48] (killed 6)
+      ✓ Активація за посиланням > AC-USERS-02: пароль — щонайменше 8 символів і двічі однаково [line 58] (killed 13)
+      ✓ Активація за посиланням > AC-USERS-02: межа пароля — 7 символів відхилено, рівно 8 прийнято; рівно 72 байти теж прийнято [line 67] (killed 2)
+      ✓ Активація за посиланням > AC-USERS-02: помилка пароля — під своїм полем: довжина — «Пароль», розбіжність — «Пароль ще раз» [line 73] (killed 16)
+      ✓ Активація за посиланням > AC-USERS-02: next — лише відносний шлях цього сайту (захист від open redirect) [line 82] (killed 14)
+      ~ Активація за посиланням > AC-USERS-02: що б не прийшло в next, результат лишається на цьому сайті [line 92] (covered 35)
+      ✓ Активація за посиланням > AC-USERS-05: «Активувати акаунт» з використаним чи застарілим посиланням (verifyOtp відмовив) → вхід з повідомленням [line 102] (killed 1)
+      ✓ Активація за посиланням > AC-USERS-05: пошкоджене посилання (без token_hash або з чужим type) — навіть не перевіряємо [line 108] (killed 3)
+      ~ Активація за посиланням > підробний next у дійсному посиланні не веде на чужий сайт [line 120] (covered 45)
+  leave
+    access.test.ts
+      ✓ Кнопки рішення > рішення ухвалює лише менеджер підрозділу запису [line 16] (killed 6)
+      ~ Кнопки рішення > ні адміністратор, ні працівник не ухвалюють рішень [line 22] (covered 7)
+    blocked-days.test.ts
+      ~ Заблоковані дні > AC-LEAVE-04: заблокований 05.11.2026 у заявці 04.11–06.11.2026 не рахується — 2 дні з 3 [line 5] (covered 15)
+      ~ Заблоковані дні > заблоковані дні поза діапазоном не впливають; вихідні рахуються (календарні дні) [line 13] (covered 15)
+      ~ Заблоковані дні > діапазон через межу місяця і перехід на зимовий час рахується в цілих днях [line 22] (covered 15)
+    calendar.test.ts
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-04: заявку 04.11–06.11.2026 із заблокованим 05.11 прийнято — 2 дні відсутності [line 13] (killed 22)
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-10: заявка 05.11–05.11.2026 лише із заблокованих днів — ONLY_BLOCKED_DAYS [line 20] (killed 2)
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 04.11–06.11 перетинається із заявкою pending 03.11–04.11 — OVERLAPPING_REQUEST [line 27] (killed 12)
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST [line 35] (killed 1)
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: заявка 01.11–02.11 цілком раніше за pending 03.11–04.11 — приймається [line 41] (killed 5)
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: схвалена заявка теж блокує, а заявка на доопрацюванні — ні [line 47] (killed 5)
+      ✓ Заблоковані дні й перетин заявок (spec-v0.2) > повторне подання не перетинається саме з собою; суміжні діапазони не перетинаються [line 55] (killed 2)
+    decisions.test.ts
+      ✓ Рішення менеджера > схвалення запису pending — approved без коментаря [line 6] (killed 19)
+      ✓ Рішення менеджера > AC-LEAVE-06: заявка схвалена, коли схвалено всі її записи [line 13] (killed 13)
+      ✓ Рішення менеджера > AC-LEAVE-07: повернення без коментаря або з пробілами — COMMENT_REQUIRED [line 18] (killed 6)
+      ✓ Рішення менеджера > AC-LEAVE-07: повернення з коментарем «Уточніть дату кінця» — needs_revision з коментарем [line 27] (killed 6)
+      ✓ Рішення менеджера > рішення щодо вже вирішеного запису — NOT_PENDING [line 38] (killed 2)
+      ✓ Рішення менеджера > AC-LEAVE-08: виправлена заявка needs_revision з датою кінця 05.11.2026 — знову pending [line 45] (killed 27)
+      ✓ Рішення менеджера > AC-LEAVE-08: виправити можна лише заявку на доопрацюванні, і дати перевіряються знову [line 62] (killed 3)
+    submission.test.ts
+      ✓ Подання заявки > AC-LEAVE-01: заявка на одну посаду без заміни — один запис main зі статусом pending [line 7] (killed 37)
+      ✓ Подання заявки > AC-LEAVE-02: працівник позначив обидві посади (розклад за обома) — одна заявка з двома записами main і additional [line 24] (killed 8)
+      ~ Подання заявки > AC-LEAVE-02: позначено лише основну посаду — один запис, хоча посад дві [line 43] (covered 68)
+      ✓ Подання заявки > AC-LEAVE-01: заміну можна вказати вільним текстом — вона зберігається без зайвих пробілів [line 51] (killed 2)
+      ✓ Подання заявки > заміна довша за 200 символів — SUBSTITUTE_TOO_LONG; порожня — null [line 65] (killed 2)
+      ✓ Подання заявки > AC-LEAVE-03: дата кінця раніша за дату початку — INVALID_RANGE [line 70] (killed 3)
+      ✓ Подання заявки > одноденна заявка (початок = кінець) приймається [line 78] (killed 1)
+      ✓ Подання заявки > без позначених посад, з чужою посадою, невідомим типом чи датою — помилка [line 86] (killed 13)
+      ✓ Подання заявки > isIsoDate приймає лише справжні дати YYYY-MM-DD [line 102] (killed 1)
+  users
+    invite.test.ts
+      ✓ Запрошення користувача > AC-USERS-01: адміністратор запрошує нову адресу з роллю «працівник» і основною посадою → посилання для активації [line 29] (killed 64)
+      ~ Запрошення користувача > AC-USERS-01: посилання веде на /auth/confirm цього сайту з типом invite і next=/account/password [line 45] (covered 7)
+      ✓ Запрошення користувача > AC-USERS-04: адресу, що вже є в порталі (зокрема «Teacher@Example.test»), не запрошуємо — admin-клієнт не викликано [line 52] (killed 5)
+      ✓ Запрошення користувача > AC-USERS-04: якщо Supabase сам каже email_exists, відповідь та сама [line 61] (killed 1)
+      ✓ Запрошення користувача > AC-USERS-14: менеджер напряму не запрошує — ні перевірки адреси, ні admin-клієнта, ні посилання [line 80] (killed 5)
+      ~ Запрошення користувача > AC-USERS-15: працівник напряму не запрошує — ні перевірки адреси, ні admin-клієнта, ні посилання [line 84] (covered 11)
+      ~ Запрошення користувача > AC-USERS-17: без входу напряму не запросити — ні перевірки адреси, ні admin-клієнта, ні посилання [line 90] (covered 11)
+      ✓ Запрошення користувача > некоректна адреса, посада без назви — нічого не створено [line 94] (killed 11)
+      ✓ Запрошення користувача > роль з форми перевіряємо: невідома — відмова; менеджер — призначаємо після створення акаунта [line 104] (killed 6)
+      ✓ Запрошення користувача > акаунт створено, але роль чи посаду не призначено — попередження, а не тиха помилка [line 113] (killed 4)
+    roles.test.ts
+      ✓ Доступ до сторінки користувачів > AC-USERS-07: працівник на сторінці користувачів → головна з «Список користувачів бачить лише адміністратор.» [line 17] (killed 5)
+      ~ Доступ до сторінки користувачів > AC-USERS-13: менеджер на сторінці користувачів → головна з «Список користувачів бачить лише адміністратор.» [line 26] (covered 4)
+      ~ Доступ до сторінки користувачів > адміністратор бачить сторінку; профіль без ролі — теж на головну [line 33] (covered 4)
+      ✓ Стан сторінки користувачів > AC-USERS-12: адміністратор — поки що єдиний користувач → «Ще немає запрошених. Запросіть першого працівника.» [line 43] (killed 7)
+      ✓ Зміна ролі: повідомлення > відмова бази LAST_ADMIN → «Не можна змінити роль останнього адміністратора» (текст із вимоги PM) [line 54] (killed 7)
+      ✓ Зміна ролі: повідомлення > відмова бази FORBIDDEN або 42501 — не технічний текст, а зрозуміле повідомлення [line 60] (killed 14)
+
+[Survived] ConditionalExpression
+src/lib/auth/confirm.ts:21:35
+-   const text = (value: unknown) => (typeof value === "string" ? value : "");
++   const text = (value: unknown) => (true ? value : "");
+Tests ran:
+    Активація за посиланням > AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля
+    Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData
+    Активація за посиланням > AC-USERS-05: «Активувати акаунт» з використаним чи застарілим посиланням (verifyOtp відмовив) → вхід з повідомленням
+  and 2 more tests!
+
+
+[Survived] ConditionalExpression
+src/lib/auth/confirm.ts:22:58
+-   const first = (value: string | string[] | undefined) => (typeof value === "string" ? value : "");
++   const first = (value: string | string[] | undefined) => (true ? value : "");
+Tests ran:
+    Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData
+    Активація за посиланням > AC-USERS-05: пошкоджене посилання (без token_hash або з чужим type) — навіть не перевіряємо
+    Сторінка активації (GET /auth/confirm) > AC-USERS-02: відкрите посилання — сторінка «Активувати акаунт» з полями посилання, посилання не перевірено й не витрачено
+  and 1 more test!
+
+
+[Survived] StringLiteral
+src/lib/auth/confirm.ts:22:94
+-   const first = (value: string | string[] | undefined) => (typeof value === "string" ? value : "");
++   const first = (value: string | string[] | undefined) => (typeof value === "string" ? value : "Stryker was here!");
+Tests ran:
+    Активація за посиланням > AC-USERS-05: пошкоджене посилання (без token_hash або з чужим type) — навіть не перевіряємо
+    Сторінка активації (GET /auth/confirm) > AC-USERS-05: неповне чи підроблене посилання — та сама сторінка; відмова лише після «Активувати акаунт»
+
+
+[NoCoverage] BlockStatement
+src/lib/auth/next-path.ts:24:11
+-     } catch {
+-       return FALLBACK;
+-     }
++     } catch {}
+
+[Survived] MethodExpression
+src/lib/auth/next-path.ts:10:60
+-     if (typeof next !== "string" || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
++     if (typeof next !== "string" || !next.startsWith("/") || next.endsWith("//") || next.startsWith("/\\")) {
+Tests ran:
+    Активація за посиланням > AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля
+    Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData
+    Активація за посиланням > AC-USERS-02: next — лише відносний шлях цього сайту (захист від open redirect)
+  and 2 more tests!
+
+
+[Survived] MethodExpression
+src/lib/auth/next-path.ts:10:85
+-     if (typeof next !== "string" || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
++     if (typeof next !== "string" || !next.startsWith("/") || next.startsWith("//") || next.endsWith("/\\")) {
+Tests ran:
+    Активація за посиланням > AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля
+    Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData
+    Активація за посиланням > AC-USERS-02: next — лише відносний шлях цього сайту (захист від open redirect)
+  and 2 more tests!
+
+
+[Survived] ConditionalExpression
+src/lib/auth/next-path.ts:19:9
+-       if (url.origin !== BASE) return FALLBACK;
++       if (false) return FALLBACK;
+Tests ran:
+    Активація за посиланням > AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля
+    Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData
+    Активація за посиланням > AC-USERS-02: next — лише відносний шлях цього сайту (захист від open redirect)
+  and 2 more tests!
+
+
+[Survived] MethodExpression
+src/lib/auth/next-path.ts:22:42
+-       if (url.pathname.startsWith("//") || url.pathname.startsWith("/\\")) return FALLBACK;
++       if (url.pathname.startsWith("//") || url.pathname.endsWith("/\\")) return FALLBACK;
+Tests ran:
+    Активація за посиланням > AC-USERS-02: «Активувати акаунт» з дійсним посиланням → перевірка token_hash → сторінка нового пароля
+    Активація за посиланням > AC-USERS-02: параметри посилання переходять у приховані поля форми й назад — у дію activate як FormData
+    Активація за посиланням > AC-USERS-02: next — лише відносний шлях цього сайту (захист від open redirect)
+  and 1 more test!
+
+
+[Survived] ObjectLiteral
+src/lib/auth/password.ts:8:83
+-   export const PASSWORD_MESSAGES: Record<PasswordError | "UPDATE_FAILED", string> = {
+-     PASSWORD_TOO_SHORT: `Пароль — щонайменше ${PASSWORD_MIN_LENGTH} символів.`,
+-     PASSWORD_TOO_LONG: "Пароль задовгий — не більше 72 латинських символів.",
+-     PASSWORD_MISMATCH: "Паролі не збігаються. Введіть той самий пароль двічі.",
+-     UPDATE_FAILED: "Не вдалося зберегти пароль. Спробуйте ще раз або зверніться до адміністратора.",
+-   };
++   export const PASSWORD_MESSAGES: Record<PasswordError | "UPDATE_FAILED", string> = {};
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/auth/password.ts:9:23
+-     PASSWORD_TOO_SHORT: `Пароль — щонайменше ${PASSWORD_MIN_LENGTH} символів.`,
++     PASSWORD_TOO_SHORT: ``,
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/auth/password.ts:11:22
+-     PASSWORD_MISMATCH: "Паролі не збігаються. Введіть той самий пароль двічі.",
++     PASSWORD_MISMATCH: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/auth/password.ts:10:22
+-     PASSWORD_TOO_LONG: "Пароль задовгий — не більше 72 латинських символів.",
++     PASSWORD_TOO_LONG: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/auth/password.ts:12:18
+-     UPDATE_FAILED: "Не вдалося зберегти пароль. Спробуйте ще раз або зверніться до адміністратора.",
++     UPDATE_FAILED: "",
+Ran all tests for this mutant.
+
+[Survived] ConditionalExpression
+src/lib/leave/access.ts:22:10
+-     return viewer.role === "manager" && viewer.managedDivisionIds.includes(record.divisionId);
++     return true && viewer.managedDivisionIds.includes(record.divisionId);
+Tests ran:
+    Кнопки рішення > рішення ухвалює лише менеджер підрозділу запису
+    Кнопки рішення > ні адміністратор, ні працівник не ухвалюють рішень
+
+
+[NoCoverage] BlockStatement
+src/lib/leave/dates.ts:23:52
+-   export function formatDate(value: IsoDate): string {
+-     const [y, m, d] = value.split("-");
+-     return `${d}.${m}.${y}`;
+-   }
++   export function formatDate(value: IsoDate): string {}
+
+[NoCoverage] StringLiteral
+src/lib/leave/dates.ts:24:33
+-     const [y, m, d] = value.split("-");
++     const [y, m, d] = value.split("");
+
+[NoCoverage] StringLiteral
+src/lib/leave/dates.ts:25:10
+-     return `${d}.${m}.${y}`;
++     return ``;
+
+[Survived] ConditionalExpression
+src/lib/leave/dates.ts:8:7
+-     if (!ISO_DATE.test(value)) return false;
++     if (false) return false;
+Tests ran:
+    Рішення менеджера > AC-LEAVE-08: виправлена заявка needs_revision з датою кінця 05.11.2026 — знову pending
+    Рішення менеджера > AC-LEAVE-08: виправити можна лише заявку на доопрацюванні, і дати перевіряються знову
+    Подання заявки > AC-LEAVE-01: заявка на одну посаду без заміни — один запис main зі статусом pending
+  and 7 more tests!
+
+
+[Survived] Regex
+src/lib/leave/dates.ts:3:18
+-   const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
++   const ISO_DATE = /\d{4}-\d{2}-\d{2}$/;
+Ran all tests for this mutant.
+
+[Survived] Regex
+src/lib/leave/dates.ts:3:18
+-   const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
++   const ISO_DATE = /^\d{4}-\d{2}-\d{2}/;
+Ran all tests for this mutant.
+
+[Survived] EqualityOperator
+src/lib/leave/decisions.ts:38:7
+-     if (recordStatuses.length > 0 && recordStatuses.every((s) => s === "approved")) return "approved";
++     if (recordStatuses.length >= 0 && recordStatuses.every((s) => s === "approved")) return "approved";
+Tests ran:
+    Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 04.11–06.11 перетинається із заявкою pending 03.11–04.11 — OVERLAPPING_REQUEST
+    Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST
+    Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: заявка 01.11–02.11 цілком раніше за pending 03.11–04.11 — приймається
+  and 3 more tests!
+
+
+[Survived] ConditionalExpression
+src/lib/leave/decisions.ts:38:7
+-     if (recordStatuses.length > 0 && recordStatuses.every((s) => s === "approved")) return "approved";
++     if (true && recordStatuses.every((s) => s === "approved")) return "approved";
+Tests ran:
+    Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 04.11–06.11 перетинається із заявкою pending 03.11–04.11 — OVERLAPPING_REQUEST
+    Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST
+    Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: заявка 01.11–02.11 цілком раніше за pending 03.11–04.11 — приймається
+  and 3 more tests!
+
+
+[Survived] ConditionalExpression
+src/lib/leave/decisions.ts:63:7
+-     if (!substitute.ok) return substitute;
++     if (false) return substitute;
+Tests ran:
+    Рішення менеджера > AC-LEAVE-08: виправлена заявка needs_revision з датою кінця 05.11.2026 — знову pending
+
+
+[NoCoverage] ObjectLiteral
+src/lib/leave/messages.ts:3:61
+-   export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
+-     sick: "хвороба",
+-     vacation: "відпустка",
+-     business_trip: "відрядження",
+-   };
++   export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {};
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:4:9
+-     sick: "хвороба",
++     sick: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:5:13
+-     vacation: "відпустка",
++     vacation: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:6:18
+-     business_trip: "відрядження",
++     business_trip: "",
+
+[NoCoverage] ObjectLiteral
+src/lib/leave/messages.ts:9:67
+-   export const POSITION_KIND_LABELS: Record<PositionKind, string> = {
+-     main: "основна",
+-     additional: "додаткова",
+-   };
++   export const POSITION_KIND_LABELS: Record<PositionKind, string> = {};
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:10:9
+-     main: "основна",
++     main: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:11:15
+-     additional: "додаткова",
++     additional: "",
+
+[NoCoverage] ObjectLiteral
+src/lib/leave/messages.ts:14:60
+-   export const STATUS_LABELS: Record<RecordStatus, string> = {
+-     pending: "на розгляді",
+-     approved: "схвалено",
+-     needs_revision: "на доопрацюванні",
+-   };
++   export const STATUS_LABELS: Record<RecordStatus, string> = {};
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:15:12
+-     pending: "на розгляді",
++     pending: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:16:13
+-     approved: "схвалено",
++     approved: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:17:19
+-     needs_revision: "на доопрацюванні",
++     needs_revision: "",
+
+[NoCoverage] ObjectLiteral
+src/lib/leave/messages.ts:20:63
+-   export const ERROR_MESSAGES: Record<LeaveErrorCode, string> = {
+-     INVALID_RANGE: "Дата кінця раніша за дату початку.",
+-     COMMENT_REQUIRED: "Щоб повернути заявку на доопрацювання, напишіть коментар.",
+-     ONLY_BLOCKED_DAYS: "У вибраних датах лише заблоковані дні — оформлювати відсутність не потрібно.",
+-     OVERLAPPING_REQUEST: "На ці дати у вас уже є заявка на розгляді або схвалена.",
+-     SUBSTITUTE_TOO_LONG: "Заміна — не довше 200 символів.",
+-     INVALID_DATE: "Вкажіть дати початку й кінця.",
+-     INVALID_TYPE: "Оберіть тип відсутності.",
+-     NO_POSITIONS: "Позначте хоча б одну посаду.",
+-     UNKNOWN_POSITION: "Посаду не знайдено серед ваших посад.",
+-     NOT_PENDING: "Рішення щодо цього запису вже ухвалено.",
+-     NOT_NEEDS_REVISION: "Виправити можна лише заявку на доопрацюванні.",
+-     NOT_IN_QUEUE: "Цього запису немає у вашій черзі.",
+-   };
++   export const ERROR_MESSAGES: Record<LeaveErrorCode, string> = {};
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:21:18
+-     INVALID_RANGE: "Дата кінця раніша за дату початку.",
++     INVALID_RANGE: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:22:21
+-     COMMENT_REQUIRED: "Щоб повернути заявку на доопрацювання, напишіть коментар.",
++     COMMENT_REQUIRED: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:23:22
+-     ONLY_BLOCKED_DAYS: "У вибраних датах лише заблоковані дні — оформлювати відсутність не потрібно.",
++     ONLY_BLOCKED_DAYS: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:24:24
+-     OVERLAPPING_REQUEST: "На ці дати у вас уже є заявка на розгляді або схвалена.",
++     OVERLAPPING_REQUEST: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:25:24
+-     SUBSTITUTE_TOO_LONG: "Заміна — не довше 200 символів.",
++     SUBSTITUTE_TOO_LONG: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:26:17
+-     INVALID_DATE: "Вкажіть дати початку й кінця.",
++     INVALID_DATE: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:27:17
+-     INVALID_TYPE: "Оберіть тип відсутності.",
++     INVALID_TYPE: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:28:17
+-     NO_POSITIONS: "Позначте хоча б одну посаду.",
++     NO_POSITIONS: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:29:21
+-     UNKNOWN_POSITION: "Посаду не знайдено серед ваших посад.",
++     UNKNOWN_POSITION: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:30:16
+-     NOT_PENDING: "Рішення щодо цього запису вже ухвалено.",
++     NOT_PENDING: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:31:23
+-     NOT_NEEDS_REVISION: "Виправити можна лише заявку на доопрацюванні.",
++     NOT_NEEDS_REVISION: "",
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:32:17
+-     NOT_IN_QUEUE: "Цього запису немає у вашій черзі.",
++     NOT_IN_QUEUE: "",
+
+[NoCoverage] BlockStatement
+src/lib/leave/messages.ts:36:87
+-   export function errorMessage(code: string | string[] | undefined): string | undefined {
+-     if (typeof code !== "string" || code === "") return undefined;
+-     return Object.hasOwn(ERROR_MESSAGES, code) ? ERROR_MESSAGES[code as LeaveErrorCode] : "Не вдалося зберегти. Спробуйте ще раз.";
+-   }
++   export function errorMessage(code: string | string[] | undefined): string | undefined {}
+
+[NoCoverage] ConditionalExpression
+src/lib/leave/messages.ts:37:7
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (true) return undefined;
+
+[NoCoverage] ConditionalExpression
+src/lib/leave/messages.ts:37:7
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (false) return undefined;
+
+[NoCoverage] LogicalOperator
+src/lib/leave/messages.ts:37:7
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (typeof code !== "string" && code === "") return undefined;
+
+[NoCoverage] ConditionalExpression
+src/lib/leave/messages.ts:37:7
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (false || code === "") return undefined;
+
+[NoCoverage] EqualityOperator
+src/lib/leave/messages.ts:37:7
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (typeof code === "string" || code === "") return undefined;
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:37:23
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (typeof code !== "" || code === "") return undefined;
+
+[NoCoverage] ConditionalExpression
+src/lib/leave/messages.ts:37:35
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (typeof code !== "string" || false) return undefined;
+
+[NoCoverage] EqualityOperator
+src/lib/leave/messages.ts:37:35
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (typeof code !== "string" || code !== "") return undefined;
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:37:44
+-     if (typeof code !== "string" || code === "") return undefined;
++     if (typeof code !== "string" || code === "Stryker was here!") return undefined;
+
+[NoCoverage] StringLiteral
+src/lib/leave/messages.ts:38:89
+-     return Object.hasOwn(ERROR_MESSAGES, code) ? ERROR_MESSAGES[code as LeaveErrorCode] : "Не вдалося зберегти. Спробуйте ще раз.";
++     return Object.hasOwn(ERROR_MESSAGES, code) ? ERROR_MESSAGES[code as LeaveErrorCode] : "";
+
+[Survived] ConditionalExpression
+src/lib/leave/records.ts:20:26
+-     chosen.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "main" ? -1 : 1));
++     chosen.sort((a, b) => (false ? 0 : a.kind === "main" ? -1 : 1));
+Tests ran:
+    Подання заявки > AC-LEAVE-02: працівник позначив обидві посади (розклад за обома) — одна заявка з двома записами main і additional
+
+
+[Survived] ConditionalExpression
+src/lib/leave/records.ts:20:50
+-     chosen.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "main" ? -1 : 1));
++     chosen.sort((a, b) => (a.kind === b.kind ? 0 : true ? -1 : 1));
+Tests ran:
+    Подання заявки > AC-LEAVE-02: працівник позначив обидві посади (розклад за обома) — одна заявка з двома записами main і additional
+
+
+[Survived] EqualityOperator
+src/lib/leave/submission.ts:36:7
+-     if (text.length > SUBSTITUTE_MAX_LENGTH) return fail("SUBSTITUTE_TOO_LONG");
++     if (text.length >= SUBSTITUTE_MAX_LENGTH) return fail("SUBSTITUTE_TOO_LONG");
+Tests ran:
+    Рішення менеджера > AC-LEAVE-08: виправлена заявка needs_revision з датою кінця 05.11.2026 — знову pending
+    Подання заявки > AC-LEAVE-01: заявка на одну посаду без заміни — один запис main зі статусом pending
+    Подання заявки > AC-LEAVE-02: працівник позначив обидві посади (розклад за обома) — одна заявка з двома записами main і additional
+  and 4 more tests!
+
+
+[Survived] ConditionalExpression
+src/lib/leave/submission.ts:66:7
+-     if (!substitute.ok) return substitute;
++     if (false) return substitute;
+Tests ran:
+    Подання заявки > AC-LEAVE-01: заявка на одну посаду без заміни — один запис main зі статусом pending
+    Подання заявки > AC-LEAVE-02: працівник позначив обидві посади (розклад за обома) — одна заявка з двома записами main і additional
+    Подання заявки > AC-LEAVE-02: позначено лише основну посаду — один запис, хоча посад дві
+  and 2 more tests!
+
+
+[Survived] ConditionalExpression
+src/lib/users/invite.ts:69:7
+-     if (email.length > 254 || !EMAIL_RE.test(email)) return { ok: false, error: "INVALID_EMAIL" };
++     if (false || !EMAIL_RE.test(email)) return { ok: false, error: "INVALID_EMAIL" };
+Tests ran:
+    Запрошення користувача > AC-USERS-01: адміністратор запрошує нову адресу з роллю «працівник» і основною посадою → посилання для активації
+    Запрошення користувача > AC-USERS-04: адресу, що вже є в порталі (зокрема «Teacher@Example.test»), не запрошуємо — admin-клієнт не викликано
+    Запрошення користувача > AC-USERS-04: якщо Supabase сам каже email_exists, відповідь та сама
+  and 3 more tests!
+
+
+[Survived] EqualityOperator
+src/lib/users/invite.ts:69:7
+-     if (email.length > 254 || !EMAIL_RE.test(email)) return { ok: false, error: "INVALID_EMAIL" };
++     if (email.length >= 254 || !EMAIL_RE.test(email)) return { ok: false, error: "INVALID_EMAIL" };
+Tests ran:
+    Запрошення користувача > AC-USERS-01: адміністратор запрошує нову адресу з роллю «працівник» і основною посадою → посилання для активації
+    Запрошення користувача > AC-USERS-04: адресу, що вже є в порталі (зокрема «Teacher@Example.test»), не запрошуємо — admin-клієнт не викликано
+    Запрошення користувача > AC-USERS-04: якщо Supabase сам каже email_exists, відповідь та сама
+  and 3 more tests!
+
+
+[Survived] MethodExpression
+src/lib/users/invite.ts:70:16
+-     const role = raw.role.trim() || "employee";
++     const role = raw.role || "employee";
+Tests ran:
+    Запрошення користувача > AC-USERS-01: адміністратор запрошує нову адресу з роллю «працівник» і основною посадою → посилання для активації
+    Запрошення користувача > AC-USERS-04: адресу, що вже є в порталі (зокрема «Teacher@Example.test»), не запрошуємо — admin-клієнт не викликано
+    Запрошення користувача > AC-USERS-04: якщо Supabase сам каже email_exists, відповідь та сама
+  and 3 more tests!
+
+
+[Survived] MethodExpression
+src/lib/users/invite.ts:72:22
+-     const divisionId = raw.divisionId.trim();
++     const divisionId = raw.divisionId;
+Tests ran:
+    Запрошення користувача > AC-USERS-01: адміністратор запрошує нову адресу з роллю «працівник» і основною посадою → посилання для активації
+    Запрошення користувача > AC-USERS-04: адресу, що вже є в порталі (зокрема «Teacher@Example.test»), не запрошуємо — admin-клієнт не викликано
+    Запрошення користувача > AC-USERS-04: якщо Supabase сам каже email_exists, відповідь та сама
+  and 3 more tests!
+
+
+[Survived] MethodExpression
+src/lib/users/invite.ts:79:17
+-         fullName: raw.fullName.trim() || null,
++         fullName: raw.fullName || null,
+Tests ran:
+    Запрошення користувача > AC-USERS-01: адміністратор запрошує нову адресу з роллю «працівник» і основною посадою → посилання для активації
+    Запрошення користувача > AC-USERS-04: адресу, що вже є в порталі (зокрема «Teacher@Example.test»), не запрошуємо — admin-клієнт не викликано
+    Запрошення користувача > AC-USERS-04: якщо Supabase сам каже email_exists, відповідь та сама
+  and 2 more tests!
+
+
+[Survived] ObjectLiteral
+src/lib/users/invite.ts:51:77
+-   export const INVITE_MESSAGES: Record<InviteError | InviteWarning, string> = {
+-     FORBIDDEN: "Запрошувати користувачів може лише адміністратор.",
+-     INVALID_EMAIL: "Вкажіть коректну адресу email, наприклад new.teacher@example.test.",
+-     INVALID_ROLE: "Оберіть роль зі списку.",
+-     POSITION_TITLE_REQUIRED: "Вкажіть назву посади або оберіть «без посади».",
+-     EMAIL_EXISTS: "Користувач з цією адресою вже є в порталі",
+-     LINK_FAILED: "Не вдалося створити посилання. Спробуйте ще раз.",
+-     ROLE_NOT_SET: "Акаунт створено з роллю «працівник»: роль не вдалося змінити — змініть її в списку.",
+-     POSITION_NOT_SET: "Акаунт створено без посади: посаду не вдалося призначити.",
+-   };
++   export const INVITE_MESSAGES: Record<InviteError | InviteWarning, string> = {};
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:53:18
+-     INVALID_EMAIL: "Вкажіть коректну адресу email, наприклад new.teacher@example.test.",
++     INVALID_EMAIL: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:55:28
+-     POSITION_TITLE_REQUIRED: "Вкажіть назву посади або оберіть «без посади».",
++     POSITION_TITLE_REQUIRED: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:56:17
+-     EMAIL_EXISTS: "Користувач з цією адресою вже є в порталі",
++     EMAIL_EXISTS: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:59:21
+-     POSITION_NOT_SET: "Акаунт створено без посади: посаду не вдалося призначити.",
++     POSITION_NOT_SET: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:57:16
+-     LINK_FAILED: "Не вдалося створити посилання. Спробуйте ще раз.",
++     LINK_FAILED: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:58:17
+-     ROLE_NOT_SET: "Акаунт створено з роллю «працівник»: роль не вдалося змінити — змініть її в списку.",
++     ROLE_NOT_SET: "",
+Ran all tests for this mutant.
+
+[Survived] Regex
+src/lib/users/invite.ts:62:18
+-   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
++   const EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]+$/;
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:52:14
+-     FORBIDDEN: "Запрошувати користувачів може лише адміністратор.",
++     FORBIDDEN: "",
+Ran all tests for this mutant.
+
+[Survived] Regex
+src/lib/users/invite.ts:62:18
+-   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
++   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+/;
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/invite.ts:54:17
+-     INVALID_ROLE: "Оберіть роль зі списку.",
++     INVALID_ROLE: "",
+Ran all tests for this mutant.
+
+[NoCoverage] StringLiteral
+src/lib/users/roles.ts:53:55
+-     if (error.message?.includes("INVALID_ROLE")) return "INVALID_ROLE";
++     if (error.message?.includes("INVALID_ROLE")) return "";
+
+[Survived] OptionalChaining
+src/lib/users/roles.ts:51:7
+-     if (error.message?.includes("LAST_ADMIN")) return "LAST_ADMIN";
++     if (error.message.includes("LAST_ADMIN")) return "LAST_ADMIN";
+Tests ran:
+    Зміна ролі: повідомлення > відмова бази LAST_ADMIN → «Не можна змінити роль останнього адміністратора» (текст із вимоги PM)
+    Зміна ролі: повідомлення > відмова бази FORBIDDEN або 42501 — не технічний текст, а зрозуміле повідомлення
+
+
+[Survived] OptionalChaining
+src/lib/users/roles.ts:52:7
+-     if (error.message?.includes("FORBIDDEN") || error.code === "42501") return "FORBIDDEN";
++     if (error.message.includes("FORBIDDEN") || error.code === "42501") return "FORBIDDEN";
+Tests ran:
+    Зміна ролі: повідомлення > відмова бази FORBIDDEN або 42501 — не технічний текст, а зрозуміле повідомлення
+
+
+[Survived] ConditionalExpression
+src/lib/users/roles.ts:53:7
+-     if (error.message?.includes("INVALID_ROLE")) return "INVALID_ROLE";
++     if (false) return "INVALID_ROLE";
+Tests ran:
+    Зміна ролі: повідомлення > відмова бази FORBIDDEN або 42501 — не технічний текст, а зрозуміле повідомлення
+
+
+[Survived] OptionalChaining
+src/lib/users/roles.ts:53:7
+-     if (error.message?.includes("INVALID_ROLE")) return "INVALID_ROLE";
++     if (error.message.includes("INVALID_ROLE")) return "INVALID_ROLE";
+Tests ran:
+    Зміна ролі: повідомлення > відмова бази FORBIDDEN або 42501 — не технічний текст, а зрозуміле повідомлення
+
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:5:70
+-   export const APP_ROLES: readonly AppRole[] = ["employee", "manager", "admin"];
++   export const APP_ROLES: readonly AppRole[] = ["employee", "manager", ""];
+Ran all tests for this mutant.
+
+[Survived] ObjectLiteral
+src/lib/users/roles.ts:7:53
+-   export const ROLE_LABELS: Record<AppRole, string> = {
+-     employee: "працівник",
+-     manager: "менеджер",
+-     admin: "адміністратор",
+-   };
++   export const ROLE_LABELS: Record<AppRole, string> = {};
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:10:10
+-     admin: "адміністратор",
++     admin: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:9:12
+-     manager: "менеджер",
++     manager: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:8:13
+-     employee: "працівник",
++     employee: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:43:14
+-     FORBIDDEN: "Змінювати ролі може лише адміністратор.",
++     FORBIDDEN: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:44:17
+-     INVALID_ROLE: "Оберіть роль зі списку.",
++     INVALID_ROLE: "",
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/lib/users/roles.ts:45:16
+-     ROLE_FAILED: "Не вдалося змінити роль. Спробуйте ще раз.",
++     ROLE_FAILED: "",
+Ran all tests for this mutant.
+
+Ran 2.42 tests per mutant on average.
+------------------|------------------|----------|-----------|------------|----------|----------|
+                  | % Mutation score |          |           |            |          |          |
+File              |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files         |  81.98 |   89.03 |      413 |         1 |         51 |       40 |        0 |
+ auth             |  86.87 |   87.76 |       86 |         0 |         12 |        1 |        0 |
+  confirm.ts      |  88.00 |   88.00 |       22 |         0 |          3 |        0 |        0 |
+  next-path.ts    |  86.84 |   89.19 |       33 |         0 |          4 |        1 |        0 |
+  password.ts     |  86.11 |   86.11 |       31 |         0 |          5 |        0 |        0 |
+ leave            |  80.24 |   94.76 |      198 |         1 |         11 |       38 |        0 |
+  access.ts       |  85.71 |   85.71 |        6 |         0 |          1 |        0 |        0 |
+  blocked-days.ts | 100.00 |  100.00 |        5 |         0 |          0 |        0 |        0 |
+  calendar.ts     | 100.00 |  100.00 |       30 |         0 |          0 |        0 |        0 |
+  dates.ts        |  83.78 |   91.18 |       30 |         1 |          3 |        3 |        0 |
+  decisions.ts    |  95.31 |   95.31 |       61 |         0 |          3 |        0 |        0 |
+  messages.ts     |   0.00 |    0.00 |        0 |         0 |          0 |       35 |        0 |
+  records.ts      |  92.59 |   92.59 |       25 |         0 |          2 |        0 |        0 |
+  submission.ts   |  95.35 |   95.35 |       41 |         0 |          2 |        0 |        0 |
+ users            |  81.65 |   82.17 |      129 |         0 |         28 |        1 |        0 |
+  invite.ts       |  84.62 |   84.62 |       88 |         0 |         16 |        0 |        0 |
+  roles.ts        |  75.93 |   77.36 |       41 |         0 |         12 |        1 |        0 |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+19:35:18 (46312) INFO JsonReporter Your report can be found at: file:///D:/projects/clients/quitcode/ws8-build/demo-quality/reports/mutation/mutation.json
+19:35:18 (46312) INFO HtmlReporter Your report can be found at: file:///D:/projects/clients/quitcode/ws8-build/demo-quality/reports/mutation/mutation.html
+19:35:18 (46312) INFO MutationTestExecutor Done in 10 seconds.

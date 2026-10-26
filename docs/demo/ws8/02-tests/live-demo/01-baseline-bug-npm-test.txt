@@ -1,0 +1,45 @@
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 D:/projects/clients/quitcode/ws8-build/demo-quality
+
+ ✓ tests/users/roles.test.ts (6 tests) 3ms
+ ✓ tests/leave/access.test.ts (2 tests) 2ms
+ ✓ tests/users/invite.test.ts (10 tests) 7ms
+ ✓ tests/leave/blocked-days.test.ts (3 tests) 3ms
+ ✓ tests/leave/calendar.test.ts (5 tests) 4ms
+ ✓ tests/leave/decisions.test.ts (7 tests) 4ms
+ ✓ tests/leave/submission.test.ts (9 tests) 4ms
+ ✓ tests/auth/confirm.test.ts (9 tests) 21ms
+ ✓ tests/scripts/check-spec.test.ts (13 tests) 850ms
+ ✓ tests/auth/confirm-page.test.tsx (2 tests) 11ms
+ ✓ tests/db/users-db.test.ts (13 tests) 1369ms
+ ✓ tests/db/leave-db.test.ts (12 tests) 1418ms
+ ✓ tests/scripts/check-ac-coverage.test.ts (14 tests) 3089ms
+   ✓ scripts/check-ac-coverage.mjs (14)
+     ✓ passes when every implemented row has a test and REMOVED/commented rows are ignored 443ms
+     ✓ does not warn when requirements/ is absent or every PM AC is in the spec 343ms
+ ✓ tests/scripts/check-migration-order.test.ts (14 tests) 8263ms
+   ✓ scripts/check-migration-order.mjs (14)
+     ✓ passes when the PR migration is newer than the newest on main 664ms
+     ✓ fails when the PR migration is older than the newest on main and suggests a rename 688ms
+     ✓ fails on a timestamp equal to the newest on main (older-or-equal and duplicate) 565ms
+     ✓ fails when an applied migration is edited 559ms
+     ✓ fails when an applied migration is deleted 545ms
+     ✓ allows the recovery rename of a merged-but-unapplied migration to a newer timestamp (same SQL) 618ms
+     ✓ still fails DELETED when the renamed migration's SQL was changed 609ms
+     ✓ fails DELETED when the newest (already applied) migration on main is renamed 534ms
+     ✓ fails on a file name the Supabase CLI would skip 583ms
+     ✓ passes when the PR adds no migrations 547ms
+     ✓ passes when main has no migrations yet 504ms
+     ✓ does not report main's newer migrations as deleted when the branch is behind main 635ms
+     ✓ still fails OLDER (and only OLDER) for a branch behind main 648ms
+     ✓ fails with a fetch hint when the base branch is missing 416ms
+
+ Test Files  14 passed (14)
+      Tests  119 passed (119)
+   Start at  19:41:02
+   Duration  8.87s (tests 81%, import 10%, transform 7%, worker 2%)
+

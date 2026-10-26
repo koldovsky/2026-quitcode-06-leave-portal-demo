@@ -1,0 +1,89 @@
+UAT: https://quitcode-ws6-leave-portal-demo.vercel.app — негативні контролі
+
+Running 5 tests using 1 worker
+
+  ok 1 [setup] › tests\e2e\auth.setup.ts:13:8 › вхід: admin (2.4s)
+  ok 2 [setup] › tests\e2e\auth.setup.ts:13:8 › вхід: teacher (1.5s)
+  x  3 [negative-controls] › tests\e2e\negative-controls.spec.ts:19:5 › NC-1 (AC-USERS-07, навмисно хибне очікування в тесті: інший текст повідомлення) @negative-control (7.0s)
+  ok 4 [negative-controls] › tests\e2e\negative-controls.spec.ts:45:5 › NC-2 (AC-USERS-07, PM уточнив текст «Тоді», тест і застосунок — ні) @negative-control (2.5s)
+  ok 5 [cleanup] › tests\e2e\cleanup.teardown.ts:9:11 › прибирання: синтетичні uat-*@example.test (293ms)
+
+
+  1) [negative-controls] › tests\e2e\negative-controls.spec.ts:19:5 › NC-1 (AC-USERS-07, навмисно хибне очікування в тесті: інший текст повідомлення) @negative-control › Тоді: він потрапляє на головну сторінку й бачить повідомлення «Список користувачів бачить лише адміністратор.», а жодного email, ролі чи посади інших користувачів не бачить 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('status')
+    Expected: "Список користувачів доступний лише адміністраторам."
+    Received: "Список користувачів бачить лише адміністратор."
+    Timeout:  5000ms
+
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expect "toHaveText" getByRole('status') with timeout 5000ms
+      - waiting for getByRole('status')
+        14 × locator resolved to <div role="status" data-kind="info" data-slot="alert" class="group/alert relative grid w-full gap-0.5 rounded-lg border text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 px-4 py-3 border-transparent bg-accent text-accent-foreground">…</div>
+           - unexpected value "Список користувачів бачить лише адміністратор."
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      37 |       { clause: CLAUSE, visible: ["повідомлення «Список користувачів бачить лише адміністратор.»"] },
+      38 |       async () => {
+    > 39 |         await expect(page.getByRole("status")).toHaveText(WRONG_MESSAGE, { timeout: 5_000 });
+         |                                                ^
+      40 |       },
+      41 |     );
+      42 |   },
+        at assertions (D:\projects\clients\quitcode\ws8-build\demo-uat\tests\e2e\negative-controls.spec.ts:39:48)
+        at D:\projects\clients\quitcode\ws8-build\demo-uat\tests\e2e\support\uat.ts:41:13
+        at thenStep (D:\projects\clients\quitcode\ws8-build\demo-uat\tests\e2e\support\uat.ts:38:3)
+        at D:\projects\clients\quitcode\ws8-build\demo-uat\tests\e2e\negative-controls.spec.ts:35:5
+
+    attachment #2: then-1.aria.yml (text/yaml) ─────────────────────────────────────────────────────
+    - main:
+      - navigation "Головне меню":
+        - link "Портал відсутностей":
+          - /url: /
+        - link "Мої заявки":
+          - /url: /requests
+        - link "Нова заявка":
+          - /url: /requests/new
+        - button "Вийти"
+      - heading "Портал відсутностей" [level=1]
+      - status: Список користувачів бачить лише...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\artifacts\negative-controls-NC-1-AC--2583a-і-інший-текст-повідомлення--negative-controls\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\artifacts\negative-controls-NC-1-AC--2583a-і-інший-текст-повідомлення--negative-controls\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\artifacts\negative-controls-NC-1-AC--2583a-і-інший-текст-повідомлення--negative-controls\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\artifacts\negative-controls-NC-1-AC--2583a-і-інший-текст-повідомлення--negative-controls\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\artifacts\negative-controls-NC-1-AC--2583a-і-інший-текст-повідомлення--negative-controls\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [negative-controls] › tests\e2e\negative-controls.spec.ts:19:5 › NC-1 (AC-USERS-07, навмисно хибне очікування в тесті: інший текст повідомлення) @negative-control 
+  4 passed (17.0s)
+NC-1: failed, кадрів «Тоді»: 1
+NC-2: passed, кадрів «Тоді»: 1
+NC-1 [claude-haiku-5-5] → PASS; $0.0018782900000000001; 8242 мс
+NC-2 [claude-haiku-5-5] → NEEDS-HUMAN; $0.00279314; 16217 мс
+NC-2 [claude-sonnet-5-5] → FAIL; $0.0325859; 8867 мс (суперечка → Sonnet)
+
+Звіт: test-results/uat-report-nc/report.md
+  NC-1: FAIL — R1: перевірка впала — FAIL завжди, агент не перекриває
+  NC-2: NEEDS-HUMAN — R3: перевірки пройшли, агент не погоджується — вирішує людина

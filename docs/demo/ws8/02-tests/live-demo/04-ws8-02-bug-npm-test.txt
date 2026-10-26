@@ -1,0 +1,80 @@
+
+> 2026-quitcode-06-leave-portal-demo@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 D:/projects/clients/quitcode/ws8-build/demo-quality
+
+ ✓ tests/users/roles.test.ts (6 tests) 3ms
+ ✓ tests/leave/blocked-days.test.ts (3 tests) 4ms
+ ✓ tests/users/invite.test.ts (10 tests) 8ms
+ ✓ tests/leave/access.test.ts (2 tests) 2ms
+ ✓ tests/auth/confirm.test.ts (10 tests) 24ms
+ ✓ tests/leave/decisions.test.ts (7 tests) 4ms
+ ✓ tests/leave/submission.test.ts (9 tests) 5ms
+ ❯ tests/leave/calendar.test.ts (7 tests | 1 failed) 10ms
+   ❯ Заблоковані дні й перетин заявок (spec-v0.2) (7)
+     ✓ AC-LEAVE-04: заявку 04.11–06.11.2026 із заблокованим 05.11 прийнято — 2 дні відсутності 2ms
+     ✓ AC-LEAVE-10: заявка 05.11–05.11.2026 лише із заблокованих днів — ONLY_BLOCKED_DAYS 0ms
+     ✓ AC-LEAVE-11: нова заявка 04.11–06.11 перетинається із заявкою pending 03.11–04.11 — OVERLAPPING_REQUEST 0ms
+     × AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST 5ms
+     ✓ AC-LEAVE-11: заявка 01.11–02.11 цілком раніше за pending 03.11–04.11 — приймається 0ms
+     ✓ AC-LEAVE-11: схвалена заявка теж блокує, а заявка на доопрацюванні — ні 0ms
+     ✓ повторне подання не перетинається саме з собою; суміжні діапазони не перетинаються 0ms
+ ✓ tests/auth/confirm-page.test.tsx (2 tests) 12ms
+ ✓ tests/scripts/check-spec.test.ts (13 tests) 1008ms
+ ✓ tests/db/users-db.test.ts (13 tests) 1438ms
+ ✓ tests/db/leave-db.test.ts (17 tests) 1485ms
+ ✓ tests/scripts/check-ac-coverage.test.ts (14 tests) 2980ms
+   ✓ scripts/check-ac-coverage.mjs (14)
+     ✓ does not warn when requirements/ is absent or every PM AC is in the spec 370ms
+ ✓ tests/scripts/check-migration-order.test.ts (14 tests) 8404ms
+   ✓ scripts/check-migration-order.mjs (14)
+     ✓ passes when the PR migration is newer than the newest on main 825ms
+     ✓ fails when the PR migration is older than the newest on main and suggests a rename 622ms
+     ✓ fails on a timestamp equal to the newest on main (older-or-equal and duplicate) 598ms
+     ✓ fails when an applied migration is edited 657ms
+     ✓ fails when an applied migration is deleted 599ms
+     ✓ allows the recovery rename of a merged-but-unapplied migration to a newer timestamp (same SQL) 586ms
+     ✓ still fails DELETED when the renamed migration's SQL was changed 571ms
+     ✓ fails DELETED when the newest (already applied) migration on main is renamed 571ms
+     ✓ fails on a file name the Supabase CLI would skip 530ms
+     ✓ passes when the PR adds no migrations 555ms
+     ✓ passes when main has no migrations yet 498ms
+     ✓ does not report main's newer migrations as deleted when the branch is behind main 624ms
+     ✓ still fails OLDER (and only OLDER) for a branch behind main 635ms
+     ✓ fails with a fetch hint when the base branch is missing 387ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/leave/calendar.test.ts > Заблоковані дні й перетин заявок (spec-v0.2) > AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST
+AssertionError: expected { ok: true, value: { countedDays: 2 } } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": "OVERLAPPING_REQUEST",
+-   "ok": false,
++   "ok": true,
++   "value": {
++     "countedDays": 2,
++   },
+  }
+
+ ❯ tests/leave/calendar.test.ts:38:7
+     36|     expect(
+     37|       checkCalendar({ startDate: "2026-11-02", endDate: "2026-11-03" }…
+     38|     ).toEqual({ ok: false, error: "OVERLAPPING_REQUEST" });
+       |       ^
+     39|   });
+     40|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  1 failed | 126 passed (127)
+   Start at  19:42:14
+   Duration  8.62s (tests 92%, transform 6%, import 2%)
+

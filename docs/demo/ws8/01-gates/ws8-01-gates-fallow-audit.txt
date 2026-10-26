@@ -1,0 +1,12 @@
+loaded config: D:\projects\clients\quitcode\ws8-build\demo-runbook\.fallowrc.jsonc
+   0.784234400s  WARN Graph cache decoded but not reused: resolver, entry points, or plugins changed
+
+Audit scope: 10 changed files vs ws8-00-baseline (44d39c2..HEAD)
+■ Metrics: dead code 0 · complexity 0 · duplication 0
+
+── Styling ────────────────────────────────────────
+  13 styling candidates (run `fallow health --css` for detail)
+note: skipped 14 files matching default duplicates ignores
+  (--explain-skipped for the list)
+✓ No issues in 10 changed files (1.10s)
+<claude-code-hint v="1" type="plugin" value="fallow@claude-plugins-official" />

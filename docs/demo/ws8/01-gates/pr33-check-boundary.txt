@@ -1,0 +1,3 @@
+src/lib/users/invite-link.ts:3  admin-клієнт імпортовано не з actions.ts / route.ts / "use server" — викликайте його з Server Action чи Route Handler після перевірки ролі. Не додавайте "use server" у допоміжний модуль: кожен його експорт стане публічним ендпойнтом
+
+check-server-boundary: 1 порушень. Правило — docs/decisions і AGENTS.md (розділ «Секрети»).
