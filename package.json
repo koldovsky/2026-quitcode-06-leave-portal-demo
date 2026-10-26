@@ -12,7 +12,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --config vitest.coverage.config.mts --coverage",
     "coverage:summary": "node scripts/coverage-summary.mjs",
-    "gates": "npm run lint && npm run typecheck && fallow audit",
+    "gates": "npm run lint && npm run typecheck && fallow audit --base origin/main",
     "mutation:ts": "stryker run",
     "mutation:sql": "node scripts/mutation-check.mjs --kind sql",
     "spec:validate": "openspec validate --all --strict",

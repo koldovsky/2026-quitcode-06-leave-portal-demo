@@ -25,7 +25,7 @@ PR #34 або #35 зіллють до заняття, `main` зсунеться,
 який і так видно на екрані, і підсумкові числа.
 
 ```powershell
-$S = 'C:\Users\koldo\AppData\Local\Temp\claude\D--projects-clients-udc\23a397ea-0288-4ed4-ad2d-cd0a124d1687\scratchpad\ws8'
+$S = 'D:\projects\clients\quitcode\ws8-private'
 ```
 
 Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` і `$S\seeded` у приватну теку поза репо.
@@ -55,9 +55,10 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
 
 ## 0. Передумови (увечері й за годину до заняття)
 
-1. **Supabase демо не на паузі.** `/api/health` на проді ще немає (він у PR #34), тож `npm run smoke` на проді до
-   злиття #34 дає exit 1 з підказкою «додайте "/api/health" у PUBLIC_PATHS». Це очікувано (вивід —
-   `docs/demo/ws8/03-uat/smoke-prod-before-merge.txt`). Що перевірити замість нього:
+1. **Supabase демо не на паузі.** PR #34 злито 26.10, тож на проді є `/api/health`: у теці `lp-ws8-uat` (пункт 7)
+   `npm run smoke -- https://quitcode-ws6-leave-portal-demo.vercel.app` має дати `OK — прод живий, сторінка входу
+   відкривається, база відповідає.` (вивід до злиття — `docs/demo/ws8/03-uat/smoke-prod-before-merge.txt`, тепер
+   лише для історії). Якщо smoke не OK — перевірте:
    - Supabase Dashboard → проєкт демо: не «Paused» (якщо так — «Resume project»);
    - вхід `admin@example.test` на проді у вікні браузера (пароль — з менеджера паролів, не на сцені), головна
      відкривається. Сам `/login` 200 нічого не доводить: цю сторінку віддає застосунок без бази;
@@ -65,16 +66,8 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
 
    Стан 26.10 ≈ 19:40: Supabase відповідав, у базі 5 базових користувачів і 0 `uat-*`, заблокований день 05.11.2026
    (потрібен AC-LEAVE-04) на місці.
-2. **Прод = `638d225` на next 16.4.3.**
-
-   ```powershell
-   gh api "repos/koldovsky/2026-quitcode-06-leave-portal-demo/deployments?environment=Production&per_page=1" -q '.[0].sha'
-   git show 638d225:package.json | Select-String '"next"|eslint-config-next'
-   ```
-
-   Очікувано: `638d2255fbb7c83d4540939728f8e339c7aeece7` (Production від vercel[bot] 26.10 17:13Z, статус Vercel
-   `success`); `"next": "16.4.3"` і `"eslint-config-next": "16.4.3"`. Якщо #34 злито до заняття, прод зміниться.
-   Тоді в теці `lp-ws8-uat` (пункт 7) виконайте:
+2. **Прод = `main` на next 16.4.3.** #35, #34 і #36 злито 26.10 (конфлікти розв'язано в #34), прод розгортається
+   з `main`. У теці `lp-ws8-uat` (пункт 7):
 
    ```powershell
    git fetch origin
@@ -82,11 +75,9 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
    npm run smoke -- https://quitcode-ws6-leave-portal-demo.vercel.app $sha
    ```
 
-   Має вийти `OK — прод живий, сторінка входу відкривається, база відповідає.` Так було на preview PR #34:
-   `docs/demo/ws8/03-uat/smoke-preview-pr34.txt`.
-   **Рекомендація: #34 і #35 до заняття не зливати** — тоді все на сцені збігається із записаними доказами. До того ж
-   вони, найімовірніше, конфліктують у `package.json`, `package-lock.json`, `AGENTS.md`, `.gitignore` і, можливо,
-   `eslint.config.mjs`: гілку, яку зливатимуть другою, треба буде оновити.
+   Має вийти `OK — прод живий, сторінка входу відкривається, база відповідає.` (`/api/health` віддає `sha` = `main`,
+   `db: ok`). Так було й на preview PR #34: `docs/demo/ws8/03-uat/smoke-preview-pr34.txt`.
+   Записані докази зняті на тегах і на гілках PR до злиття — на сцені команди теж ідуть на тегах, тож вони збігаються.
 3. **Теги й PR на місці.**
 
    ```powershell
@@ -96,7 +87,8 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
    gh pr list --state open
    ```
 
-   Очікувано: `638d225`, `44d39c2`, `e6789e4`, `2a41c33`, `a390345`; відкриті #33, #34, #35 (і давній #6), жоден не злитий.
+   Очікувано: `638d225`, `44d39c2`, `e6789e4`, `2a41c33`, `a390345`; відкриті лише #33 (не зливати ніколи) і давній #6;
+   #34, #35, #36 — злиті.
 4. **Рев'ю CodeRabbit на #33 є:** `gh pr view 33 --json reviews -q '.reviews[].state'` → `COMMENTED` (26.10 17:38:43Z).
    Повторно **не тригерити**: ліміт — 1 рев'ю на годину (після рев'ю 26.10 — «0 remain»), повтор триває ≈ 6 хв і
    може змінити картину, яку ми показуємо. Після тригера в #33 нічого не пушили — head досі `a390345`.
@@ -124,7 +116,7 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
    git fetch --tags --force
    git fetch origin task/requests-polish
    git worktree add --detach ..\lp-ws8-quality ws8-02-tests
-   git worktree add --detach ..\lp-ws8-uat ws8-03-uat
+   git worktree add --detach ..\lp-ws8-uat origin/main
    git worktree add --detach ..\lp-ws8-seeded a390345
    Set-Location ..\lp-ws8-quality
    npm ci --no-audit --no-fund

@@ -4,8 +4,8 @@
   // атака з RUNBOOK-ws7 і конфіг Vitest для Stryker (його називає stryker.config.json, а не імпорт).
   // Не пишіть "scripts/*.mjs": з 3.35 зірочка не заходить у підтеки, і кожен прогін друкує WARN.
   "entry": ["scripts/demo-attack-role.mjs", "vitest.stryker.config.mts"],
-  // Дані для тестів скриптів — навмисно «зламані» файли.
-  "ignorePatterns": ["tests/fixtures/**"],
+  // Дані для тестів скриптів — навмисно «зламані» файли; docs/demo/** — записані докази демо (копії звітів), не код.
+  "ignorePatterns": ["tests/fixtures/**", "docs/demo/**"],
   "ignoreDependencies": [
     // Tailwind 4 підключено рядком у next.config.ts (turbopack.rules.loaders) — fallow цього не бачить.
     "@tailwindcss/turbopack",
