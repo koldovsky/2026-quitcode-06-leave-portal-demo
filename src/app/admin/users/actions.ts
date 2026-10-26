@@ -5,9 +5,9 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getViewer } from "@/lib/supabase/viewer";
 import { inviteUserCore, type InviteResult } from "@/lib/users/invite";
+import { generateInviteLink } from "@/lib/users/invite-link";
 import { canManageUsers, isAppRole, roleChangeError } from "@/lib/users/roles";
 
 /** Що людина ввела у форму — повертаємо лише разом із помилкою, щоб форма не очищалась (посилання — ніколи разом). */
@@ -61,20 +61,8 @@ export async function inviteUser(_prev: InviteState, formData: FormData): Promis
         const { data } = await supabase.from("profiles").select("id").ilike("email", escapeLike(email)).limit(1);
         return (data ?? []).length > 0;
       },
-      // Секретний ключ — лише тут і лише після перевірки ролі admin в inviteUserCore.
-      generateInvite: async (email, fullName) => {
-        const admin = createAdminClient();
-        const { data, error } = await admin.auth.admin.generateLink({
-          type: "invite",
-          email,
-          // Ім'я — у user_metadata (тригер копіює в profiles.full_name). Роль — НІКОЛИ не звідси.
-          options: fullName ? { data: { full_name: fullName } } : undefined,
-        });
-        if (error || !data.user || !data.properties?.hashed_token) {
-          return { ok: false, error: error?.code === "email_exists" ? "EMAIL_EXISTS" : "LINK_FAILED" };
-        }
-        return { ok: true, userId: data.user.id, tokenHash: data.properties.hashed_token };
-      },
+      // Секретний ключ — лише після перевірки ролі admin в inviteUserCore.
+      generateInvite: (email, fullName) => generateInviteLink(email, fullName),
       // Роль — тією самою функцією бази, що й зміна ролі в списку, і клієнтом адміністратора (не admin-клієнтом).
       assignRole: async (userId, role) => {
         const { error } = await supabase.rpc("admin_set_role", { p_user: userId, p_role: role });
