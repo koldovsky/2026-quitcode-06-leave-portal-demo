@@ -1,4 +1,4 @@
-// Хто відкрив сторінку: id з JWT (getClaims), роль з profiles, підрозділи, де він менеджер.
+// Хто відкрив сторінку: користувач із сесії, роль з profiles, підрозділи, де він менеджер.
 // Лише для серверу (Server Components і Server Actions).
 import { redirect } from "next/navigation";
 import type { Viewer } from "@/lib/leave/access";
@@ -11,29 +11,30 @@ const isRole = (value: unknown): value is AppRole => ROLES.includes(value as App
 export async function getViewer() {
   const supabase = await createClient();
 
-  // getClaims() перевіряє підпис JWT. getSession() для авторизації на сервері не використовуємо.
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  if (!claims) redirect("/login");
+  // JWT на цьому ж запиті вже перевірив proxy (getClaims у src/lib/supabase/proxy.ts), тож тут беремо
+  // користувача із сесії в cookie — без ще одного звернення до Auth на кожен рендер і кожну дію.
+  const { data } = await supabase.auth.getSession();
+  const user = data.session?.user;
+  if (!user) redirect("/login");
 
   // RLS: користувач бачить власний профіль.
   const { data: profile } = await supabase
     .from("profiles")
     .select("email, full_name, role")
-    .eq("id", claims.sub)
+    .eq("id", user.id)
     .maybeSingle();
 
   let managedDivisionIds: string[] = [];
   if (profile?.role === "manager") {
-    const { data: divisions } = await supabase.from("divisions").select("id").eq("manager_id", claims.sub);
+    const { data: divisions } = await supabase.from("divisions").select("id").eq("manager_id", user.id);
     managedDivisionIds = (divisions ?? []).map((d) => d.id);
   }
 
   const viewer: Viewer | null = isRole(profile?.role)
-    ? { id: claims.sub, role: profile.role, managedDivisionIds }
+    ? { id: user.id, role: profile.role, managedDivisionIds }
     : null;
 
-  return { supabase, viewer, profile, email: profile?.email ?? claims.email ?? null };
+  return { supabase, viewer, profile, email: profile?.email ?? user.email ?? null };
 }
 
 /** Для сторінок і дій, доступних лише певним ролям: інакше — на головну. */
