@@ -16,7 +16,8 @@
     "check:design": "node scripts/check-design-tokens.mjs",
     "check:boundary": "node scripts/check-server-boundary.mjs",
     "db:types": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
-    "users:demo": "node --env-file=.env.local scripts/create-demo-users.mjs"
+    "users:demo": "node --env-file=.env.local scripts/create-demo-users.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -35,12 +36,14 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
     "@fission-ai/openspec": "1.14.1",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "eslint-plugin-playwright": "2.12.1",
     "supabase": "2.120.0",
     "tailwindcss": "^4",
     "typescript": "^5",
