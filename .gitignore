@@ -44,3 +44,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# інструменти якості (WS8): кеш і копії мутантів fallow, пісочниця й звіти Stryker
+/.fallow/
+/.stryker-tmp/
+/reports/
