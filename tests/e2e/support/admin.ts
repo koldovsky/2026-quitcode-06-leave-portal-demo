@@ -3,6 +3,7 @@
 // check:boundary сканує src/, тож цей файл його не порушує; у src/ секретний ключ читає лише src/lib/supabase/admin.ts.
 // Ніколи не друкуємо значення ключів і паролів — лише адреси синтетичних користувачів.
 import { randomBytes } from "node:crypto";
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /** Лише такі адреси прибирання має право видалити: uat-<run>[-<суфікс>]@example.test. */
@@ -93,6 +94,18 @@ export async function leaveRequestsOf(employeeId: string) {
   }[];
 }
 
+const CLEANUP_LOG = "test-results/uat-cleanup.jsonl";
+
+/** Усі uat-адреси, які видалив цей прогін (за журналом). */
+export function deletedThisRun(): string[] {
+  if (!existsSync(CLEANUP_LOG)) return [];
+  const entries = readFileSync(CLEANUP_LOG, "utf8")
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map((l) => JSON.parse(l) as { deleted: string[] });
+  return [...new Set(entries.flatMap((e) => e.deleted))];
+}
+
 export type CleanupResult = { deleted: string[]; remaining: string[]; leftoverRequests: number };
 
 /**
@@ -127,5 +140,11 @@ export async function deleteUatUsers(onlyEmail?: string): Promise<CleanupResult>
     if (error) throw error;
     leftoverRequests = count ?? 0;
   }
+  // Журнал прибирань прогону: afterAll специфікацій і teardown (Playwright чистить test-results/ на старті прогону).
+  mkdirSync("test-results", { recursive: true });
+  appendFileSync(
+    CLEANUP_LOG,
+    `${JSON.stringify({ at: new Date().toISOString(), scope: onlyEmail ?? "uat-*", deleted, remaining, leftoverRequests })}\n`,
+  );
   return { deleted, remaining, leftoverRequests };
 }

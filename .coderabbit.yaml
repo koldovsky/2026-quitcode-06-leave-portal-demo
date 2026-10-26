@@ -99,6 +99,14 @@ reviews:
         openspec/specs змінюється лише через archive зміни PM у PR типу «Зміна специфікації» (рев'ю техліда);
         у PR реалізації задачі — ніколи. Зміна команди — `openspec/changes/impl-*` із `skip_specs: true`,
         design.md і tasks.md з AC ID; її proposal.md короткий (Why, What Changes) — розділів PM для нього не вимагай.
+    - path: "tests/e2e/**"
+      instructions: |
+        E2E/UAT на Playwright: назва test() починається з AC ID; кроки AC — given/when/thenStep з tests/e2e/support/uat.ts,
+        у thenStep — дослівний текст «Тоді» з вимог PM і перевірка невидимих частин (буфер обміну, база).
+        Локатори getByRole / getByLabel / getByTestId; без waitForTimeout, networkidle, test.skip(умова) і .only.
+        Тест, що пише в базу, має тег @writes, власні синтетичні дані uat-…@example.test і прибирання (afterAll + teardown).
+        Жодних паролів, ключів чи cookie в коді й комітах: DEMO_USER_PASSWORD і ключі — лише з оточення;
+        playwright/.auth/ і test-results/ не комітимо. Посилання для активації на кадрах — замазане (mask).
     - path: "product/**"
       instructions: |
         Продуктовий контекст PM: vision, глосарій, ролі й матриця прав, roadmap, рішення, CHANGELOG.
@@ -141,7 +149,9 @@ reviews:
         instructions: >
           Static review only; do NOT execute the test suite. If the diff adds or changes behaviour in
           src/** or supabase/**, check that it adds or updates tests whose test()/it() titles start
-          with the AC ID they cover (format AC-AREA-NN), that those tests are not .skip/.todo, and
+          with the AC ID they cover (format AC-AREA-NN) — in *.test.ts(x) under src/ or tests/ (Vitest)
+          or in tests/e2e/**/*.spec.ts (Playwright, job e2e) — that those tests are not
+          .skip/.todo/.fixme/.fail, and
           that docs/conformance.md rows for these AC IDs are updated in the same PR with status
           "реалізовано" or "відкладено (причина)". FAIL if behaviour changed without such tests or
           matrix rows. Answer in Ukrainian.

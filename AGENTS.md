@@ -43,6 +43,8 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - Типи БД: готовий `database.types.ts` — у Summary прогону job `db-check` (Docker не потрібен); `npm run db:types` —
   лише PM або техлід після `npx supabase link` (якщо впав — `git restore src/lib/supabase/database.types.ts`)
 - `npm run users:demo` — синтетичні користувачі з `supabase/demo-users.json` (лише PM або техлід: потрібен `SUPABASE_SECRET_KEY`)
+- `npm run test:e2e` (Playwright, `tests/e2e/*.spec.ts`; перший раз — `npx playwright install chromium`) ·
+  `npm run uat -- --url <прод>` (UAT за AC: запис → вердикт агента → `docs/qa/uat/<дата>/`) · `npm run smoke -- <прод>` (D0)
 - `openspec …` (його викликають `/opsx:*` і скіли `openspec-*`): якщо `openspec` не знайдено або
   `openspec --version` ≠ 1.14.1 — запускай `npx openspec …` (версія з package.json) і скажи людині
   встановити `npm i -g @fission-ai/openspec@1.14.1`
@@ -59,9 +61,9 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `scripts/` — перевірки спеки й покриття AC; `tests/` — тести (`tests/fixtures/` — дані тестів скриптів)
 - `.claude/skills/` — наші скіли (`spec-clarify`, `spec-review`); Cursor читає їх звідти ж. `openspec-*` і `/opsx*`
   у `.claude/` та `.cursor/` згенерував OpenSpec (однакові копії для двох інструментів) — вручну не редагуй.
-- Нові шари курсу — новими файлами: e2e-тести — `tests/e2e/*.spec.ts` (Vitest їх не запускає, і `ac:coverage`
-  не рахує їх як покриття AC, доки e2e не запускає окремий крок CI — тоді фільтр у `scripts/lib/test-titles.mjs`
-  розширюють разом із цим кроком), нові перевірки — окремим workflow у `.github/workflows/`. Jobs `spec`, `app`,
+- Нові шари курсу — новими файлами: e2e-тести — `tests/e2e/**/*.spec.ts` (Playwright, `playwright.config.ts`; у CI —
+  job `e2e` у `.github/workflows/e2e.yml` на одноразовому локальному стеку Supabase; той самий файл — UAT на проді:
+  `npm run uat -- --url <прод>`, звіт у `docs/qa/uat/<дата>/`), нові перевірки — окремим workflow у `.github/workflows/`. Jobs `spec`, `app`,
   `conformance`, `db-check`, `db-deploy` у `ci.yml` не перейменовуй і не видаляй: на їхніх назвах тримається ruleset.
 
 ## Процес і ролі
@@ -86,7 +88,7 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   `tasks.md` не змінюй (галочок не став навіть у `/opsx:apply`; прогрес — закриті issues): інакше PR потребує
   власника `openspec/` і конфліктує з паралельними PR-ами.
 - AC ID (`AC-<AREA>-<NN>`) — на початку назви сценарію і в назві тесту: `it("AC-LEAVE-02: …")`; лише AC, які вже є в
-  `openspec/specs/` (інакше ORPHAN). Тести — лише у файлах `*.test.ts` / `*.test.tsx` під `src/` або `tests/`: інші файли (зокрема `*.spec.ts`) Vitest не запускає, і `ac:coverage` їх не рахує. Перевірки в тестах — через `expect(…)`: `vitest.config.mts` вимагає хоча б один `expect` у кожному тесті, а `assert` (з `vitest` чи `node:assert`) не рахується — такий тест падає з «expected any number of assertion, but got none».
+  `openspec/specs/` (інакше ORPHAN). Тести — у файлах `*.test.ts` / `*.test.tsx` під `src/` або `tests/` (Vitest) і `tests/e2e/**/*.spec.ts` (Playwright, job `e2e`): інші файли (зокрема `*.spec.ts` поза `tests/e2e` і `tests/e2e/*.test.ts`) CI не запускає, і `ac:coverage` їх не рахує. E2E: локатори `getByRole`/`getByLabel`, без `waitForTimeout`, кроки AC — `given`/`when`/`thenStep` з `tests/e2e/support/uat.ts`, власні синтетичні дані `uat-…@example.test` з прибиранням (тег `@writes`). Перевірки в тестах — через `expect(…)`: `vitest.config.mts` вимагає хоча б один `expect` у кожному тесті, а `assert` (з `vitest` чи `node:assert`) не рахується — такий тест падає з «expected any number of assertion, but got none».
 - Рядок у `docs/conformance.md` для AC задачі оновлюється в тому самому PR, що й код (`/conformance`, `npm run ac:coverage`);
   рядки чужих AC не чіпай.
 - Будь-який push після approve (виправлення, archive, `Update branch` / merge `main`) потребує нового approve
@@ -148,6 +150,9 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   єдиного модуля `src/lib/supabase/admin.ts` (перший рядок `import "server-only"`; імпортують лише `actions.ts`/
   `route.ts` і лише після перевірки ролі admin; правило — `npm run check:boundary`). Не `NEXT_PUBLIC_`, не
   `*_ANON_KEY`/`SERVICE_ROLE_KEY`. Шаблон — `.env.example`.
+- Секретний ключ поза `src/`: `scripts/create-demo-users.mjs` і `tests/e2e/support/admin.ts` (синтетичні `uat-…@example.test`
+  для e2e/UAT і їх прибирання; локально — з `.env.local`, у CI — ключ одноразового локального стеку). `playwright/.auth/`
+  (cookie сесій тестових ролей) і `test-results/` (відео, траси) — у `.gitignore`, не комітимо.
 - Посилання для активації (`/auth/confirm?token_hash=…`) — живий credential: не логувати, не класти в URL сторінок
   застосунку, не показувати справжнє на записі екрана (ADR 0003).
 - `.claude/settings.json` забороняє Claude Code читати `.env*` (крім `.env.example`); Cursor цих правил не читає — у Cursor не відкривай `.env*` агентом і не вставляй значень у чат. Скрипти з секретами запускай
