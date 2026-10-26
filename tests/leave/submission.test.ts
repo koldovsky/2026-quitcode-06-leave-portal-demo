@@ -4,6 +4,14 @@ import { normalizeSubstitute, validateSubmission } from "@/lib/leave/submission"
 import { singlePosition, twoPositions } from "./fixtures";
 
 describe("Подання заявки", () => {
+  it("AC-LEAVE-01: дата початку в минулому дозволена (хворобу оформлюють після повернення)", () => {
+    const result = validateSubmission(
+      { leaveType: "sick", startDate: "2026-09-01", endDate: "2026-09-02", positionIds: ["pos-single-main"] },
+      singlePosition,
+    );
+    expect(result.ok).toBe(true);
+  });
+
   it("AC-LEAVE-01: заявка на одну посаду без заміни — один запис main зі статусом pending", () => {
     const result = validateSubmission(
       { leaveType: "sick", startDate: "2026-11-03", endDate: "2026-11-04", positionIds: ["pos-single-main"] },
