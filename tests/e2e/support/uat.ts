@@ -14,11 +14,9 @@ export type ThenSpec = {
   mask?: Locator[];
 };
 
-let thenIndex = 0;
-
-test.beforeEach(() => {
-  thenIndex = 0;
-});
+// Номер «Тоді» в межах тесту. Лічильник за testId, а не test.beforeEach у цьому модулі: модуль кешується,
+// і хук зареєструвався б лише у файлі, який імпортував його першим.
+const thenCounters = new Map<string, number>();
 
 export async function given(title: string, body: () => Promise<void>) {
   await test.step(`Дано: ${title}`, body);
@@ -33,7 +31,9 @@ export async function when(title: string, body: () => Promise<void>) {
  * Назва thenStep, а не then: модуль з експортом then стає thenable, і await import() поводиться дивно.
  */
 export async function thenStep(page: Page, spec: ThenSpec, assertions: () => Promise<void>) {
-  const n = ++thenIndex;
+  const { testId } = test.info();
+  const n = (thenCounters.get(testId) ?? 0) + 1;
+  thenCounters.set(testId, n);
 
   await test.step(`Тоді: ${spec.clause}`, async () => {
     let passed = false;

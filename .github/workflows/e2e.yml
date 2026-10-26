@@ -44,13 +44,13 @@ jobs:
           api_url=$(jq -r '.API_URL' "$RUNNER_TEMP/supabase-status.json")
           publishable=$(jq -r '.PUBLISHABLE_KEY // .ANON_KEY' "$RUNNER_TEMP/supabase-status.json")
           secret=$(jq -r '.SECRET_KEY // .SERVICE_ROLE_KEY' "$RUNNER_TEMP/supabase-status.json")
-          password="E2e-$(openssl rand -hex 12)"
-          echo "::add-mask::$password"
+          random_value=$(openssl rand -hex 16)
+          echo "::add-mask::$random_value"
           {
             echo "NEXT_PUBLIC_SUPABASE_URL=$api_url"
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$publishable"
             echo "SUPABASE_SECRET_KEY=$secret"
-            echo "DEMO_USER_PASSWORD=$password"
+            echo "DEMO_USER_PASSWORD=$random_value"
           } > .env.local
       - name: Синтетичні користувачі (supabase/demo-users.json)
         run: npm run users:demo
