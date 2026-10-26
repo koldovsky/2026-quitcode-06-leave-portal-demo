@@ -41,3 +41,15 @@ export async function decideRecord(formData: FormData) {
   revalidatePath("/manage");
   redirect(`/manage?done=${result.value.status}`);
 }
+
+/** Черга менеджера для таблиці: записи на розгляді підрозділів, якими він керує (RLS), від найстаріших. */
+export async function exportQueueCsv(): Promise<string> {
+  const { supabase } = await requireRole("manager");
+  const { data } = await supabase
+    .from("leave_records")
+    .select("id, request_id, kind, division_id, created_at")
+    .eq("status", "pending")
+    .order("created_at", { ascending: true });
+  const rows = (data ?? []).map((r) => [r.id, r.request_id, r.kind, r.division_id, r.created_at].join(","));
+  return ["id,request_id,kind,division_id,created_at", ...rows].join("\n");
+}
