@@ -30,7 +30,17 @@
   },
   "health": {
     "thresholdOverrides": [
-      { "files": ["tests/**"], "maxUnitSize": 500, "reason": "describe()-блоки довгі за задумом" }
+      { "files": ["tests/**"], "maxUnitSize": 500, "reason": "describe()-блоки довгі за задумом" },
+      // Службові скрипти UAT і smoke розгалужуються за форматами звітів і відповідями HTTP; ворота складності
+      // суворі для коду застосунку (src/**). Межа тут — видиме число з причиною, а не придушення в коді.
+      {
+        "files": ["scripts/uat/**", "scripts/smoke.mjs", "scripts/lib/test-titles.mjs"],
+        "maxCyclomatic": 40,
+        "maxCognitive": 40,
+        "maxCrap": 1500,
+        "maxUnitSize": 150,
+        "reason": "службові скрипти UAT/smoke/ac:coverage, не код застосунку"
+      }
     ]
   },
   // Ворота валять лише НОВІ знахідки відносно бази PR; успадковані fallow показує як контекст.

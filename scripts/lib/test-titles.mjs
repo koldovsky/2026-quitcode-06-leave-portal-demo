@@ -110,8 +110,6 @@ const E2E_DIR = /^tests\/e2e\//;
 export const isRunByVitest = (r) => !E2E_DIR.test(r) && /^(?:src|tests)\/(?:.+\/)?[^/]+\.test\.tsx?$/.test(r);
 export const isRunByPlaywright = (r) => /^tests\/e2e\/(?:.+\/)?[^/]+\.spec\.ts$/.test(r);
 export const isRunByCi = (r) => isRunByVitest(r) || isRunByPlaywright(r);
-/** Стара назва (до WS8 — лише Vitest); лишаємо для сумісності. */
-export const isRunByNpmTest = isRunByCi;
 export const skipNonSource = (r) =>
   /(^|\/)(node_modules|\.next|\.git|coverage|dist|build)(\/|$)/.test(r) || /^tests\/fixtures(\/|$)/.test(r);
 
