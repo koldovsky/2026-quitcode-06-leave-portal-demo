@@ -22,6 +22,8 @@ const text = (formData: FormData, name: string) => String(formData.get(name) ?? 
 
 /** Адреса сайту для посилання: Origin запиту Server Action (Next.js звіряє його з Host), запасний — Host. */
 async function requestOrigin(): Promise<string> {
+  // У Vitest заголовків запиту немає — фіксована адреса, як у supabase/config.toml (site_url).
+  if (process.env.NODE_ENV === "test") return "http://localhost:3000";
   const h = await headers();
   const origin = h.get("origin");
   if (origin && /^https?:\/\/[^/]+$/.test(origin)) return origin;
