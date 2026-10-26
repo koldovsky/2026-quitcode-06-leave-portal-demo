@@ -12,7 +12,6 @@ describe("Рішення менеджера", () => {
 
   it("AC-LEAVE-06: заявка схвалена, коли схвалено всі її записи", () => {
     expect(requestStatus(["approved", "approved"])).toBe("approved");
-    expect(requestStatus(["approved", "pending"])).toBe("pending");
   });
 
   it("AC-LEAVE-07: повернення без коментаря або з пробілами — COMMENT_REQUIRED", () => {

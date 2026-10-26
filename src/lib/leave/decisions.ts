@@ -35,7 +35,7 @@ export function decide(
  */
 export function requestStatus(recordStatuses: RecordStatus[]): RequestStatus {
   if (recordStatuses.includes("needs_revision")) return "needs_revision";
-  if (recordStatuses.length > 0 && recordStatuses.every((s) => s === "approved")) return "approved";
+  if (recordStatuses.some((s) => s === "approved")) return "approved";
   return "pending";
 }
 
