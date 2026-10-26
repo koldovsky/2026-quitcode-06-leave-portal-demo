@@ -1,7 +1,8 @@
 # D0 smoke проду: після кожного деплою main і щодня. Лише GET, без секретів: "/", "/login", "/api/health"
 # (коміт збірки = main, база відповідає). Скрипт — scripts/smoke.mjs; локально: npm run smoke -- <прод-URL>.
 # Налаштування: змінна репозиторію PROD_URL (Settings → Secrets and variables → Actions → Variables), напр.
-# https://<slug>.vercel.app. Не секрет. Без неї — адреса демо нижче.
+# https://<slug>.vercel.app. Не секрет. Без неї — адреса прод-демо курсу нижче: у СВОЄМУ репо задайте PROD_URL
+# (або замініть адресу), інакше smoke перевірятиме чужий прод.
 # Це НЕ обов'язкова перевірка ruleset-у: прод перевіряється після merge, а не в PR. Назви jobs у ci.yml не чіпаємо.
 # Smoke preview-деплоїв PR — у WS11. Події status, repository_dispatch і schedule GitHub запускає лише з файлу
 # на гілці за замовчуванням: до merge цей workflow можна перевірити тільки локально (npm run smoke).

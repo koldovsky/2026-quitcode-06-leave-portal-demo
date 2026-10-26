@@ -2,9 +2,18 @@
 // Лише в тестах і лише на машині розробника (.env.local) або в CI на одноразовому локальному стеку (e2e.yml).
 // check:boundary сканує src/, тож цей файл його не порушує; у src/ секретний ключ читає лише src/lib/supabase/admin.ts.
 // Ніколи не друкуємо значення ключів і паролів — лише адреси синтетичних користувачів.
+// Під схему ЦЬОГО демо: createEmployee (divisions, positions) і OWNED_ROWS. У своєму проєкті замініть їх своїми таблицями;
+// решта (uatEmail, listUatUsers, deleteUatUsers, журнал прибирань) — загальна.
 import { randomBytes } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * Рядки синтетичного користувача, які треба видалити ДО deleteUser: каскад auth.users → profiles → positions упирається
+ * в leave_records.position_id (FK без cascade), і Auth відповідає «Database error deleting user». leave_requests
+ * видаляє свої leave_records каскадом. У своєму проєкті — ваші таблиці з FK на користувача без cascade (або порожньо).
+ */
+const OWNED_ROWS: { table: string; column: string }[] = [{ table: "leave_requests", column: "employee_id" }];
 
 /** Лише такі адреси прибирання має право видалити: uat-<run>[-<суфікс>]@example.test. */
 export const UAT_EMAIL = /^uat-[0-9a-z-]+@example\.test$/;
@@ -117,10 +126,10 @@ export async function deleteUatUsers(onlyEmail?: string): Promise<CleanupResult>
   const targets = (await listUatUsers(supabase)).filter((u) => !onlyEmail || u.email === onlyEmail);
   const deleted: string[] = [];
   for (const u of targets) {
-    // Спершу заявки (каскадом — записи): інакше каскад profiles → positions упирається в leave_records.position_id
-    // (FK без cascade), і Auth відповідає «Database error deleting user».
-    const { error: requestsError } = await supabase.from("leave_requests").delete().eq("employee_id", u.id);
-    if (requestsError) throw requestsError;
+    for (const { table, column } of OWNED_ROWS) {
+      const { error: rowsError } = await supabase.from(table).delete().eq(column, u.id);
+      if (rowsError) throw rowsError;
+    }
     const { error } = await supabase.auth.admin.deleteUser(u.id);
     if (error) throw error;
     deleted.push(u.email);
@@ -128,17 +137,18 @@ export async function deleteUatUsers(onlyEmail?: string): Promise<CleanupResult>
   const remaining = (await listUatUsers(supabase))
     .filter((u) => !onlyEmail || u.email === onlyEmail)
     .map((u) => u.email);
+  // Чи не лишилось рядків видалених користувачів (для демо — заявок) у таблицях OWNED_ROWS.
   let leftoverRequests = 0;
-  if (targets.length) {
+  for (const { table, column } of targets.length ? OWNED_ROWS : []) {
     const { count, error } = await supabase
-      .from("leave_requests")
-      .select("id", { count: "exact", head: true })
+      .from(table)
+      .select("*", { count: "exact", head: true })
       .in(
-        "employee_id",
+        column,
         targets.map((u) => u.id),
       );
     if (error) throw error;
-    leftoverRequests = count ?? 0;
+    leftoverRequests += count ?? 0;
   }
   // Журнал прибирань прогону: afterAll специфікацій і teardown (Playwright чистить test-results/ на старті прогону).
   mkdirSync("test-results", { recursive: true });
