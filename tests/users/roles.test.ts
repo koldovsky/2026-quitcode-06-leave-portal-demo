@@ -47,15 +47,21 @@ describe("Стан сторінки користувачів", () => {
   });
 });
 
+// Зіставлення «помилка бази → повідомлення» на вручну зібраних об'єктах помилки. AC ID у назвах тут навмисно немає:
+// такий тест лишається зеленим, навіть якщо правило в базі зникне. AC-USERS-06 і AC-USERS-09 доводять тести на
+// справжньому Postgres (tests/db/users-db.test.ts) — їх і рахує ac:coverage.
 describe("Зміна ролі: повідомлення", () => {
-  it("AC-USERS-06: відмова бази LAST_ADMIN → «Не можна змінити роль останнього адміністратора»", () => {
+  it("відмова бази LAST_ADMIN → «Не можна змінити роль останнього адміністратора» (текст із вимоги PM)", () => {
     const code = roleChangeError({ code: "23514", message: "LAST_ADMIN" });
     expect(code).toBe("LAST_ADMIN");
     expect(ROLE_CHANGE_MESSAGES[code!]).toBe("Не можна змінити роль останнього адміністратора");
   });
 
-  it("AC-USERS-09: відмова бази FORBIDDEN (42501) — не технічний текст, а зрозуміле повідомлення", () => {
+  it("відмова бази FORBIDDEN або 42501 — не технічний текст, а зрозуміле повідомлення", () => {
     expect(roleChangeError({ code: "42501", message: "FORBIDDEN" })).toBe("FORBIDDEN");
+    // Кожна ознака окремо: текст FORBIDDEN без коду і код 42501 без цього тексту (відмова grant, «permission denied»).
+    expect(roleChangeError({ code: "P0001", message: "FORBIDDEN" })).toBe("FORBIDDEN");
+    expect(roleChangeError({ code: "42501", message: "permission denied for function admin_set_role" })).toBe("FORBIDDEN");
     expect(roleChangeError({ code: "XX000", message: "щось інше" })).toBe("ROLE_FAILED");
     expect(roleChangeError(null)).toBeNull();
   });

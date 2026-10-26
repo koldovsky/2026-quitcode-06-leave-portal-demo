@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "Мутаційне тестування TS (WS8): npm run mutation:ts; один файл — npm run mutation:ts -- --mutate src/lib/leave/calendar.ts. SQL і RLS Stryker не мутує — для них npm run mutation:sql.",
+  "testRunner": "vitest",
+  "vitest": { "configFile": "vitest.stryker.config.mts", "related": true },
+  "mutate": ["src/lib/leave/**/*.ts", "src/lib/users/**/*.ts", "src/lib/auth/**/*.ts", "!src/lib/**/types.ts"],
+  "reporters": ["clear-text", "progress", "html", "json"],
+  "thresholds": { "high": 80, "low": 60, "break": null },
+  "tempDirName": ".stryker-tmp",
+  "cleanTempDir": "always"
+}

@@ -13,6 +13,8 @@
     "test:coverage": "vitest run --config vitest.coverage.config.mts --coverage",
     "coverage:summary": "node scripts/coverage-summary.mjs",
     "gates": "npm run lint && npm run typecheck && fallow audit",
+    "mutation:ts": "stryker run",
+    "mutation:sql": "node scripts/mutation-check.mjs --kind sql",
     "spec:validate": "openspec validate --all --strict",
     "spec:check": "node scripts/check-spec.mjs",
     "ac:coverage": "node scripts/check-ac-coverage.mjs",
@@ -38,6 +40,8 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
     "@fission-ai/openspec": "1.14.1",
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24",
     "@types/react": "^19",

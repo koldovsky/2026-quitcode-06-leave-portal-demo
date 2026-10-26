@@ -1,8 +1,9 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
-  // Скрипти з package.json fallow бачить сам. Сюди — лише ті, що запускають руками (тут: атака з RUNBOOK-ws7).
+  // Скрипти з package.json fallow бачить сам. Сюди — лише те, що запускають руками або читає інший інструмент:
+  // атака з RUNBOOK-ws7 і конфіг Vitest для Stryker (його називає stryker.config.json, а не імпорт).
   // Не пишіть "scripts/*.mjs": з 3.35 зірочка не заходить у підтеки, і кожен прогін друкує WARN.
-  "entry": ["scripts/demo-attack-role.mjs"],
+  "entry": ["scripts/demo-attack-role.mjs", "vitest.stryker.config.mts"],
   // Дані для тестів скриптів — навмисно «зламані» файли.
   "ignorePatterns": ["tests/fixtures/**"],
   "ignoreDependencies": [

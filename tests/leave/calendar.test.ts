@@ -30,6 +30,20 @@ describe("Заблоковані дні й перетин заявок (spec-v0.
     ).toEqual({ ok: false, error: "OVERLAPPING_REQUEST" });
   });
 
+  // Межі з AC-LEAVE-11 (обидва кінці включно). Без цих двох випадків calendar.ts має 100 % покриття, а заміна
+  // «<=» на «<» у rangesOverlap лишає весь набір зеленим (мутант T1 у scripts/mutants.mjs, Stryker — calendar.ts:14).
+  it("AC-LEAVE-11: нова заявка 02.11–03.11 закінчується в день початку заявки pending 03.11–04.11 — OVERLAPPING_REQUEST", () => {
+    expect(
+      checkCalendar({ startDate: "2026-11-02", endDate: "2026-11-03" }, { blockedDays, existing: [pendingEarlier] }),
+    ).toEqual({ ok: false, error: "OVERLAPPING_REQUEST" });
+  });
+
+  it("AC-LEAVE-11: заявка 01.11–02.11 цілком раніше за pending 03.11–04.11 — приймається", () => {
+    expect(
+      checkCalendar({ startDate: "2026-11-01", endDate: "2026-11-02" }, { blockedDays, existing: [pendingEarlier] }),
+    ).toEqual({ ok: true, value: { countedDays: 2 } });
+  });
+
   it("AC-LEAVE-11: схвалена заявка теж блокує, а заявка на доопрацюванні — ні", () => {
     const range = { startDate: "2026-11-04", endDate: "2026-11-06" };
     const approved = { ...pendingEarlier, recordStatuses: ["approved", "approved"] as ExistingRequest["recordStatuses"] };
