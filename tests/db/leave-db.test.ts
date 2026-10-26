@@ -33,6 +33,19 @@ const recordsOf = (userId: string, requestId: string) =>
     [requestId],
   );
 
+/** Скільки заявок працівника з цією датою початку бачить база (service role, повз RLS) — «нічого не збережено». */
+const requestsStartingOn = async (userId: string, start: string) =>
+  (
+    await t.asService<{ n: number }>(
+      "select count(*)::int as n from public.leave_requests where employee_id = $1 and start_date = $2",
+      [userId, start],
+    )
+  )[0].n;
+
+// Тести з коментарем «Мутант Lx» дописано після npm run mutation:sql (scripts/mutation-check.mjs): без них відповідне
+// правило в SQL можна зламати, і жоден тест бази не червоніє. Дати 2027 року — щоб не перетинатися з іншими тестами
+// цього файлу (одна база на файл).
+
 describe("База: подання заявки", () => {
   it("AC-LEAVE-01: функція подання зберігає заявку з записом main; заявку без записів база відхиляє", async () => {
     const id = await submitAllPositions(TEACHER2, "2026-11-03", "2026-11-04");
@@ -74,6 +87,43 @@ describe("База: правила подання (останні ворота �
       [TEACHER2],
     );
     expect(n).toBe(0);
+  });
+
+  // Мутант L2: діапазон НОВОЇ заявки став напіввідкритим [початок, кінець) — її останній день більше не рахується.
+  it("AC-LEAVE-11: нова заявка, що закінчується в перший день наявної, — теж перетин, нічого не збережено", async () => {
+    await submitAllPositions(TEACHER2, "2027-01-12", "2027-01-13");
+    expect(await submitError(TEACHER2, "2027-01-10", "2027-01-12")).toContain("OVERLAPPING_REQUEST");
+    expect(await requestsStartingOn(TEACHER2, "2027-01-10")).toBe(0);
+  });
+
+  // Мутант L4: виняток для заявки на доопрацюванні прибрано — вона теж блокує нові.
+  it("AC-LEAVE-11: заявка на доопрацюванні не блокує нову на ті самі дати", async () => {
+    const id = await submitAllPositions(TEACHER2, "2027-02-01", "2027-02-02");
+    await t.asUser(
+      MANAGER_PRIMARY,
+      "update public.leave_records set status = 'needs_revision', comment = 'Уточніть' where request_id = $1",
+      [id],
+    );
+    expect(await submitError(TEACHER2, "2027-02-02", "2027-02-03")).toBe("");
+    expect(await requestsStartingOn(TEACHER2, "2027-02-02")).toBe(1);
+  });
+});
+
+describe("База: заблоковані дні", () => {
+  // Мутант L5: політика insert для blocked_days пускає будь-кого з входом. Окремого AC немає: це передумова
+  // AC-LEAVE-04 і AC-LEAVE-10 («адміністратор позначив … як заблокований день»), тож ID у назві не ставимо.
+  it("заблокований день додає лише адміністратор; працівник і менеджер — ні", async () => {
+    const insertDay = (userId: string) =>
+      t.asUser(userId, "insert into public.blocked_days (day, reason) values ('2027-03-08', 'Свято')");
+    const daysOn8March = async () =>
+      (await t.asService<{ n: number }>("select count(*)::int as n from public.blocked_days where day = '2027-03-08'"))[0].n;
+
+    await expect(insertDay(TEACHER)).rejects.toThrow("row-level security");
+    await expect(insertDay(MANAGER_MATH)).rejects.toThrow("row-level security");
+    expect(await daysOn8March()).toBe(0);
+
+    await insertDay(ADMIN);
+    expect(await daysOn8March()).toBe(1);
   });
 });
 
@@ -122,6 +172,20 @@ describe("База: черги й рішення", () => {
       [id],
     );
     expect((await recordsOf(TEACHER2, id)).map((r) => r.status)).toEqual(["needs_revision"]);
+  });
+
+  // Мутант L7: з політики рішень прибрано status = 'pending' — ухвалене рішення можна переписати.
+  it("AC-LEAVE-07: уже схвалений запис менеджер не повертає на доопрацювання — запис лишається approved", async () => {
+    const id = await submitAllPositions(TEACHER2, "2027-04-05", "2027-04-05");
+    await t.asUser(MANAGER_PRIMARY, "update public.leave_records set status = 'approved' where request_id = $1", [id]);
+    expect(
+      await t.asUser(
+        MANAGER_PRIMARY,
+        "update public.leave_records set status = 'needs_revision', comment = 'Передумав' where request_id = $1 returning id",
+        [id],
+      ),
+    ).toEqual([]);
+    expect((await recordsOf(TEACHER2, id)).map((r) => r.status)).toEqual(["approved"]);
   });
 
   it("AC-LEAVE-08: виправлена заявка на доопрацюванні — усі записи знову pending, рішення очищено; заявку на розгляді не змінити", async () => {
@@ -221,6 +285,26 @@ describe("База: доступ", () => {
     } finally {
       await t.asService("update public.divisions set manager_id = $1 where id = $2", [primary.manager_id, primary.id]);
     }
+  });
+
+  // Мутант L6 — еквівалентний: з політики рішень прибрано current_app_role() = 'manager', але
+  // private.is_division_manager() сама перевіряє роль (міграція 20261018000000). Тест лишається зеленим і під L6 —
+  // він документує, чому mutants.mjs позначає L6 як expect: "survive".
+  it("AC-LEAVE-06: працівник, якого записали в manager_id, не схвалює записів підрозділу — обидва лишаються pending", async () => {
+    const id = await submitAllPositions(TEACHER, "2027-05-10", "2027-05-10"); // MATH (main) + PRIMARY (additional)
+    const [math] = await t.asService<{ id: string; manager_id: string }>(
+      "select id, manager_id from public.divisions where code = 'MATH'",
+    );
+    await t.asUser(ADMIN, "update public.divisions set manager_id = $1 where id = $2", [TEACHER2, math.id]);
+    try {
+      expect(
+        await t.asUser(TEACHER2, "update public.leave_records set status = 'approved' where request_id = $1 returning id", [id]),
+      ).toEqual([]);
+    } finally {
+      await t.asService("update public.divisions set manager_id = $1 where id = $2", [math.manager_id, math.id]);
+    }
+    const statuses = await t.asService<{ status: string }>("select status from public.leave_records where request_id = $1", [id]);
+    expect(statuses.map((s) => s.status)).toEqual(["pending", "pending"]);
   });
 
   it("анонімний відвідувач не читає заявки", async () => {

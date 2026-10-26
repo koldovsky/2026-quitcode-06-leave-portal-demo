@@ -62,6 +62,14 @@ describe("Активація за посиланням", () => {
     expect(validatePassword("long-enough-1", "long-enough-1")).toBeNull();
   });
 
+  // «Щонайменше 8» — межа з AC: перевіряємо 7 і рівно 8. Без рівно 8 заміна «<» на «<=» у password.ts лишає набір
+  // зеленим при 100 % покриття (мутант T2 у scripts/mutants.mjs).
+  it("AC-USERS-02: межа пароля — 7 символів відхилено, рівно 8 прийнято; рівно 72 байти теж прийнято", () => {
+    expect(validatePassword("1234567", "1234567")).toBe("PASSWORD_TOO_SHORT");
+    expect(validatePassword("12345678", "12345678")).toBeNull();
+    expect(validatePassword("x".repeat(72), "x".repeat(72))).toBeNull();
+  });
+
   it("AC-USERS-02: помилка пароля — під своїм полем: довжина — «Пароль», розбіжність — «Пароль ще раз»", () => {
     expect(passwordErrorField("PASSWORD_TOO_SHORT")).toBe("password");
     expect(passwordErrorField("PASSWORD_TOO_LONG")).toBe("password");

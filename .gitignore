@@ -51,3 +51,7 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.auth/
+# інструменти якості (WS8): кеш і копії мутантів fallow, пісочниця й звіти Stryker
+/.fallow/
+/.stryker-tmp/
+/reports/

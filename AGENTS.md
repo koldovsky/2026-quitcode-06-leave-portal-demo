@@ -38,6 +38,15 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `npm run spec:validate` · `npm run spec:check` · `npm run ac:coverage`
 - `npm run check:design` (лише токени дизайн-системи) · `npm run check:boundary` (секретний ключ лише на сервері) —
   архітектурні правила, у CI — `.github/workflows/architecture.yml` (окремий від `ci.yml`)
+- `npm run gates` — lint + typecheck + `fallow audit` (лише НОВІ знахідки відносно `origin/main`; правила й причини
+  винятків — `.fallowrc.jsonc`; результат дивний — `npx fallow audit --no-cache`) · `npm run test:coverage` — покриття
+  (підлога доменних файлів — `vitest.coverage.config.mts`; звіт — `coverage/index.html`). У CI — `.github/workflows/quality.yml`.
+  Тестові правила ESLint (`@vitest/eslint-plugin`, у `npm run lint`): `.skip`/`.only`, умовний `expect`, `toThrow()` без
+  тексту, AC ID не на початку назви, `vi.mock` власних модулів `src/lib/{leave,users,auth}` і `src/app` — помилка
+- `npm run mutation:ts` — Stryker по `src/lib/{leave,users,auth}` (один файл: `npm run mutation:ts -- --mutate
+  src/lib/leave/calendar.ts`; звіт — `reports/mutation/mutation.html`) · `npm run mutation:sql` — мутанти правил у SQL
+  (`scripts/mutants.mjs`; AC з відмовою, правило якого в SQL, — новий мутант там). Вижилий мутант на рядку з AC —
+  посилити тест (значення «Тоді» з AC, а не з коду) або пояснити в PR, чому мутант еквівалентний
 - `node scripts/check-migration-order.mjs` — нова міграція новіша за `origin/main`, застосовані не змінено (у CI — `db-check`)
 - `npx supabase migration new <назва>` → SQL → PR. Застосовує міграції в базу команди ЛИШЕ CI (`db-deploy` після merge у `main`)
 - Типи БД: готовий `database.types.ts` — у Summary прогону job `db-check` (Docker не потрібен); `npm run db:types` —
