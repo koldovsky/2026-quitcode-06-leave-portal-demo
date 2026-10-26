@@ -1,0 +1,125 @@
+{
+  "kind": "uat",
+  "generatedAt": "2026-10-26T17:41:44.565Z",
+  "baseURL": "https://quitcode-ws6-leave-portal-demo.vercel.app",
+  "deployedSha": null,
+  "testsCommit": "daf619043b3a37cd335ad084b71a8ab3022fe9dc",
+  "reviewer": {
+    "model": "claude-haiku-5-5",
+    "disputes": "claude-sonnet-5-5"
+  },
+  "note": "Відео й траси не в git (test-results/ локально, артефакт CI). check-recordings конвеєра WS9 вимагає відео на диску — для нього цей manifest треба доповнити.",
+  "results": [
+    {
+      "id": "AC-LEAVE-04",
+      "proof": "AC-LEAVE-04",
+      "title": "AC-LEAVE-04: заявка 04.11–06.11.2026 із заблокованим 05.11 — прийнята, днів відсутності 2",
+      "screenshot": "docs/qa/uat/2026-10-26/frames/AC-LEAVE-04-then-1.png",
+      "video": "test-results/artifacts/leave-blocked-day-AC-LEAVE-f7d80-прийнята-днів-відсутності-2-chromium/video.webm",
+      "trace": "test-results/artifacts/leave-blocked-day-AC-LEAVE-f7d80-прийнята-днів-відсутності-2-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": false,
+        "readable": false,
+        "notes": "На кадрі /requests є зелене повідомлення «Заявку подано — вона в черзі менеджера.» і картка «хвороба 04.11.2026 - 06.11.2026», «днів: 2 (заблоковані не рахуються: 05.11.2026)», статус «на розгляді». Усе збігається, крім символа між датами (дефіс замість тире в критерії), тому потрібне рішення людини."
+      },
+      "agentModel": "claude-sonnet-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "NEEDS-HUMAN",
+        "claude-sonnet-5-5": "NEEDS-HUMAN"
+      },
+      "escalated": true,
+      "quotesVerified": [
+        {
+          "quote": "Заявку подано — вона в черзі менеджера.",
+          "onPage": true
+        },
+        {
+          "quote": "днів: 2 (заблоковані не рахуються: 05.11.2026)",
+          "onPage": true
+        }
+      ],
+      "verdict": "NEEDS-HUMAN",
+      "factoryGate": "NOT-EARNED",
+      "rule": "R3: перевірки пройшли, агент не погоджується — вирішує людина",
+      "playwrightMs": 10569,
+      "reviewCostUsd": 0.04963,
+      "reviewWallMs": 25614
+    },
+    {
+      "id": "AC-USERS-07",
+      "proof": "AC-USERS-07",
+      "title": "AC-USERS-07: працівник відкриває список користувачів — головна з «Список користувачів бачить лише адміністратор.», чужих даних не видно",
+      "screenshot": "docs/qa/uat/2026-10-26/frames/AC-USERS-07-then-1.png",
+      "video": "test-results/artifacts/users-forbidden-AC-USERS-0-d8610-атор-»-чужих-даних-не-видно-chromium/video.webm",
+      "trace": "test-results/artifacts/users-forbidden-AC-USERS-0-d8610-атор-»-чужих-даних-не-видно-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі frame-then-1.png видно заголовок «Портал відсутностей» і блакитний банер із повідомленням «Список користувачів бачить лише адміністратор.», текст збігається посимвольно з критерієм. На сторінці є лише картка з email teacher@example.test і роллю «працівник» — це дані самого користувача, таблиці інших користувачів немає; але відсутність чужих даних перевіряють автоматичні перевірки, тож я її не оцінюю."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Портал відсутностей",
+          "onPage": true
+        },
+        {
+          "quote": "Список користувачів бачить лише адміністратор.",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 2491,
+      "reviewCostUsd": 0.00262,
+      "reviewWallMs": 10530
+    },
+    {
+      "id": "AC-USERS-11",
+      "proof": "AC-USERS-11",
+      "title": "AC-USERS-11: адміністратор копіює посилання для активації — воно в буфері обміну, видно «Посилання скопійовано»",
+      "screenshot": "docs/qa/uat/2026-10-26/frames/AC-USERS-11-then-1.png",
+      "video": "test-results/artifacts/users-copy-link-AC-USERS-1-f18f7-дно-«Посилання-скопійовано»-chromium/video.webm",
+      "trace": "test-results/artifacts/users-copy-link-AC-USERS-1-f18f7-дно-«Посилання-скопійовано»-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі в діалозі «Запросити користувача» поруч із кнопкою «Скопіювати посилання» чітко видно напис «Посилання скопійовано», який повністю збігається з критерієм. Сіре поле «Посилання для активації» замазане, тому сам вміст буфера обміну з кадру не перевірявся (це не з кадрів)."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Посилання скопійовано",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 9249,
+      "reviewCostUsd": 0.00234,
+      "reviewWallMs": 8799
+    }
+  ],
+  "negativeControls": [],
+  "cleanup": {
+    "at": "2026-10-26T17:41:18.417Z",
+    "deleted": [],
+    "remaining": [],
+    "leftoverRequests": 0
+  }
+}
