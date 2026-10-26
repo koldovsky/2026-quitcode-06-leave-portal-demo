@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  // Скрипти з package.json fallow бачить сам. Сюди — лише те, що запускають руками або читає інший інструмент:
+  // атака з RUNBOOK-ws7 і конфіг Vitest для Stryker (його називає stryker.config.json, а не імпорт).
+  // Не пишіть "scripts/*.mjs": з 3.35 зірочка не заходить у підтеки, і кожен прогін друкує WARN.
+  "entry": ["scripts/demo-attack-role.mjs", "vitest.stryker.config.mts"],
+  // Дані для тестів скриптів — навмисно «зламані» файли.
+  "ignorePatterns": ["tests/fixtures/**"],
+  "ignoreDependencies": [
+    // Tailwind 4 підключено рядком у next.config.ts (turbopack.rules.loaders) — fallow цього не бачить.
+    "@tailwindcss/turbopack",
+    // Vitest вантажить провайдер покриття за назвою з конфігу (provider: "v8"), а не через import.
+    "@vitest/coverage-v8"
+  ],
+  // shadcn: компоненти дизайн-системи експортують усі частини навмисно.
+  "ignoreExports": [{ "file": "src/components/ui/**", "exports": ["*"] }],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    // Кожен експорт "use server" — публічний POST-ендпойнт: мертвий — прибрати.
+    "unused-server-actions": "error",
+    "invalid-client-export": "error",
+    "misplaced-directive": "error",
+    "mixed-client-server-barrel": "error",
+    // Захист від «агент зробив тести зеленими»: послаблений тест, гілка лише для тестів, нове придушення.
+    "weakened-tests": "error",
+    "test-only-branch": "error",
+    "added-suppression": "warn",
+    // CRAP без файлу покриття — оцінка, не факт.
+    "complexity-crap": "warn"
+  },
+  "health": {
+    "thresholdOverrides": [
+      { "files": ["tests/**"], "maxUnitSize": 500, "reason": "describe()-блоки довгі за задумом" }
+    ]
+  },
+  // Ворота валять лише НОВІ знахідки відносно бази PR; успадковані fallow показує як контекст.
+  "audit": { "gate": "new-only" }
+}

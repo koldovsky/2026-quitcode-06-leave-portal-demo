@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { isIsoDate } from "@/lib/leave/dates";
 import { normalizeSubstitute, validateSubmission } from "@/lib/leave/submission";
 import { singlePosition, twoPositions } from "./fixtures";
@@ -32,7 +32,8 @@ describe("Подання заявки", () => {
       twoPositions,
     );
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    // Лише звуження типу для TypeScript (assert не рахується як перевірка); без умовного return — тест не «проходить мовчки».
+    assert(result.ok);
     expect(result.value.records.map((r) => [r.kind, r.status])).toEqual([
       ["main", "pending"],
       ["additional", "pending"],
