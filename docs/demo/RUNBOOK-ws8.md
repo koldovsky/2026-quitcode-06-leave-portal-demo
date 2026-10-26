@@ -73,9 +73,17 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
    ```
 
    Очікувано: `638d2255fbb7c83d4540939728f8e339c7aeece7` (Production від vercel[bot] 26.10 17:13Z, статус Vercel
-   `success`); `"next": "16.4.3"` і `"eslint-config-next": "16.4.3"`. Якщо #34 злито до заняття, прод зміниться;
-   тоді `npm run smoke -- https://quitcode-ws6-leave-portal-demo.vercel.app <sha main>` має дати `OK — прод живий,
-   сторінка входу відкривається, база відповідає.` (так було на preview PR #34: `docs/demo/ws8/03-uat/smoke-preview-pr34.txt`).
+   `success`); `"next": "16.4.3"` і `"eslint-config-next": "16.4.3"`. Якщо #34 злито до заняття, прод зміниться.
+   Тоді в теці `lp-ws8-uat` (пункт 7) виконайте:
+
+   ```powershell
+   git fetch origin
+   $sha = git rev-parse origin/main
+   npm run smoke -- https://quitcode-ws6-leave-portal-demo.vercel.app $sha
+   ```
+
+   Має вийти `OK — прод живий, сторінка входу відкривається, база відповідає.` Так було на preview PR #34:
+   `docs/demo/ws8/03-uat/smoke-preview-pr34.txt`.
    **Рекомендація: #34 і #35 до заняття не зливати** — тоді все на сцені збігається із записаними доказами. До того ж
    вони, найімовірніше, конфліктують у `package.json`, `package-lock.json`, `AGENTS.md`, `.gitignore` і, можливо,
    `eslint.config.mjs`: гілку, яку зливатимуть другою, треба буде оновити.
@@ -150,7 +158,8 @@ Scratchpad тимчасовий: за вечір скопіюйте `$S\planb` �
    Очікувано: `?? .fallowrc.jsonc` — конфіг воріт з `ws8-01-gates` лежить поруч із кодом PR #33 і не потрапляє в індекс.
 9. **Репетиція** (увечері або за годину): демо 1 і 2 повністю в `lp-ws8-quality` (розділи 1–2, ≈ 3 хв; перший Stryker
    на холодну довший), потім прибирання з розділу 7 (`git status --short` порожній) і знову пункт 8. Демо 3 — лише
-   «План lite».
+   «План lite» (розділ 3), а одразу після нього — `git restore docs/qa/uat/2026-10-26` у `lp-ws8-uat`: прогін 26.10
+   перезаписує закомічений звіт, на якому стоїть План Б.
 10. **Термінали й вкладки.**
     - Термінал 1 — **звичайний** PowerShell, не термінал агента: у сесії агента Vitest ховає з текстової таблиці
       покриття файли зі 100 %. Тека `lp-ws8-quality`, шрифт ≥ 18.
@@ -240,15 +249,20 @@ node -e "const f='src/lib/leave/calendar.ts',fs=require('fs'),s=fs.readFileSync(
 
 | Крок | | Показати / команда | Очікувано | План Б |
 |---|---|---|---|---|
-| 1 | **обов'язково** | `npm run uat -- --url https://quitcode-ws6-leave-portal-demo.vercel.app` (без `--url` скрипт збирає й запускає застосунок локально) | ≈ 40 с Playwright і ≈ 30 с розбору, разом ≈ 1 хв 07 с: `6 passed` (2 входи setup, 3 AC, 1 cleanup); далі `AC-USERS-11 [claude-haiku-5-5] → PASS`, `AC-USERS-07 [claude-haiku-5-5] → PASS`, `AC-LEAVE-04 [claude-haiku-5-5] → NEEDS-HUMAN`, `AC-LEAVE-04 [claude-sonnet-5-5] → NEEDS-HUMAN … (суперечка → Sonnet)`, `Звіт: docs/qa/uat/2026-10-27/report.md`, `Є NEEDS-HUMAN: рішення — за PM`. Exit 0 (1 — лише за FAIL). Розбір ≈ $0,05 за цінами API (за підпискою — у межах плану). **Очікувано не «усе зелене»:** AC-LEAVE-04 майже напевно знову NEEDS-HUMAN — на кадрі моноширинним шрифтом тире «–» між датами не відрізнити від дефіса, хоча локатор цей символ уже перевірив. Це і є урок R3: перевірки зелені, агент не впевнений — вирішує людина | термінал прогону 26.10 — `docs/demo/ws8/03-uat/prod-run-terminal.txt`; закомічений звіт — `docs/qa/uat/2026-10-26/report.md` у цій теці |
+| 1 | **обов'язково** | `npm run uat -- --url https://quitcode-ws6-leave-portal-demo.vercel.app` (без `--url` скрипт збирає й запускає застосунок локально) | ≈ 40 с Playwright і ≈ 30 с розбору, разом ≈ 1 хв 07 с: `6 passed` (2 входи setup, 3 AC, 1 cleanup); далі `AC-USERS-11 [claude-haiku-5-5] → PASS`, `AC-USERS-07 [claude-haiku-5-5] → PASS`, `AC-LEAVE-04 [claude-haiku-5-5] → NEEDS-HUMAN`, `AC-LEAVE-04 [claude-sonnet-5-5] → NEEDS-HUMAN … (суперечка → Sonnet)`, `Звіт: docs/qa/uat/2026-10-27/report.md`, `Є NEEDS-HUMAN: рішення — за PM`. Exit 0 (1 — лише за FAIL). Розбір ≈ $0,05 за цінами API (за підпискою — у межах плану). **Очікувано не «усе зелене»:** AC-LEAVE-04 майже напевно знову NEEDS-HUMAN — на кадрі моноширинним шрифтом тире «–» між датами не відрізнити від дефіса, хоча локатор цей символ уже перевірив. Це і є урок R3: перевірки зелені, агент не впевнений — вирішує людина | закомічений звіт 26.10 на GitHub: <https://github.com/koldovsky/2026-quitcode-06-leave-portal-demo/blob/ws8-03-uat/docs/qa/uat/2026-10-26/report.md> (локально — `docs/qa/uat/2026-10-26/report.md` у цій теці); термінал прогону — `docs/demo/ws8/03-uat/prod-run-terminal.txt` |
 | 2 | **обов'язково** | `npx playwright show-report test-results/html` (зупинити — Ctrl+C) → AC-USERS-07 або AC-LEAVE-04 → відео (вшито «AC-… · Тоді: …») і Trace → вкладка aria | відео й траса є для кожного AC, не лише для впалих. Відео AC-USERS-11 на екран не виводимо: маску накладено лише на кадр-доказ, а у відео видно поле з посиланням для активації | відео — `docs/demo/ws8/03-uat/AC-USERS-07.webm`, `…/AC-LEAVE-04.webm`; HTML-звіт — `$S\planb\uat\run-prod-2026-10-26\html-report\index.html` (лише локально, траси з cookie в git не кладемо) |
-| 3 | **обов'язково** | `code docs\qa\uat\2026-10-27\report.md` (попередній перегляд Markdown) | шапка (застосунок, прогін, рецензент, вартість, прибирання); таблиця AC × перевірки × агент × підсумок × правило; кадр «Тоді»; цитати агента з позначкою «є на сторінці»; рядок «Рішення PM: ☐ приймаю · ☐ відхилення від вимог» | закомічений `docs/qa/uat/2026-10-26/report.md`: PASS 2, NEEDS-HUMAN 1, $0.0546 |
+| 3 | **обов'язково** | `code docs\qa\uat\2026-10-27\report.md` (попередній перегляд Markdown) | шапка (застосунок, прогін, рецензент, вартість, прибирання); таблиця AC × перевірки × агент × підсумок × правило; кадр «Тоді»; цитати агента з позначкою «є на сторінці»; рядок «Рішення PM: ☐ приймаю · ☐ відхилення від вимог» | закомічений звіт 26.10 на GitHub (посилання — крок 1; локально — `docs/qa/uat/2026-10-26/report.md`): PASS 2, NEEDS-HUMAN 1, $0.0546 |
 | 4 | **обов'язково** | Заготовлені контролі (не запускаємо): `docs/demo/ws8/03-uat/negative-controls/report.md` | NC-1 — у тесті навмисно хибний очікуваний текст: перевірка впала → **FAIL (R1)**, хоча Haiku сказав PASS — агент перевірку не перекриває. NC-2 — PM змінив текст «Тоді», а тест і застосунок ні: перевірки зелені, Haiku — NEEDS-HUMAN, Sonnet — FAIL → **NEEDS-HUMAN (R3)** | той самий файл; кадри — `…/negative-controls/frames/` |
 | 5 | якщо є час | Слайди про D0: `npm run smoke -- https://quitcode-ws6-leave-portal-demo.vercel.app` | до злиття #34 — exit 1: `"/api/health": 307 → /login — додайте "/api/health" у PUBLIC_PATHS (src/lib/supabase/proxy.ts)`. Живий приклад, навіщо D0. На preview PR #34: `OK — прод живий, сторінка входу відкривається, база відповідає.` (`sha 2a41c33…`, `env preview`, `db ok`) | `…/03-uat/smoke-prod-before-merge.txt`, `…/smoke-preview-pr34.txt` |
 | 6 | якщо є час | PR #34 → Checks → `e2e`: та сама специфікація в CI на одноразовому `supabase start` | зелений у 4 з 4 прогонів; 6 passed за ≈ 23 с, job ≈ 3 хв | <https://github.com/koldovsky/2026-quitcode-06-leave-portal-demo/actions/runs/40373586091> |
 
-- **План lite** (повільний прод або репетиція): `npm run uat -- --url https://quitcode-ws6-leave-portal-demo.vercel.app --grep-invert @writes`
-  — лише AC-USERS-07, у базу нічого не пише.
+- **План lite** (повільний прод або репетиція): `npm run uat -- --url https://quitcode-ws6-leave-portal-demo.vercel.app --grep-invert '@writes'`
+  — лише AC-USERS-07, у базу нічого не пише. Лапки навколо `'@writes'` обов'язкові: у PowerShell `@writes` без лапок —
+  це оператор splatting, і Playwright отримає `--grep-invert` без значення.
+- **Після будь-якого прогону сьогодні ввечері (репетиція):** `report.mjs` пише в `docs/qa/uat/<дата прогону за Києвом>/`,
+  а 26.10 — це тека закоміченого звіту, на якому стоїть План Б. Тому одразу після репетиції в `lp-ws8-uat` виконайте
+  `git restore docs/qa/uat/2026-10-26`, потім `git status --short`. Має бути порожньо: `.env.local`, `test-results/` і
+  `playwright/.auth/` git ігнорує. Якщо в `docs/qa/uat/2026-10-26/` з'явилися нові файли (`??`), видаліть їх.
 - **Без Claude:** `node scripts/uat/run.mjs --url https://quitcode-ws6-leave-portal-demo.vercel.app --skip-review` — звіт,
   де всі вердикти NEEDS-HUMAN (R2: немає вердикту агента).
 - **Розбір триває понад 2 хв:** Ctrl+C, показати закомічений звіт 26.10 і перейти до кроку 4. Якщо Ctrl+C припав на
@@ -409,7 +423,8 @@ Action і гілка `NODE_ENV === "test"`), третя — разом із за
   жодного `uat-*`; у черзі менеджера MATH немає заявок `uat-*`.
 - **`lp-ws8-uat`:** живі сесії й секрети прибрати до видалення теки: `Remove-Item -Recurse -Force playwright\.auth, test-results`
   і `Remove-Item .env.local`. Звіт `docs\qa\uat\2026-10-27\` лишити як доказ або видалити. Комітити з нього можна
-  лише `report.md`, `manifest.json` і `frames/`, без відео й трас.
+  лише `report.md`, `manifest.json` і `frames/`, без відео й трас. Якщо прогін був 26.10 (репетиція), то
+  `git restore docs/qa/uat/2026-10-26`.
 - **`lp-ws8-quality`:** `git checkout -- src/lib/leave/calendar.ts` і `git restore --source=HEAD -- tests/`. Якщо тека
   на PR #33 — ще `git checkout a390345 -- eslint.config.mjs` і `Remove-Item .fallowrc.jsonc`. Потім
   `Remove-Item -Recurse -Force reports, coverage, .stryker-tmp, .fallow -ErrorAction SilentlyContinue`;
