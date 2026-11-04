@@ -56,7 +56,7 @@ export async function extractDraft(
     // result.output уже перевірено схемою zod (інакше — NoObjectGeneratedError).
     return toOutcome(result.output, { modelId: result.response.modelId, text: result.text });
   } catch (error) {
-    // Моделі без строгого JSON Schema (Gemma) іноді загортають JSON у ```json … ``` — розбираємо самі.
+    // Запасний шлях: модель без строгого JSON Schema може загорнути JSON у ```json … ``` (живцем не перевірено).
     const recovered = recoverFromText(error);
     return recovered ?? { kind: "unavailable", reason: classifyError(error) };
   }
@@ -98,7 +98,7 @@ export function classifyError(error: unknown): UnavailableReason {
   const cause = RetryError.isInstance(error) ? error.lastError : error;
   if (NoObjectGeneratedError.isInstance(cause)) return "invalid_output";
   if (APICallError.isInstance(cause)) {
-    // OpenRouter може відповісти HTTP 200 з тілом-помилкою; провайдер тоді кидає statusCode 200 і data.
+    // HTTP 200 з тілом { error }: провайдер кидає statusCode 200, data = body.error (dist/index.js провайдера 3.1.0).
     const code = cause.statusCode === 200 ? (cause.data as { code?: unknown } | undefined)?.code : cause.statusCode;
     if (code === 429 || code === "429") return "rate_limited";
   }

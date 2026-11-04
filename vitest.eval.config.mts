@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => ({
     // пріоритетніша за файл: `OPENROUTER_API_KEY= npm run eval` (bash) — гарантований прогін без ключа.
     env: loadEnv(mode, process.cwd(), "OPENROUTER_"),
     fileParallelism: false, // по одному запиту: 20 запитів/хв
+    silent: false, // таблиця й pass rate — це console.table/console.info; без цього в конвеєрі (Out-File) їх не видно
     testTimeout: 120_000,
     hookTimeout: 30_000,
     expect: { requireAssertions: true },

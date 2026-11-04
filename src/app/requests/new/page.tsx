@@ -5,7 +5,7 @@ import { Notice, PageShell } from "../../_components/ui";
 import { NewRequestForm, type PositionOption } from "./new-request-form";
 
 // Server Action «Скласти чернетку» чекає на модель до 25 с (src/lib/request-draft/extract.ts); функції Vercel
-// даємо 60 с, щоб людина побачила «Помічник зараз недоступний», а не 504.
+// даємо 60 с, щоб на сторінці з’явилося «Помічник зараз недоступний», а не 504.
 export const maxDuration = 60;
 
 // AC-LEAVE-01, AC-LEAVE-02: працівник обирає тип, дати й посади, на які припадає відсутність; заміну вказує за

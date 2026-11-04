@@ -1,5 +1,5 @@
 // Golden cases PM (tests/fixtures/golden/cases.json) і їхня оцінка — спільне для офлайн-реплею (npm test) і живого
-// прогону (npm run eval). Поля, які зафіксував PM, порівнюємо точно; посади — так, як їх побачить форма.
+// прогону (npm run eval). Поля, зафіксовані у вимозі PM, порівнюємо точно; посади — так, як їх побачить форма.
 import type { DraftOutcome } from "@/lib/request-draft/extract";
 import casesJson from "../fixtures/golden/cases.json";
 import recordedJson from "../fixtures/golden/recorded.json";

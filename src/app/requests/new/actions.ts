@@ -1,7 +1,7 @@
 "use server";
 
 // Server Action «Скласти чернетку» (AC-DRAFT-01…07). Server Action — публічний POST-ендпойнт: її можна викликати
-// напряму, оминаючи сторінку, тож спершу перевіряємо роль — інакше будь-хто витрачав би денну квоту моделі.
+// напряму, оминаючи сторінку, тож спершу перевіряємо роль — інакше денну квоту моделі можна було б витрачати без входу.
 // Дія нічого не пише в базу (AC-DRAFT-02): повертає чернетку у форму, а заявку створює лише createLeaveRequest.
 import { proposeDraft } from "@/lib/request-draft/draft";
 import { nextDraftState, type DraftState } from "@/lib/request-draft/state";
