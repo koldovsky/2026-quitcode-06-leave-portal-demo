@@ -1,4 +1,4 @@
-> Джерело: https://github.com/koldovsky/2026-quitcode-07-leave-portal-spec/blob/9265b14ef00ec992ed922629dd47cde96795b0a0/docs/requirements/01-user-invites.md · коміт 9265b14 · 2026-10-19
+> Джерело: https://github.com/koldovsky/2026-quitcode-07-leave-portal-spec/blob/e323700788db01edac5f8a9cba4e8a7211414170/docs/requirements/01-user-invites.md · коміт e323700 · 2026-11-05
 
 # Вимога: адміністратор запрошує людей і призначає їм ролі
 
