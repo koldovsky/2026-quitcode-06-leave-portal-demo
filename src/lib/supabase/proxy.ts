@@ -8,7 +8,13 @@ import type { Database } from "./database.types";
 // Сторінки, доступні без входу. /api/health — перевірка D0 (коміт збірки й «база жива», без даних користувачів).
 const PUBLIC_PATHS = ["/login", "/auth", "/api/health"];
 
+// WS11 (дія з postmortem): /api/health не потребує сесії. Пропускаємо його ДО createServerClient: з відсутньою чи
+// зламаною NEXT_PUBLIC_SUPABASE_URL клієнт кидає помилку, і proxy віддав би 500 раніше, ніж health назве змінну.
+const HEALTH_PATH = "/api/health";
+
 export async function updateSession(request: NextRequest) {
+  if (request.nextUrl.pathname === HEALTH_PATH) return NextResponse.next({ request });
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(
