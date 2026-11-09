@@ -1,0 +1,35 @@
+﻿
+> 2026-quitcode-06-leave-portal-demo@0.1.0 eval
+> vitest run --config vitest.eval.config.mts
+
+
+ RUN  v5.0.3 D:/projects/clients/quitcode/2026-quitcode-06-leave-portal-demo
+
+stdout | evals/golden.live.eval.ts > golden cases PM — живий прогін (безкоштовні моделі OpenRouter)
+OpenRouter: безкоштовних запитів сьогодні (UTC) лишилось 46 з 50; потрібно 10. Ланцюжок моделей: google/gemma-4-31b-it:free → google/gemma-4-26b-a4b-it:free → nvidia/nemotron-3.5-super-vl:free
+
+stdout | evals/golden.live.eval.ts > golden cases PM — живий прогін (безкоштовні моделі OpenRouter)
+┌─────────┬─────────┬───────────────┬─────────────────────────────────────┬──────────────────────────────────────────────────────────────────────────────────┬─────────┬─────┬──────┐
+│ (index) │ case    │ ac            │ model                               │ result                                                                           │ verdict │ why │ ms   │
+├─────────┼─────────┼───────────────┼─────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────┼─────────┼─────┼──────┤
+│ 0       │ 'GC-01' │ 'AC-DRAFT-01' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok sick 2026-11-10..2026-11-11'                                                 │ 'PASS'  │ ''  │ 6482 │
+│ 1       │ 'GC-02' │ 'AC-DRAFT-01' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok vacation 2026-12-21..2026-12-25'                                             │ 'PASS'  │ ''  │ 6041 │
+│ 2       │ 'GC-03' │ 'AC-DRAFT-01' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok business_trip 2026-11-19..2026-11-20 заміна «Уроки веде колега з паралелі.»' │ 'PASS'  │ ''  │ 5153 │
+│ 3       │ 'GC-04' │ 'AC-DRAFT-01' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok sick 2026-11-16..2026-11-18'                                                 │ 'PASS'  │ ''  │ 6673 │
+│ 4       │ 'GC-05' │ 'AC-DRAFT-07' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok business_trip 2026-11-11..2026-11-11 both'                                   │ 'PASS'  │ ''  │ 3196 │
+│ 5       │ 'GC-06' │ 'AC-DRAFT-01' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok vacation 2026-12-28..2027-01-08'                                             │ 'PASS'  │ ''  │ 7148 │
+│ 6       │ 'GC-07' │ 'AC-DRAFT-03' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'needs_info'                                                                     │ 'PASS'  │ ''  │ 3261 │
+│ 7       │ 'GC-08' │ 'AC-DRAFT-03' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'needs_info'                                                                     │ 'PASS'  │ ''  │ 9852 │
+│ 8       │ 'GC-09' │ 'AC-DRAFT-04' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'refused'                                                                        │ 'PASS'  │ ''  │ 2678 │
+│ 9       │ 'GC-10' │ 'AC-DRAFT-05' │ 'nvidia/nemotron-3.5-super-vl:free' │ 'ok vacation 2026-11-23..2026-11-24'                                             │ 'PASS'  │ ''  │ 3603 │
+└─────────┴─────────┴───────────────┴─────────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────┴─────────┴─────┴──────┘
+pass rate 10/10 (100%) · поріг PM 8/10 · за моделями: nvidia/nemotron-3.5-super-vl:free 10/10
+Звіт: docs/qa/eval/2026-11-09.md
+RECORD=1: оновлено записи GC-01, GC-02, GC-03, GC-04, GC-05, GC-06, GC-07, GC-08, GC-09, GC-10 у tests/fixtures/golden/recorded.json
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  20:37:25
+   Duration  94.76s (tests 100%)
+

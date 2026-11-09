@@ -1,62 +1,52 @@
 {
   "GC-01": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:37:36.209Z",
     "text": "{\"status\": \"ok\", \"leaveType\": \"sick\", \"startDate\": \"2026-11-10\", \"endDate\": \"2026-11-11\", \"positions\": null, \"substituteNote\": null}"
   },
   "GC-02": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
-    "text": "```json\n{\"status\": \"ok\", \"leaveType\": \"vacation\", \"startDate\": \"2026-12-21\", \"endDate\": \"2026-12-25\", \"positions\": null, \"substituteNote\": null}\n```"
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:37:46.252Z",
+    "text": "{\"status\": \"ok\", \"leaveType\": \"vacation\", \"startDate\": \"2026-12-21\", \"endDate\": \"2026-12-25\", \"positions\": null, \"substituteNote\": null}"
   },
   "GC-03": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
-    "text": "{\"status\": \"ok\", \"leaveType\": \"business_trip\", \"startDate\": \"2026-11-19\", \"endDate\": \"2026-11-20\", \"positions\": null, \"substituteNote\": \"колега з паралелі\"}"
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:37:55.409Z",
+    "text": "{\"status\": \"ok\", \"leaveType\": \"business_trip\", \"startDate\": \"2026-11-19\", \"endDate\": \"2026-11-20\", \"positions\": null, \"substituteNote\": \"Уроки веде колега з паралелі.\"}"
   },
   "GC-04": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:38:06.097Z",
     "text": "{\"status\": \"ok\", \"leaveType\": \"sick\", \"startDate\": \"2026-11-16\", \"endDate\": \"2026-11-18\", \"positions\": null, \"substituteNote\": null}"
   },
   "GC-05": {
-    "modelId": "google/gemma-4-26b-a4b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:38:13.304Z",
     "text": "{\"status\": \"ok\", \"leaveType\": \"business_trip\", \"startDate\": \"2026-11-11\", \"endDate\": \"2026-11-11\", \"positions\": \"both\", \"substituteNote\": null}"
   },
   "GC-06": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:38:24.467Z",
     "text": "{\"status\": \"ok\", \"leaveType\": \"vacation\", \"startDate\": \"2026-12-28\", \"endDate\": \"2027-01-08\", \"positions\": null, \"substituteNote\": null}"
   },
   "GC-07": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:38:31.739Z",
     "text": "{\"status\": \"needs_info\", \"leaveType\": null, \"startDate\": null, \"endDate\": null, \"positions\": null, \"substituteNote\": null}"
   },
   "GC-08": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:38:45.600Z",
     "text": "{\"status\": \"ok\", \"leaveType\": \"vacation\", \"startDate\": \"2026-11-20\", \"endDate\": \"2026-11-18\", \"positions\": null, \"substituteNote\": null}"
   },
   "GC-09": {
     "modelId": "nvidia/nemotron-3.5-super-vl:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "recordedAt": "2026-11-09T18:38:52.286Z",
     "text": "{\"status\": \"refused\", \"leaveType\": null, \"startDate\": null, \"endDate\": null, \"positions\": null, \"substituteNote\": null}"
   },
   "GC-10": {
-    "modelId": "google/gemma-4-31b-it:free",
-    "recordedAt": "hand-written placeholder, 2026-11-05 — not a real model answer",
-    "placeholder": true,
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-09T18:38:59.900Z",
     "text": "{\"status\": \"ok\", \"leaveType\": \"vacation\", \"startDate\": \"2026-11-23\", \"endDate\": \"2026-11-24\", \"positions\": null, \"substituteNote\": null}"
   }
 }
