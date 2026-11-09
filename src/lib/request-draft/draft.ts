@@ -2,7 +2,7 @@
 // Без Next.js і Supabase — юніт-тести з AC ID (tests/request-draft/*).
 import type { LanguageModel } from "ai";
 import type { IsoDate } from "@/lib/leave/types";
-import { extractDraft, type DraftOptions, type DraftOutcome } from "./extract";
+import { extractDraft, logNotConfigured, type DraftOptions, type DraftOutcome } from "./extract";
 
 /** «Сьогодні» — дата за київським часом (Припущення PM). en-CA форматує як YYYY-MM-DD. */
 export function kyivToday(now: Date): IsoDate {
@@ -14,6 +14,9 @@ export async function proposeDraft(
   input: { text: string; now: Date; model: LanguageModel | null },
   opts?: DraftOptions,
 ): Promise<DraftOutcome> {
-  if (!input.model) return { kind: "unavailable", reason: "not_configured" };
+  if (!input.model) {
+    logNotConfigured(opts);
+    return { kind: "unavailable", reason: "not_configured" };
+  }
   return extractDraft({ text: input.text, today: kyivToday(input.now) }, input.model, opts);
 }

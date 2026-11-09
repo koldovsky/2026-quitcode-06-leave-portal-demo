@@ -3,7 +3,7 @@
 // MockLanguageModelV4). Перевіряємо, що дія лише повертає чернетку і нічого не пише в базу.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { INITIAL_DRAFT_STATE } from "@/lib/request-draft/state";
-import { answer, replay } from "./mock-model";
+import { answer, failing, replay } from "./mock-model";
 
 const h = vi.hoisted(() => {
   const supabase = { from: vi.fn(), rpc: vi.fn() };
@@ -33,6 +33,7 @@ describe("Server Action «Скласти чернетку»", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-11-10T08:00:00Z"));
     vi.spyOn(console, "info").mockImplementation(() => undefined);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     h.supabase.from.mockClear();
     h.supabase.rpc.mockClear();
     h.requireRole.mockClear();
@@ -83,13 +84,53 @@ describe("Server Action «Скласти чернетку»", () => {
     expect(h.supabase.rpc).not.toHaveBeenCalled();
   });
 
-  it("журнал сервера: лише результат і модель — без тексту опису (у ньому можуть бути подробиці про здоров’я)", async () => {
+  it("журнал сервера (WS11): один рядок llm.call з моделлю, станом і токенами — без тексту опису", async () => {
     const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
     h.model.current = replay(answer({ status: "ok", leaveType: "sick", startDate: "2026-11-10", endDate: "2026-11-10" }), "google/gemma-4-31b-it:free");
 
     await proposeRequestDraft(INITIAL_DRAFT_STATE, form("Хворію сьогодні, температура"));
 
-    expect(info).toHaveBeenCalledWith("[request-draft] ok google/gemma-4-31b-it:free");
-    expect(JSON.stringify(info.mock.calls)).not.toContain("температура");
+    expect(info).toHaveBeenCalledTimes(1);
+    const line = String(info.mock.calls[0][0]);
+    expect(JSON.parse(line)).toMatchObject({
+      event: "llm.call",
+      route: "/requests/new",
+      model: "google/gemma-4-31b-it:free",
+      fallbackUsed: false,
+      state: "ok",
+      inputTokens: 10,
+      outputTokens: 20,
+      promptVersion: "draft-v1",
+    });
+    expect(JSON.parse(line).requestId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(line).not.toContain("температура");
+    expect(line).not.toContain("Хворію");
+  });
+
+  it("журнал сервера (WS11): 429 — рядок llm.call рівнем error з кодом причини, без тексту помилки постачальника", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    h.model.current = failing(429);
+
+    await proposeRequestDraft(INITIAL_DRAFT_STATE, form("Хворію сьогодні, температура"));
+
+    expect(error).toHaveBeenCalledTimes(1);
+    const line = String(error.mock.calls[0][0]);
+    expect(JSON.parse(line)).toMatchObject({ event: "llm.call", state: "unavailable", errorKind: "rate_limited" });
+    expect(line).not.toContain("Rate limit exceeded");
+    expect(line).not.toContain("температура");
+  });
+
+  it("журнал сервера (WS11): ключа немає — моделі не викликаємо, але рядок llm.call з not_configured є", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    h.model.current = null;
+
+    await proposeRequestDraft(INITIAL_DRAFT_STATE, form("Хворію сьогодні"));
+
+    expect(JSON.parse(String(error.mock.calls[0][0]))).toMatchObject({
+      event: "llm.call",
+      model: "none",
+      state: "unavailable",
+      errorKind: "not_configured",
+    });
   });
 });
