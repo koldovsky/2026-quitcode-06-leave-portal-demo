@@ -42,8 +42,23 @@ postmortem → дія з postmortem: `/api/health` тепер сам каже, �
 Усе тут робить людина у своїх інтерфейсах; агент нічого не налаштовує. Значення секретів не показувати на екрані й
 не вставляти в чат з агентом — лише назви.
 
-1. **Злиття.** PR `ws11/operations` → `main`, CI зелений, злиття. Лише після цього `smoke.yml` з `main` приймає
-   `repository_dispatch` від Vercel (GitHub запускає ці події тільки з гілки за замовчуванням).
+1. **Злиття.** Гілку зроблено від `ws10/request-draft-assistant`, а не від `main`. Порядок:
+   - спершу злити PR WS10 у `main`;
+   - потім перебазувати й перевірити (SHA у таблиці комітів вище після цього зміняться):
+
+     ```powershell
+     git fetch origin
+     git switch ws11/operations
+     git rebase origin/main
+     npm ci
+     npm test; if ($?) { npm run typecheck }; if ($?) { npm run lint }
+     ```
+
+   - PR `ws11/operations` → `main`, CI зелений, злиття **без squash** (інакше PR кроку 7 покаже весь набір, а не
+     один коміт).
+
+   Лише після злиття `smoke.yml` з `main` приймає `repository_dispatch` від Vercel (GitHub запускає ці події тільки
+   з гілки за замовчуванням).
 2. **Гілка `staging` з `main`:**
 
    ```powershell
@@ -98,8 +113,10 @@ postmortem → дія з postmortem: `/api/health` тепер сам каже, �
 
    Журнали Vercel на Hobby живуть 1 годину: на занятті агент читатиме **живі** журнали, а не сухого прогону.
    Після сухого прогону — виправити змінну (крок 5) і переконатися, що staging зелений.
-9. **Гілка дії з postmortem:** `git push origin ws11/health-env-check` і PR у `main` **без злиття** — у кроці 7
-   показуємо його diff. Посилання: [[DEMO:health-env-check-pr-url]].
+9. **Гілка дії з postmortem:** спершу перенести її на `main` після п. 1 —
+   `git rebase --onto origin/main ws11/operations ws11/health-env-check` (якщо `ws11/operations` злито без squash,
+   досить `git rebase origin/main`), потім `npm test`, `git push origin ws11/health-env-check` і PR у `main`
+   **без злиття** — у кроці 7 показуємо його diff: один коміт, 4 файли. Посилання: [[DEMO:health-env-check-pr-url]].
 10. **За годину до початку:** staging зелений (останній прогін smoke job `deploy`); `git status --short`
     порожній; `npm ci`; `npm test`; у браузері відкриті й залогінені Vercel (Settings → Environment Variables),
     GitHub Actions (`smoke`), Telegram (чат алертів), PR з п. 9; `$env:SUPABASE_PROJECT_REF` задано в терміналі для
