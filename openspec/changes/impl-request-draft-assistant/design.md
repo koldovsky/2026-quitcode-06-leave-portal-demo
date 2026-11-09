@@ -84,15 +84,16 @@
 | 07 | golden GC-05; `draft.test.ts` — `both` → усі посади |
 
 - Офлайн-реплей: `tests/fixtures/golden/cases.json` (вхід і очікуване PM) + `recorded.json` (відповідь моделі,
-  яку віддає `MockLanguageModelV4`). Зараз `recorded.json` — **заглушки, написані вручну** (`placeholder: true`,
-  `tests/fixtures/golden/README.md`); справжні записи — `RECORD=1 npm run eval` з ключем.
+  яку віддає `MockLanguageModelV4`). `recorded.json` — справжні відповіді `nvidia/nemotron-3.5-super-vl:free` з
+  живого прогону 09.11.2026 (`RECORD=1 npm run eval`, `tests/fixtures/golden/README.md`); до того були заглушки,
+  написані вручну.
 - Живий прогін: `npm run eval` (`vitest.eval.config.mts`, `evals/golden.live.eval.ts`) — не в CI і не в
   `npm test`; без ключа — skip; `EVAL_REPLAY=1` — той самий звіт на записах (План Б).
 
 ## Risks / Trade-offs
 
-- Якість безкоштовних моделей на українській і з відносними датами не виміряна (немає живого прогону) — поріг PM
-  8/10 перевіряє `npm run eval`.
+- Якість безкоштовних моделей на українській і з відносними датами виміряна одним живим прогоном 09.11.2026: 10/10,
+  усі відповіді — Nemotron; Gemma 4 не виміряна. Поріг PM 8/10 перевіряє `npm run eval`.
 - 50 запитів/день на акаунт: демо + кілька прогонів eval можуть вичерпати ліміт → стан «недоступний», План Б.
 - Список безкоштовних моделей змінюється — `FREE_MODELS` перевіряти перед заняттям.
 - Чернетка замінює всі поля форми, навіть змінені вручну (Q3) — прийнятно для першої версії.

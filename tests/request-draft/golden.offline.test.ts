@@ -1,6 +1,6 @@
 // 10 golden cases PM — офлайн-реплей записаних відповідей моделі (MockLanguageModelV4, без мережі й ключа; у CI).
 // Перевіряє код навколо моделі: промпт, роздільники опису, розбір і перевірку відповіді, стан форми.
-// Якість моделі тут НЕ перевіряється: recorded.json зараз — заглушки, написані вручну
+// Якість моделі тут НЕ перевіряється: recorded.json — відповіді, записані з живого прогону 09.11.2026
 // (tests/fixtures/golden/README.md). Якість — живий прогін `npm run eval` (evals/golden.live.eval.ts).
 import { describe, expect, it } from "vitest";
 import { extractDraft } from "@/lib/request-draft/extract";
