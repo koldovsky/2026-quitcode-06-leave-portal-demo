@@ -90,7 +90,7 @@ async function main() {
   } else if (health.status >= 300 && health.status < 400) {
     fail.push(`"/api/health": ${health.status} → ${health.location} — додайте "/api/health" у PUBLIC_PATHS (src/lib/supabase/proxy.ts)`);
   } else if (health.reason === "paused") {
-    fail.push(`"/api/health": Supabase призупинено — Dashboard → Resume project (безкоштовний проєкт засинає після тижня без активності)`);
+    fail.push(`"/api/health": Supabase призупинено — Dashboard → Resume project (безкоштовний проєкт засинає після 7 днів без достатньої активності бази)`);
   } else if (health.reason === "invalid-api-key") {
     fail.push(`"/api/health": ключ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY у Vercel не приймається — звірте змінні цього середовища і зробіть Redeploy`);
   } else if (health.db !== "ok") {
