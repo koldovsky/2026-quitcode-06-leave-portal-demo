@@ -11,6 +11,9 @@
 # - groups: дрібні оновлення приходять одним PR, а не десятком.
 # - ignore: Supabase CLI 3.x змінює поведінку команд (без --remote вони йдуть у локальну базу) — до demo day лишаємось
 #   на закріпленій 2.x, тому мажорне оновлення пакета supabase не пропонуємо.
+# - ignore: @vitest/eslint-plugin 1.6.28 у patch-релізі підняв peer typescript до >=6.0.0, а проєкт на TypeScript 5.x
+#   (typescript-eslint 8.x допускає <6.1.0). npm ci це пропускає, а npm install на Vercel падає з ERESOLVE (PR #42,
+#   17.11.2026). Лишаємось на 1.6.27, доки не перейдемо на TypeScript 6 окремим PR; тоді рядок прибрати.
 # - github-actions: Dependabot оновлює дії, закріплені за SHA, разом із коментарем версії (# vX.Y.Z).
 #   Для цієї екосистеми cooldown підтримує лише default-days.
 # Перевірка: Insights → Dependency graph → Dependabot (останній запуск) або вкладка Pull requests (автор dependabot).
@@ -29,6 +32,8 @@ updates:
     ignore:
       - dependency-name: supabase
         update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/eslint-plugin"
+        versions: [">=1.6.28"]
     open-pull-requests-limit: 5
 
   - package-ecosystem: github-actions
