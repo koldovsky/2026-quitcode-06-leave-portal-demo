@@ -15,7 +15,7 @@ Telegram і MCP. Тут — лише те, що справді запущено:
 | [`step7-vitest-env-check.txt`](step7-vitest-env-check.txt) | 7 | тести дії з postmortem (PR #41): `Tests  8 passed (8)` |
 | [`step7-vitest-before-change.txt`](step7-vitest-before-change.txt) | 7 | ті самі тести на коді до зміни: `3 failed | 5 passed (8)` — тест справді ловить проблему |
 | [`step7-health-env-check.txt`](step7-health-env-check.txt) | 7 | після дії з postmortem: `/api/health` → `"reason":"env-invalid:NEXT_PUBLIC_SUPABASE_URL"`, smoke називає змінну; значення змінної у відповіді немає |
-| [`step7-diff-stat.txt`](step7-diff-stat.txt) | 7 | PR #41: 4 файли, +198/−11 |
+| [`step7-diff-stat.txt`](step7-diff-stat.txt) | 7 | PR #41: 4 файли, +200/−11 |
 
 ## Як відтворено
 
@@ -34,7 +34,8 @@ SMOKE_TARGET=deploy VERCEL_AUTOMATION_BYPASS_SECRET=made-up-not-a-secret node sc
 ```
 
 - Гілки: крок 3 — `ws11/operations` (PR #40), крок 7 — `ws11/health-env-check` (PR #41); між гілками сервер
-  зупинено, застосунок зібрано заново.
+  зупинено, застосунок зібрано заново. Після запису в PR #41 уточнено лише коментарі в `src/lib/env-check.ts` і
+  `tests/env-check.test.ts` (поведінка та сама); тести після цього перезапущено — `Tests  8 passed (8)`.
 - **Усі значення вигадані:** `<ref>` — буквально цей текст, а не ref справжнього проєкту; публічний ключ і секрет
   обходу — не справжні. На localhost захисту Vercel немає: секрет лише вмикає `"bypass":true` у журналі smoke.
 - Адреса дашборда — справжня адреса сайту Supabase, тож `/api/health` на коді до зміни робить запит до
