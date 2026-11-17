@@ -29,6 +29,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Node 24.x · Next.js 16.4 (App Router, `src/`, без Cache Components) · React 19.3 · TypeScript ^5 · ESLint ^9 ·
 Tailwind 4 · `@supabase/supabase-js` 2.117 + `@supabase/ssr` 0.12 · Supabase CLI 2.120 (devDependency) ·
 OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версії) · Vitest 5 · Vercel Hobby.
+З WS10 (ADR 0004): `ai` 7.0.162 · `@openrouter/ai-sdk-provider` 3.1.0 · `zod` 4.6.7 — точні версії; API AI SDK 7 —
+`generateText` з `output: Output.object(...)` і `instructions` (не `generateObject` і не `system`: deprecated).
 Не «оновлюй усе до latest»: TypeScript 7 і ESLint 10 цей шаблон не перевіряв.
 
 ## Команди
@@ -54,6 +56,10 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `npm run users:demo` — синтетичні користувачі з `supabase/demo-users.json` (лише PM або техлід: потрібен `SUPABASE_SECRET_KEY`)
 - `npm run test:e2e` (Playwright, `tests/e2e/*.spec.ts`; перший раз — `npx playwright install chromium`) ·
   `npm run uat -- --url <прод>` (UAT за AC: запис → вердикт агента → `docs/qa/uat/<дата>/`) · `npm run smoke -- <прод>` (D0)
+- `npm run eval` — живий прогін golden cases PM на безкоштовних моделях OpenRouter (`evals/`, `vitest.eval.config.mts`):
+  власний ключ у `.env.local`, **ніколи в CI** і не в `npm test`; без ключа — skip; 10 запитів з ~50 на день;
+  `RECORD=1` — записати відповіді, що пройшли, у `tests/fixtures/golden/recorded.json`; `EVAL_REPLAY=1` — той самий
+  звіт на записах без мережі. `npm test` перевіряє golden cases офлайн (`MockLanguageModelV4`)
 - `openspec …` (його викликають `/opsx:*` і скіли `openspec-*`): якщо `openspec` не знайдено або
   `openspec --version` ≠ 1.14.1 — запускай `npx openspec …` (версія з package.json) і скажи людині
   встановити `npm i -g @fission-ai/openspec@1.14.1`
@@ -162,6 +168,11 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - Секретний ключ поза `src/`: `scripts/create-demo-users.mjs` і `tests/e2e/support/admin.ts` (синтетичні `uat-…@example.test`
   для e2e/UAT і їх прибирання; локально — з `.env.local`, у CI — ключ одноразового локального стеку). `playwright/.auth/`
   (cookie сесій тестових ролей) і `test-results/` (відео, траси) — у `.gitignore`, не комітимо.
+- З WS10 (ADR 0004): `OPENROUTER_API_KEY` (власний безкоштовний ключ, не спільний) і необов'язковий `OPENROUTER_MODEL`
+  (лише id з `:free`) читає тільки `src/lib/request-draft/openrouter.ts` (перший рядок `import "server-only"`);
+  клієнтські файли імпортують лише `@/lib/request-draft/state`; ніколи `NEXT_PUBLIC_*API_KEY` — правило
+  `npm run check:boundary`. Без ключа помічник «недоступний», а `npm run build` і `npm test` працюють. У безкоштовні
+  моделі — лише синтетичні дані; текст опису не логувати.
 - Посилання для активації (`/auth/confirm?token_hash=…`) — живий credential: не логувати, не класти в URL сторінок
   застосунку, не показувати справжнє на записі екрана (ADR 0003).
 - `.claude/settings.json` забороняє Claude Code читати `.env*` (крім `.env.example`); Cursor цих правил не читає — у Cursor не відкривай `.env*` агентом і не вставляй значень у чат. Скрипти з секретами запускай
