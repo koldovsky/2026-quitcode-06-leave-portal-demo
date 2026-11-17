@@ -27,7 +27,9 @@ export default async function MyRequestsPage({ searchParams }: PageProps<"/reque
     .from("leave_requests")
     .select("id, leave_type, start_date, end_date, substitute_note")
     .eq("employee_id", viewer.id)
-    .order("start_date", { ascending: false });
+    .order("start_date", { ascending: false })
+    // Дві заявки з однаковою датою початку — у сталому порядку між оновленнями сторінки.
+    .order("created_at", { ascending: false });
   const ids = (requests ?? []).map((r) => r.id);
 
   const [{ data: records }, { data: divisions }, { data: blocked }] = await Promise.all([
