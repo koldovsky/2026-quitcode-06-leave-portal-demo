@@ -1,0 +1,13 @@
+# Крок 7 · тести дії з postmortem (гілка ws11/health-env-check, PR #41), локально, 17.11.2026 08:22 за Києвом
+# Без мережі й без ключів: тест підставляє вигадані значення (tests/env-check.test.ts).
+# Команда:
+#   npx vitest run tests/env-check.test.ts
+# Вивід — дослівно; код виходу 0:
+
+ RUN  v5.0.3 D:/projects/clients/quitcode/lp-ws11-ops
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  08:22:30
+   Duration  245ms (import 63%, transform 29%, tests 6%, worker 2%)

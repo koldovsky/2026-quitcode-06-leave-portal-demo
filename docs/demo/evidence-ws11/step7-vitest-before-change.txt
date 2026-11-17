@@ -1,0 +1,27 @@
+# Крок 7 · ті самі тести на коді ДО дії з postmortem: 3 червоні (локально, 17.11.2026 08:22 за Києвом)
+# Як відтворено: на гілці ws11/health-env-check тимчасово повернули два файли з ws11/operations, запустили тести
+# й одразу відновили файли (git status після — чистий):
+#   git checkout ws11/operations -- src/app/api/health/route.ts src/lib/supabase/proxy.ts
+#   npx vitest run tests/env-check.test.ts --reporter=verbose
+#   git checkout HEAD -- src/app/api/health/route.ts src/lib/supabase/proxy.ts
+# У тесті клієнт Supabase — заглушка без мережі, тому стара відповідь тут "exception", а не "status-200", як у кроці 3.
+# Вивід — скорочено (рядки ✓/× і підсумок дослівно; стеки й diff асертів прибрано); код виходу 1:
+
+ ✓ tests/env-check.test.ts > checkRequiredEnv / envReason > правильні адреса проєкту й публічний ключ — проблем немає (і локальний Supabase по http теж) 1ms
+ ✓ tests/env-check.test.ts > checkRequiredEnv / envReason > адреса дашборда замість Project URL — хибна (стан дрілу) 0ms
+ ✓ tests/env-check.test.ts > checkRequiredEnv / envReason > інші хибні формати: не URL, http не локально, шлях чи параметри, секретний ключ у публічній змінній 0ms
+ ✓ tests/env-check.test.ts > checkRequiredEnv / envReason > відсутні чи порожні змінні — env-missing з усіма назвами 0ms
+ × tests/env-check.test.ts > GET /api/health зі зламаними змінними > стан дрілу: 503, reason називає змінну, значення у відповіді немає, до бази не звертаємось 7ms
+ × tests/env-check.test.ts > GET /api/health зі зламаними змінними > змінної немає: 503 env-missing, без винятку 1ms
+ ✓ tests/env-check.test.ts > GET /api/health зі зламаними змінними > змінні правильні — контракт D0 той самий: запит до бази і db ok 1ms
+ × tests/env-check.test.ts > proxy і /api/health > без змінних Supabase proxy пропускає /api/health, а не падає раніше, ніж health назве змінну 2ms
+
+# Що саме червоне (з виводу асертів):
+#   1) стан дрілу: очікували "reason": "env-invalid:NEXT_PUBLIC_SUPABASE_URL", отримали "reason": "exception";
+#   2) змінної немає: очікували "reason": "env-missing:NEXT_PUBLIC_SUPABASE_URL", отримали "reason": "exception";
+#   3) proxy: Error: Your project's URL and Key are required to create a Supabase client! (src/lib/supabase/proxy.ts:14)
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  08:22:37
+   Duration  270ms (import 58%, transform 31%, tests 8%, worker 2%)

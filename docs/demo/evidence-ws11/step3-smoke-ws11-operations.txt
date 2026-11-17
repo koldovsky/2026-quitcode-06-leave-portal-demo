@@ -1,0 +1,9 @@
+# Крок 3 · червоний smoke на коді гілки ws11/operations (до дії з postmortem), локально, 17.11.2026 08:22 за Києвом
+# Той самий next start, що й у step3-health-ws11-operations.txt. Секрет обходу — вигаданий (на localhost захисту
+# Vercel немає; він лише вмикає bypass:true у журналі, значення скрипт не друкує).
+# Команда (Git Bash, Windows):
+#   SMOKE_TARGET=deploy VERCEL_AUTOMATION_BYPASS_SECRET=made-up-not-a-secret node scripts/smoke.mjs http://localhost:3107
+# Вивід — дослівно; код виходу 1:
+
+{"base":"http://localhost:3107","target":"deploy","bypass":true,"root":307,"login":200,"health":{"status":503,"ok":false,"sha":"local","env":"local","appEnv":"staging","db":"down","reason":"status-200"}}
+::error title=smoke http://localhost:3107::"/api/health": HTTP 503, db=down (status-200) — Supabase недоступний чи NEXT_PUBLIC_SUPABASE_URL у Vercel не той?

@@ -1,0 +1,43 @@
+# Крок 3 · збірка зі «зламаною» адресою проходить (гілка ws11/operations), локально, 17.11.2026 08:21 за Києвом
+# Суть для слайда: збірка й тести не бачать хибної адреси Supabase — її бачить лише перевірка живого застосунку.
+# Команди (Git Bash, Windows; значення вигадані, див. README.md):
+#   export NEXT_PUBLIC_SUPABASE_URL='https://supabase.com/dashboard/project/<ref>'
+#   export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY='sb_publishable_test-only-not-a-real-key'
+#   npx next build
+# Перший запуск зібрав застосунок, але завершився кодом 1 з нагадуванням Next.js про вразливість версії 16.4.3
+# (SecurityFatalError, «Retry the same command»); повторний той самий запуск — код 0. Вивід повторного — дослівно:
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 20ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 364ms
+  Running TypeScript ...
+⚠ Your version of Next.js is affected by a known security vulnerability. This command is continuing after the upgrade reminder.
+Reference: https://registry.npmjs.org/-/npm/v1/security/advisories/bulk
+  Finished TypeScript in 1830ms ...
+  Collecting page data using 13 workers ...
+  Generating static pages using 13 workers (0/11) ...
+  Generating static pages using 13 workers (2/11)
+  Generating static pages using 13 workers (5/11)
+  Generating static pages using 13 workers (8/11)
+✓ Generating static pages using 13 workers (11/11) in 651ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /account/password
+├ ƒ /admin/users
+├ ƒ /api/health
+├ ƒ /auth/confirm
+├ ƒ /login
+├ ƒ /manage
+├ ƒ /requests
+└ ƒ /requests/new
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
