@@ -16,8 +16,9 @@
 > (`ws11/operations`: набір ops-kit, runbook, цей сценарій, докази) і
 > [#41](https://github.com/koldovsky/2026-quitcode-06-leave-portal-demo/pull/41) (`ws11/health-env-check`: дія з
 > postmortem). Обов'язкові перевірки CI (`spec`, `app`, `conformance`, `db-check`) і `e2e` на обох PR зелені.
-> **Не налаштовано й на занятті не використовується:** гілка `staging` і змінні для неї у Vercel, обхід захисту
-> Vercel, секрети Telegram, Vercel MCP. **Перевірено локально 17.11.2026:** збірка й `next start` зі «зламаною»
+> **Не налаштовано й на занятті не використовується:** гілки `staging` і секретів GitHub для обходу захисту й
+> Telegram немає (перевірено 17.11.2026); змінних для гілки `staging` і обходу захисту у Vercel, а також Vercel MCP
+> у межах WS11 не налаштовували. **Перевірено локально 17.11.2026:** збірка й `next start` зі «зламаною»
 > адресою, `/api/health`, `node scripts/smoke.mjs`, тести `tests/env-check.test.ts` до і після зміни — див. крок 3 і
 > крок 7. Тривалість — оцінка, не виміряна.
 
