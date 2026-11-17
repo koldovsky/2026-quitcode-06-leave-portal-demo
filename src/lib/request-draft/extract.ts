@@ -1,10 +1,11 @@
 // Чернетка заявки з опису вільним текстом (AC-DRAFT-01…07) — чиста функція: модель передають параметром.
 // Застосунок передає модель OpenRouter (openrouter.ts), тести — MockLanguageModelV4 із записаною відповіддю.
 // Тут немає "server-only", Supabase і Next.js, тож Vitest імпортує файл напряму. Нічого не зберігає (AC-DRAFT-02).
-import { APICallError, NoObjectGeneratedError, Output, RetryError, generateText, type LanguageModel } from "ai";
+import { APICallError, NoObjectGeneratedError, Output, RetryError, generateText, type LanguageModel, type LanguageModelUsage } from "ai";
+import { isFallback, logLlmCall } from "@/lib/ai/llm-log";
 import { normalizeSubstitute, validateDates } from "@/lib/leave/submission";
 import type { IsoDate, LeaveType } from "@/lib/leave/types";
-import { INSTRUCTIONS, buildUserMessage, sanitizeDescription } from "./prompt";
+import { DRAFT_PROMPT_VERSION, INSTRUCTIONS, buildUserMessage, sanitizeDescription } from "./prompt";
 import { ModelDraftSchema, type DraftPositions, type ModelDraft } from "./schema";
 
 /** Поля форми нової заявки, які заповнює чернетка. */
@@ -34,6 +35,62 @@ export interface DraftOptions {
   maxRetries?: number;
   /** 25 с: людина чекає на сторінці; функція Vercel живе довше (maxDuration сторінки — 60 с). */
   timeoutMs?: number;
+  /**
+   * WS11: куди писати рядок llm.call (src/lib/ai/llm-log.ts). Немає — журналу немає: так працюють golden і eval.
+   * requestId — щоб знайти рядок у Runtime Logs Vercel; route — шаблон маршруту, без параметрів.
+   */
+  log?: { requestId: string; route: string };
+}
+
+/** Що відомо про один виклик моделі для журналу llm.call. Тексту опису, промпту й відповіді тут немає. */
+interface CallFacts {
+  model: string;
+  started: number;
+  usage?: LanguageModelUsage;
+  costUsd?: unknown;
+}
+
+/** id моделі, яку просили першою (у ланцюжку fallback — перша). LanguageModel буває і рядком. */
+function primaryModelId(model: LanguageModel): string {
+  return typeof model === "string" ? model : model.modelId;
+}
+
+function logCall(opts: DraftOptions, primary: string, outcome: DraftOutcome, facts: CallFacts) {
+  if (!opts.log) return;
+  // state — те, що побачила людина (outcome.kind), а не status моделі: «ok» з датою кінця раніше за початок
+  // toOutcome перетворює на needs_info, і саме needs_info є правдою для журналу.
+  logLlmCall({
+    requestId: opts.log.requestId,
+    route: opts.log.route,
+    model: facts.model,
+    fallbackUsed: isFallback(facts.model, primary),
+    state: outcome.kind,
+    latencyMs: performance.now() - facts.started,
+    inputTokens: facts.usage?.inputTokens,
+    outputTokens: facts.usage?.outputTokens,
+    costUsd: typeof facts.costUsd === "number" ? facts.costUsd : undefined,
+    promptVersion: DRAFT_PROMPT_VERSION,
+    // Лише КОД причини: текст помилки постачальника може містити фрагменти запиту, у журнал він не йде.
+    errorKind: outcome.kind === "unavailable" ? outcome.reason : undefined,
+  });
+}
+
+/**
+ * WS11: ключа немає — моделі не викликаємо, але рядок llm.call пишемо (state unavailable, errorKind not_configured).
+ * Інакше помічник, вимкнений хибною змінною середовища, у журналі просто мовчав би.
+ */
+export function logNotConfigured(opts: DraftOptions | undefined) {
+  if (!opts?.log) return;
+  logLlmCall({
+    requestId: opts.log.requestId,
+    route: opts.log.route,
+    model: "none",
+    fallbackUsed: false,
+    state: "unavailable",
+    latencyMs: 0,
+    promptVersion: DRAFT_PROMPT_VERSION,
+    errorKind: "not_configured",
+  });
 }
 
 export async function extractDraft(
@@ -43,6 +100,8 @@ export async function extractDraft(
 ): Promise<DraftOutcome> {
   // Порожній опис моделі не надсилаємо: квоту не витрачаємо (AC-DRAFT-03).
   if (!sanitizeDescription(input.text)) return { kind: "needs_info" };
+  const primary = primaryModelId(model);
+  const started = performance.now();
   try {
     const result = await generateText({
       model,
@@ -54,11 +113,20 @@ export async function extractDraft(
       timeout: opts.timeoutMs ?? 25_000,
     });
     // result.output уже перевірено схемою zod (інакше — NoObjectGeneratedError).
-    return toOutcome(result.output, { modelId: result.response.modelId, text: result.text });
+    const outcome = toOutcome(result.output, { modelId: result.response.modelId, text: result.text });
+    const openrouter = result.providerMetadata?.openrouter as { usage?: { cost?: unknown } } | undefined;
+    logCall(opts, primary, outcome, { model: result.response.modelId, started, usage: result.usage, costUsd: openrouter?.usage?.cost });
+    return outcome;
   } catch (error) {
     // Запасний шлях: модель без строгого JSON Schema може загорнути JSON у ```json … ``` (живцем не перевірено).
     const recovered = recoverFromText(error);
-    return recovered ?? { kind: "unavailable", reason: classifyError(error) };
+    if (recovered && NoObjectGeneratedError.isInstance(error)) {
+      logCall(opts, primary, recovered, { model: error.response?.modelId ?? primary, started, usage: error.usage });
+      return recovered;
+    }
+    const failure: DraftOutcome = { kind: "unavailable", reason: classifyError(error) };
+    logCall(opts, primary, failure, { model: primary, started });
+    return failure;
   }
 }
 

@@ -1,0 +1,16 @@
+# Крок 3 · /api/health на коді гілки ws11/operations (до дії з postmortem), локально, 17.11.2026 08:22 за Києвом
+# Збірка й next start зі «зламаною» адресою (адреса дашборда замість Project URL), значення — вигадані, див. README.md.
+# Команда (Git Bash, Windows):
+#   curl -s -i http://localhost:3107/api/health
+# Вивід — дослівно:
+
+HTTP/1.1 503 Service Unavailable
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+cache-control: no-store
+content-type: application/json
+Date: Tue, 17 Nov 2026 06:22:12 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"ok":false,"sha":"local","env":"local","appEnv":"staging","db":"down","reason":"status-200"}

@@ -11,11 +11,12 @@ import { requireRole } from "@/lib/supabase/viewer";
 export async function proposeRequestDraft(prev: DraftState, formData: FormData): Promise<DraftState> {
   await requireRole("employee");
   const description = String(formData.get("description") ?? "");
-  const outcome = await proposeDraft({ text: description, now: new Date(), model: draftModel() });
-
-  // Лише результат і модель — без тексту опису (у ньому можуть бути подробиці про здоров'я).
-  const detail = outcome.kind === "unavailable" ? outcome.reason : (outcome.answer?.modelId ?? "-");
-  console.info(`[request-draft] ${outcome.kind} ${detail}`);
+  // WS11: один рядок JSON llm.call на виклик моделі (src/lib/ai/llm-log.ts): модель, стан, затримка, токени, fallback,
+  // версія промпту, id запиту — без тексту опису (у ньому можуть бути подробиці про здоров'я).
+  const outcome = await proposeDraft(
+    { text: description, now: new Date(), model: draftModel() },
+    { log: { requestId: crypto.randomUUID(), route: "/requests/new" } },
+  );
 
   return nextDraftState(prev, outcome, description);
 }

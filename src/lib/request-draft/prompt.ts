@@ -6,6 +6,9 @@ import type { IsoDate } from "@/lib/leave/types";
 
 export const DESCRIPTION_MAX_LENGTH = 500;
 
+/** Версія промпту для журналу llm.call (WS11): змінили INSTRUCTIONS чи buildUserMessage — збільшіть номер. */
+export const DRAFT_PROMPT_VERSION = "draft-v1";
+
 const TAG = "employee_text";
 
 export const INSTRUCTIONS = `You fill in a leave-request form of a school staff portal from an employee's own words (Ukrainian).

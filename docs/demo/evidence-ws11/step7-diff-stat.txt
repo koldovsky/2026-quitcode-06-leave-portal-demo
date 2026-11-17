@@ -1,0 +1,10 @@
+# Крок 7 · що змінює дія з postmortem (PR #41 = гілка ws11/health-env-check поверх ws11/operations), 17.11.2026
+# Команда (локальні гілки після останніх комітів 17.11.2026; після push PR #41 показує те саме):
+#   git diff --stat ws11/operations ws11/health-env-check
+# Вивід — дослівно:
+
+ src/app/api/health/route.ts |  29 ++++++-----
+ src/lib/env-check.ts        |  60 +++++++++++++++++++++++
+ src/lib/supabase/proxy.ts   |   6 +++
+ tests/env-check.test.ts     | 116 ++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 200 insertions(+), 11 deletions(-)
