@@ -6,7 +6,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "./database.types";
 
 // Сторінки, доступні без входу. /api/health — перевірка D0 (коміт збірки й «база жива», без даних користувачів).
-const PUBLIC_PATHS = ["/login", "/auth", "/api/health"];
+// /api/sentry-check — навмисна помилка для перевірки Sentry (на проді відповідає 404).
+const PUBLIC_PATHS = ["/login", "/auth", "/api/health", "/api/sentry-check"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
