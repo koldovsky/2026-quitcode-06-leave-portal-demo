@@ -10,9 +10,12 @@
 Шаблони — у репо домашки WS11:
 <https://github.com/koldovsky/2026-quitcode-11-devops-operations-hw/tree/main/materials/ops-kit/docs/incidents>.
 
-**Поки що порожньо.** Перший postmortem — дріл WS11 «хибна `NEXT_PUBLIC_SUPABASE_URL` на staging»
-(`<YYYY-MM-DD>-staging-supabase-url.md`, дата заняття — [[DATE:WS11]]): його пишемо наживо на занятті з промптом R10, а стенограму розбору
-(R09) зберігаємо поруч. Сценарій — [`docs/demo/RUNBOOK-ws11.md`](../demo/RUNBOOK-ws11.md).
+**Поки що порожньо.** Сценарій дрілу «хибна `NEXT_PUBLIC_SUPABASE_URL` на staging» на занятті WS11
+(Вт 17.11.2026) розібрано на слайдах, без запуску на staging: postmortem і стенограми розбору немає. Дія, яку
+пропонує postmortem цього сценарію, — PR [#41](https://github.com/koldovsky/2026-quitcode-06-leave-portal-demo/pull/41)
+(`/api/health` називає хибну змінну); локальні докази — [`docs/demo/evidence-ws11/`](../demo/evidence-ws11/README.md).
+Postmortem `<YYYY-MM-DD>-staging-supabase-url.md` і стенограма з'являться тут, коли дріл проведуть на staging
+([`docs/demo/RUNBOOK-ws11.md`](../demo/RUNBOOK-ws11.md), розділ 5).
 
 Правила для обох файлів: без імен людей (ролі), без значень змінних, токенів і chat id — лише назви; кожне
 твердження — з посиланням на прогін, деплой, коміт чи рядок стенограми; чого немає в доказах — «немає даних».

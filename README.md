@@ -35,6 +35,10 @@
 
 Сценарій WS7 — [docs/demo/RUNBOOK-ws7.md](docs/demo/RUNBOOK-ws7.md); знімки «до/після» й Плани Б — `docs/demo/ws7/`.
 
+**WS11 «DevOps та експлуатація» (Вт 17.11.2026)** — набір ops-kit (smoke кожного деплою, алерт, Dependabot, реліз),
+runbook продукту [docs/runbook.md](docs/runbook.md) і розбір інциденту на слайдах:
+[docs/demo/RUNBOOK-ws11.md](docs/demo/RUNBOOK-ws11.md), локальні докази — `docs/demo/evidence-ws11/`.
+
 ---
 
 ## Шаблон командного проєкту: Next.js + Supabase + OpenSpec
